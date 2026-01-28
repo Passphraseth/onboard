@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -340,17 +340,6 @@ export default function ClaimPage() {
         <p>Questions? Email <a href="mailto:hello@onboard.com.au" className="underline">hello@onboard.com.au</a></p>
       </footer>
 
-      {/* Chat Editor */}
-      {preview && (
-        <ChatEditor
-          previewData={{
-            businessName: businessName,
-            leadId: preview.leadId,
-            content: content,
-          }}
-          onContentUpdate={handleContentUpdate}
-        />
-      )}
     </div>
   )
 }
