@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import ChatEditor from '@/components/ChatEditor'
 
 interface PreviewData {
   businessName: string
@@ -19,6 +20,9 @@ interface PreviewData {
     colors: { primary: string; secondary: string; accent: string }
     ctaText: string
     suburb: string
+    phone?: string
+    email?: string
+    operatingHours?: string
   }
 }
 
@@ -59,7 +63,19 @@ export default function ClaimPage() {
     )
   }
 
-  const content = preview?.content
+  const [liveContent, setLiveContent] = useState<PreviewData['content'] | null>(null)
+
+  useEffect(() => {
+    if (preview?.content) {
+      setLiveContent(preview.content)
+    }
+  }, [preview])
+
+  const handleContentUpdate = useCallback((updates: Partial<PreviewData['content']>) => {
+    setLiveContent(prev => prev ? { ...prev, ...updates } : prev)
+  }, [])
+
+  const content = liveContent || preview?.content
   const businessName = content?.businessName || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
   const colors = content?.colors || { primary: '#2563eb', secondary: '#0f172a', accent: '#d4ff00' }
 
@@ -324,6 +340,18 @@ export default function ClaimPage() {
       <footer className="border-t border-white/10 py-8 px-6 text-center text-sm opacity-60">
         <p>Questions? Email <a href="mailto:hello@onboard.com.au" className="underline">hello@onboard.com.au</a></p>
       </footer>
+
+      {/* Chat Editor */}
+      {preview && (
+        <ChatEditor
+          previewData={{
+            businessName: businessName,
+            leadId: preview.leadId,
+            content: content,
+          }}
+          onContentUpdate={handleContentUpdate}
+        />
+      )}
     </div>
   )
 }

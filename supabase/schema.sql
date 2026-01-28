@@ -22,8 +22,9 @@ CREATE TABLE IF NOT EXISTS leads (
   email TEXT,
   google_place_id TEXT,
   google_data JSONB,
+  metadata JSONB DEFAULT '{}',
   status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'responded', 'converted', 'rejected')),
-  source TEXT DEFAULT 'organic' CHECK (source IN ('organic', 'outreach', 'referral')),
+  source TEXT DEFAULT 'organic' CHECK (source IN ('organic', 'outreach', 'referral', 'enhanced_onboarding')),
   preview_site_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/utils'
+import { generatePreviewContent } from '@/lib/preview/generator'
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,6 +33,9 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Generate smart preview content based on business type
+    const previewContent = generatePreviewContent(businessName, suburb)
+
     // Create new lead
     const { data: lead, error } = await supabase
       .from('leads')
@@ -40,7 +44,8 @@ export async function POST(request: NextRequest) {
         slug,
         email: email || null,
         phone: phone || null,
-        suburb: suburb || null,
+        suburb: suburb || previewContent.suburb,
+        category: previewContent.category,
         source: 'organic',
         status: 'new',
         state: 'VIC',
@@ -56,15 +61,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create preview site
+    // Create preview site with smart content
     const { data: site, error: siteError } = await supabase
       .from('client_sites')
       .insert({
         slug,
         status: 'preview',
         template: 'service-v1',
-        content: generatePreviewContent(businessName, suburb),
-        settings: {},
+        content: previewContent,
+        settings: {
+          colors: previewContent.colors,
+          heroStyle: previewContent.heroStyle,
+        },
       })
       .select()
       .single()
@@ -83,6 +91,7 @@ export async function POST(request: NextRequest) {
       slug: lead.slug,
       leadId: lead.id,
       siteId: site?.id,
+      preview: previewContent,
       message: 'Preview created successfully',
     })
   } catch (error) {
@@ -91,59 +100,5 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to create preview' },
       { status: 500 }
     )
-  }
-}
-
-function generatePreviewContent(businessName: string, suburb?: string) {
-  // Generate placeholder content based on business name
-  // In production, this would pull from Google Business API
-
-  const location = suburb || 'Melbourne'
-
-  return {
-    businessName,
-    tagline: `Professional services in ${location}`,
-    description: `${businessName} provides quality services to customers in ${location} and surrounding areas. Contact us today for a free quote.`,
-    phone: '0400 000 000',
-    email: 'hello@example.com',
-    address: `${location}, VIC`,
-    hours: [
-      { day: 'Monday', open: '8:00 AM', close: '5:00 PM' },
-      { day: 'Tuesday', open: '8:00 AM', close: '5:00 PM' },
-      { day: 'Wednesday', open: '8:00 AM', close: '5:00 PM' },
-      { day: 'Thursday', open: '8:00 AM', close: '5:00 PM' },
-      { day: 'Friday', open: '8:00 AM', close: '5:00 PM' },
-      { day: 'Saturday', closed: true },
-      { day: 'Sunday', closed: true },
-    ],
-    services: [
-      {
-        name: 'Service 1',
-        description: 'Description of your first service',
-        icon: '⚡',
-      },
-      {
-        name: 'Service 2',
-        description: 'Description of your second service',
-        icon: '🔧',
-      },
-      {
-        name: 'Service 3',
-        description: 'Description of your third service',
-        icon: '✨',
-      },
-    ],
-    testimonials: [
-      {
-        name: 'Happy Customer',
-        text: 'Great service, highly recommended!',
-        rating: 5,
-      },
-    ],
-    colors: {
-      primary: '#2563eb',
-      secondary: '#0a0a0a',
-      accent: '#d4ff00',
-    },
   }
 }

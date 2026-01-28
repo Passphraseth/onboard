@@ -1,36 +1,6 @@
-'use client'
-
 import Link from 'next/link'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
-  const [businessName, setBusinessName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
-  const handlePreviewRequest = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!businessName.trim()) return
-
-    setLoading(true)
-    try {
-      const res = await fetch('/api/preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ businessName }),
-      })
-      const data = await res.json()
-      if (data.slug) {
-        router.push(`/claim/${data.slug}`)
-      }
-    } catch (error) {
-      console.error('Error:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-brand-blue">
       {/* Header */}
@@ -170,31 +140,93 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Examples Gallery */}
+      <section id="examples" className="bg-brand-lime py-16 md:py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-black text-brand-black mb-4">Real results 🔥</h2>
+            <p className="text-lg text-brand-black/80">Here's what we've built for Melbourne businesses just like yours.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Example 1 - Plumber */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-lg group hover:scale-[1.02] transition-transform">
+              <div className="bg-gradient-to-br from-slate-800 to-slate-700 text-white p-6 min-h-[200px] flex flex-col justify-center text-center">
+                <div className="text-4xl mb-3">🔧</div>
+                <h3 className="text-xl font-bold mb-1">Smith's Plumbing</h3>
+                <p className="text-sm opacity-80">24/7 Emergency Plumber • Brunswick</p>
+                <div className="flex gap-2 justify-center mt-4">
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-xs">Blocked Drains</span>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-xs">Hot Water</span>
+                </div>
+              </div>
+              <div className="p-4 text-center text-brand-black">
+                <div className="text-sm font-medium">Live in 18 hours</div>
+                <div className="text-xs opacity-60">200% more enquiries in first week</div>
+              </div>
+            </div>
+
+            {/* Example 2 - Hair Salon */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-lg group hover:scale-[1.02] transition-transform">
+              <div className="bg-gradient-to-br from-pink-500 to-rose-400 text-white p-6 min-h-[200px] flex flex-col justify-center text-center">
+                <div className="text-4xl mb-3">💇‍♀️</div>
+                <h3 className="text-xl font-bold mb-1">Luxe Hair Studio</h3>
+                <p className="text-sm opacity-80">Creative Colour & Styling • Richmond</p>
+                <div className="flex gap-2 justify-center mt-4">
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-xs">Balayage</span>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-xs">Extensions</span>
+                </div>
+              </div>
+              <div className="p-4 text-center text-brand-black">
+                <div className="text-sm font-medium">Booking widget added</div>
+                <div className="text-xs opacity-60">"Finally stopped missing calls!" — Sarah</div>
+              </div>
+            </div>
+
+            {/* Example 3 - Electrician */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-lg group hover:scale-[1.02] transition-transform">
+              <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white p-6 min-h-[200px] flex flex-col justify-center text-center">
+                <div className="text-4xl mb-3">⚡</div>
+                <h3 className="text-xl font-bold mb-1">PowerUp Electrical</h3>
+                <p className="text-sm opacity-80">Residential & Commercial • Footscray</p>
+                <div className="flex gap-2 justify-center mt-4">
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-xs">Rewiring</span>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-xs">Solar</span>
+                </div>
+              </div>
+              <div className="p-4 text-center text-brand-black">
+                <div className="text-sm font-medium">Updates by text</div>
+                <div className="text-xs opacity-60">"Just texted to add solar. Done in 2 hours."</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link href="#preview-form" className="btn btn-black text-lg px-8 py-4">
+              Get Your Free Preview →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA / Preview Form */}
       <section id="preview-form" className="bg-brand-pink py-16 md:py-24 px-6 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-black mb-4">Ready to see your site? 🚀</h2>
           <p className="text-lg opacity-90 mb-8">
-            Enter your business name and we'll build a free preview. No payment needed.
+            Answer a few quick questions and we'll build a personalized preview. Takes about 2 minutes.
           </p>
 
-          <form onSubmit={handlePreviewRequest} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-            <input
-              type="text"
-              value={businessName}
-              onChange={(e) => setBusinessName(e.target.value)}
-              placeholder="Your business name..."
-              className="flex-1 px-5 py-4 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-white/50 outline-none focus:border-white/50 text-lg"
-              required
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-black text-lg px-6 py-4 disabled:opacity-50"
-            >
-              {loading ? 'Creating...' : 'Generate Preview'}
-            </button>
-          </form>
+          <Link
+            href="/onboard"
+            className="btn btn-black text-lg px-8 py-4 inline-flex items-center gap-2"
+          >
+            Start Building Your Site →
+          </Link>
+
+          <p className="mt-4 text-sm opacity-70">
+            No payment required. See your preview first.
+          </p>
         </div>
       </section>
 
