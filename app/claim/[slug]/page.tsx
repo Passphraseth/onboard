@@ -19,10 +19,14 @@ interface PreviewData {
     colors: { primary: string; secondary: string; accent: string; background?: string; text?: string }
     ctaText: string
     suburb: string
+    state?: string
     phone?: string
     email?: string
+    address?: string
     operatingHours?: string
-    // NEW: Style metadata from design system
+    instagram?: string
+    facebook?: string
+    // Style metadata from design system
     heroStyle?: 'gradient' | 'image-overlay' | 'split' | 'minimal' | 'video'
     typography?: {
       headingStyle: 'serif' | 'sans-serif' | 'display'
@@ -332,34 +336,215 @@ export default function ClaimPage() {
                 </div>
               )}
 
-              {/* Contact Section Preview - Style-aware */}
+              {/* Contact Section - Full details */}
               <div
-                className="p-8 md:p-12 text-center"
-                style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : undefined }}
+                className="p-8 md:p-12"
+                style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : '#f9fafb' }}
               >
                 <h2
-                  className={`text-2xl ${headingFont} ${headingWeight} mb-4`}
+                  className={`text-2xl ${headingFont} ${headingWeight} text-center mb-8`}
                   style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}
                 >
-                  {heroStyle === 'minimal' ? 'Get in Touch' : 'Ready to get started?'}
+                  {heroStyle === 'minimal' ? 'Contact' : 'Get in Touch'}
                 </h2>
-                <p className="mb-6" style={{ color: heroStyle === 'minimal' ? colors.text + 'cc' : '#4b5563' }}>
-                  {heroStyle === 'minimal' ? 'We would love to hear from you' : 'Contact us today for a free quote'}
-                </p>
-                {heroStyle === 'minimal' ? (
-                  <button
-                    className="px-8 py-3 text-sm tracking-widest uppercase font-medium border-2 transition-all hover:opacity-80"
-                    style={{ borderColor: colors.primary, color: colors.primary }}
+
+                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {/* Contact Info */}
+                  <div className="space-y-6">
+                    {/* Phone */}
+                    {content?.phone && (
+                      <a
+                        href={`tel:${content.phone}`}
+                        className="flex items-center gap-4 p-4 rounded-lg transition-all hover:shadow-md"
+                        style={{
+                          backgroundColor: heroStyle === 'minimal' ? colors.text + '08' : 'white',
+                          color: heroStyle === 'minimal' ? colors.text : '#1f2937'
+                        }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: colors.primary + '20', color: colors.primary }}
+                        >
+                          📞
+                        </div>
+                        <div>
+                          <div className="text-sm opacity-60">Phone</div>
+                          <div className="font-semibold">{content.phone}</div>
+                        </div>
+                      </a>
+                    )}
+
+                    {/* Email */}
+                    {content?.email && (
+                      <a
+                        href={`mailto:${content.email}`}
+                        className="flex items-center gap-4 p-4 rounded-lg transition-all hover:shadow-md"
+                        style={{
+                          backgroundColor: heroStyle === 'minimal' ? colors.text + '08' : 'white',
+                          color: heroStyle === 'minimal' ? colors.text : '#1f2937'
+                        }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: colors.primary + '20', color: colors.primary }}
+                        >
+                          ✉️
+                        </div>
+                        <div>
+                          <div className="text-sm opacity-60">Email</div>
+                          <div className="font-semibold">{content.email}</div>
+                        </div>
+                      </a>
+                    )}
+
+                    {/* Address */}
+                    {content?.address && (
+                      <div
+                        className="flex items-center gap-4 p-4 rounded-lg"
+                        style={{
+                          backgroundColor: heroStyle === 'minimal' ? colors.text + '08' : 'white',
+                          color: heroStyle === 'minimal' ? colors.text : '#1f2937'
+                        }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: colors.primary + '20', color: colors.primary }}
+                        >
+                          📍
+                        </div>
+                        <div>
+                          <div className="text-sm opacity-60">Location</div>
+                          <div className="font-semibold">{content.address}</div>
+                          <div className="text-sm">{content.suburb}, {content.state}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hours */}
+                    {content?.operatingHours && (
+                      <div
+                        className="flex items-center gap-4 p-4 rounded-lg"
+                        style={{
+                          backgroundColor: heroStyle === 'minimal' ? colors.text + '08' : 'white',
+                          color: heroStyle === 'minimal' ? colors.text : '#1f2937'
+                        }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: colors.primary + '20', color: colors.primary }}
+                        >
+                          🕐
+                        </div>
+                        <div>
+                          <div className="text-sm opacity-60">Hours</div>
+                          <div className="font-semibold text-sm">{content.operatingHours}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Links */}
+                    {(content?.instagram || content?.facebook) && (
+                      <div className="flex gap-4 pt-2">
+                        {content?.instagram && (
+                          <a
+                            href={`https://instagram.com/${content.instagram.replace('@', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                            style={{ backgroundColor: colors.primary, color: 'white' }}
+                          >
+                            📷
+                          </a>
+                        )}
+                        {content?.facebook && (
+                          <a
+                            href={content.facebook}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                            style={{ backgroundColor: colors.primary, color: 'white' }}
+                          >
+                            👍
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contact Form */}
+                  <div
+                    className="p-6 rounded-xl"
+                    style={{
+                      backgroundColor: heroStyle === 'minimal' ? 'white' : 'white',
+                      border: heroStyle === 'minimal' ? `1px solid ${colors.text}15` : undefined,
+                      boxShadow: heroStyle === 'minimal' ? undefined : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
                   >
-                    Contact
-                  </button>
-                ) : (
-                  <button
-                    className="px-8 py-4 rounded-lg font-bold text-lg"
-                    style={{ backgroundColor: colors.primary, color: 'white' }}
-                  >
-                    Contact Us →
-                  </button>
+                    <h3
+                      className={`text-lg ${headingWeight} mb-4`}
+                      style={{ color: heroStyle === 'minimal' ? colors.text : '#1f2937' }}
+                    >
+                      Send a Message
+                    </h3>
+                    <form className="space-y-4">
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Your Name"
+                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+                          style={{
+                            borderColor: '#e5e7eb',
+                            focusRing: colors.primary
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="email"
+                          placeholder="Your Email"
+                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+                          style={{ borderColor: '#e5e7eb' }}
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="tel"
+                          placeholder="Your Phone"
+                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+                          style={{ borderColor: '#e5e7eb' }}
+                        />
+                      </div>
+                      <div>
+                        <textarea
+                          placeholder="How can we help?"
+                          rows={4}
+                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 resize-none"
+                          style={{ borderColor: '#e5e7eb' }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="w-full py-3 rounded-lg font-semibold transition-all hover:opacity-90"
+                        style={{ backgroundColor: colors.primary, color: 'white' }}
+                      >
+                        Send Message
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                {/* Map placeholder */}
+                {content?.address && content?.suburb && (
+                  <div className="mt-8 rounded-xl overflow-hidden h-64 bg-gray-200">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      style={{ border: 0 }}
+                      src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(content.address + ', ' + content.suburb + ', ' + (content.state || 'VIC'))}`}
+                      allowFullScreen
+                    />
+                  </div>
                 )}
               </div>
             </div>
