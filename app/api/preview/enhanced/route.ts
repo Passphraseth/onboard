@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
       .from('leads')
       .select('*')
       .eq('slug', slug)
-      .single()
+      .maybeSingle()
 
     if (existingLead) {
       return NextResponse.json({
