@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { PLANS } from '@/lib/stripe/client'
-
+import { PLANS } from '@/lib/stripe/plans'
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-brand-blue">
