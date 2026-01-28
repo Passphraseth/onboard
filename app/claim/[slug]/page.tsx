@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import ChatEditor from '@/components/ChatEditor'
 
 interface PreviewData {
   businessName: string
