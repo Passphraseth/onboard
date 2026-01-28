@@ -62,19 +62,8 @@ export default function ClaimPage() {
     )
   }
 
-  const [liveContent, setLiveContent] = useState<PreviewData['content'] | null>(null)
 
-  useEffect(() => {
-    if (preview?.content) {
-      setLiveContent(preview.content)
-    }
-  }, [preview])
-
-  const handleContentUpdate = useCallback((updates: Partial<PreviewData['content']>) => {
-    setLiveContent(prev => prev ? { ...prev, ...updates } : prev)
-  }, [])
-
-  const content = liveContent || preview?.content
+  const content = preview?.content
   const businessName = content?.businessName || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
   const colors = content?.colors || { primary: '#2563eb', secondary: '#0f172a', accent: '#d4ff00' }
 
