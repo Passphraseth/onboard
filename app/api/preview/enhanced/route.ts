@@ -264,23 +264,66 @@ export async function POST(request: NextRequest) {
     // Check if lead already exists
     const { data: existingLead } = await supabase
       .from('leads')
-      .select('*')
+      .select('*, client_sites(*)')
       .eq('slug', slug)
-      .single()
-
-    if (existingLead) {
-      return NextResponse.json({
-        slug: existingLead.slug,
-        leadId: existingLead.id,
-        message: 'Preview already exists',
-      })
-    }
+      .maybeSingle()
 
     // Fetch Instagram data if provided
     const instagramData = data.instagram ? await fetchInstagramData(data.instagram) : null
 
-    // Generate enhanced preview content
+    // Generate enhanced preview content (always regenerate for fresh results)
     const previewContent = generateEnhancedPreview(data, instagramData || undefined)
+
+    // If lead exists, UPDATE it with new content (so returning users get fresh results)
+    if (existingLead) {
+      // Update lead metadata
+      await supabase
+        .from('leads')
+        .update({
+          email: data.email || existingLead.email,
+          phone: data.phone || existingLead.phone,
+          suburb: data.suburb,
+          state: data.state,
+          category: previewContent.category,
+          metadata: {
+            address: data.address,
+            postcode: data.postcode,
+            operatingHours: data.operatingHours,
+            instagram: data.instagram,
+            facebook: data.facebook,
+            website: data.website,
+            services: data.services,
+            customServices: data.customServices,
+            targetCustomers: data.targetCustomers,
+            uniqueSellingPoints: data.uniqueSellingPoints,
+            additionalNotes: data.additionalNotes,
+          },
+        })
+        .eq('id', existingLead.id)
+
+      // Update or create client_site with new content
+      const existingSite = existingLead.client_sites?.[0]
+      if (existingSite) {
+        await supabase
+          .from('client_sites')
+          .update({
+            content: previewContent,
+            settings: {
+              colors: previewContent.colors,
+              heroStyle: previewContent.heroStyle,
+            },
+          })
+          .eq('id', existingSite.id)
+      }
+
+      return NextResponse.json({
+        slug: existingLead.slug,
+        leadId: existingLead.id,
+        siteId: existingSite?.id,
+        preview: previewContent,
+        message: 'Preview updated successfully',
+      })
+    }
 
     // Create new lead with all collected data
     const { data: lead, error } = await supabase
