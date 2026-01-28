@@ -9,11 +9,11 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   typescript: true,
 })
 
-// Price IDs from environment
+// Price IDs from Stripe
 export const PRICES = {
-  starter: process.env.STRIPE_PRICE_STARTER!,
-  growth: process.env.STRIPE_PRICE_GROWTH!,
-  pro: process.env.STRIPE_PRICE_PRO!,
+  starter: 'price_1SuQ8FGgOB6KnWmR734ywMqg',
+  growth: 'price_1SuQ8gGgOB6KnWmRrPoiKPrW',
+  pro: 'price_1SuQ8uGgOB6KnWmRX83ShQyx',
 }
 
 // Plan details
