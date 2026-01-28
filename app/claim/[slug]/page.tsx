@@ -16,12 +16,21 @@ interface PreviewData {
     services: Array<{ name: string; description: string; icon: string }>
     features: string[]
     testimonials: Array<{ name: string; text: string; rating: number; suburb: string }>
-    colors: { primary: string; secondary: string; accent: string }
+    colors: { primary: string; secondary: string; accent: string; background?: string; text?: string }
     ctaText: string
     suburb: string
     phone?: string
     email?: string
     operatingHours?: string
+    // NEW: Style metadata from design system
+    heroStyle?: 'gradient' | 'image-overlay' | 'split' | 'minimal' | 'video'
+    typography?: {
+      headingStyle: 'serif' | 'sans-serif' | 'display'
+      bodyStyle: 'serif' | 'sans-serif'
+      headingWeight: 'normal' | 'bold' | 'black'
+    }
+    styleName?: string
+    styleVibe?: string
   }
 }
 
@@ -62,10 +71,48 @@ export default function ClaimPage() {
     )
   }
 
-
   const content = preview?.content
   const businessName = content?.businessName || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-  const colors = content?.colors || { primary: '#2563eb', secondary: '#0f172a', accent: '#d4ff00' }
+  const colors = content?.colors || { primary: '#2563eb', secondary: '#0f172a', accent: '#d4ff00', background: '#ffffff', text: '#1a1a1a' }
+  const heroStyle = content?.heroStyle || 'gradient'
+  const typography = content?.typography || { headingStyle: 'sans-serif', bodyStyle: 'sans-serif', headingWeight: 'bold' }
+
+  // Typography classes based on style
+  const headingFont = typography.headingStyle === 'serif' ? 'font-serif' : typography.headingStyle === 'display' ? 'font-black tracking-tight' : 'font-sans'
+  const headingWeight = typography.headingWeight === 'black' ? 'font-black' : typography.headingWeight === 'bold' ? 'font-bold' : 'font-normal'
+
+  // Hero styles based on detected style
+  const getHeroStyles = () => {
+    switch (heroStyle) {
+      case 'minimal':
+        // Clean, minimal - like Chanel (white bg, black text)
+        return {
+          background: colors.background || '#ffffff',
+          color: colors.text || '#000000',
+          className: ''
+        }
+      case 'gradient':
+        return {
+          background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+          color: '#ffffff',
+          className: ''
+        }
+      case 'split':
+        return {
+          background: colors.background || '#ffffff',
+          color: colors.text || '#000000',
+          className: 'md:grid md:grid-cols-2 md:gap-0'
+        }
+      default:
+        return {
+          background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+          color: '#ffffff',
+          className: ''
+        }
+    }
+  }
+
+  const heroStyles = getHeroStyles()
 
   return (
     <div className="min-h-screen bg-brand-black text-white">
@@ -127,25 +174,71 @@ export default function ClaimPage() {
 
             {/* Site Preview */}
             <div className="text-gray-900">
-              {/* Hero Section */}
+              {/* Hero Section - Style-aware */}
               <div
-                className="text-white p-8 md:p-16 text-center"
-                style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` }}
+                className={`p-8 md:p-16 text-center ${heroStyles.className}`}
+                style={{ background: heroStyles.background, color: heroStyles.color }}
               >
-                <div className="text-6xl mb-4">{content?.icon || '🏢'}</div>
-                <h1 className="text-3xl md:text-5xl font-black mb-3">{businessName}</h1>
-                <p className="text-xl opacity-90 mb-6">{content?.tagline || 'Professional services in Melbourne'}</p>
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <button
-                    className="px-6 py-3 rounded-lg font-bold text-lg"
-                    style={{ backgroundColor: colors.accent, color: colors.secondary }}
-                  >
-                    {content?.ctaText || 'Get Started'} →
-                  </button>
-                  <button className="bg-white/20 text-white px-6 py-3 rounded-lg font-bold text-lg backdrop-blur">
-                    📞 Call Now
-                  </button>
-                </div>
+                {heroStyle === 'minimal' ? (
+                  // Minimal/Luxury style - clean, elegant
+                  <>
+                    <h1 className={`text-4xl md:text-6xl ${headingFont} ${headingWeight} mb-4 tracking-tight`}>
+                      {businessName}
+                    </h1>
+                    <div className="w-16 h-px mx-auto mb-4" style={{ backgroundColor: colors.accent }}></div>
+                    <p className="text-lg md:text-xl opacity-80 mb-8 max-w-xl mx-auto">
+                      {content?.tagline || 'Professional services in Melbourne'}
+                    </p>
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      <button
+                        className="px-8 py-3 text-sm tracking-widest uppercase font-medium border-2 transition-all hover:opacity-80"
+                        style={{ borderColor: colors.primary, color: colors.primary }}
+                      >
+                        {content?.ctaText || 'Get Started'}
+                      </button>
+                      <button
+                        className="px-8 py-3 text-sm tracking-widest uppercase font-medium transition-all hover:opacity-80"
+                        style={{ backgroundColor: colors.primary, color: colors.background }}
+                      >
+                        Contact
+                      </button>
+                    </div>
+                  </>
+                ) : heroStyle === 'split' ? (
+                  // Split layout
+                  <>
+                    <div className="flex flex-col justify-center">
+                      <div className="text-5xl mb-4">{content?.icon || '🏢'}</div>
+                      <h1 className={`text-3xl md:text-4xl ${headingFont} ${headingWeight} mb-3`}>{businessName}</h1>
+                      <p className="text-lg opacity-80 mb-6">{content?.tagline || 'Professional services in Melbourne'}</p>
+                      <button
+                        className="px-6 py-3 rounded-lg font-bold w-fit"
+                        style={{ backgroundColor: colors.primary, color: '#ffffff' }}
+                      >
+                        {content?.ctaText || 'Get Started'} →
+                      </button>
+                    </div>
+                    <div className="hidden md:block" style={{ backgroundColor: colors.secondary }}></div>
+                  </>
+                ) : (
+                  // Default gradient style
+                  <>
+                    <div className="text-6xl mb-4">{content?.icon || '🏢'}</div>
+                    <h1 className={`text-3xl md:text-5xl ${headingFont} ${headingWeight} mb-3`}>{businessName}</h1>
+                    <p className="text-xl opacity-90 mb-6">{content?.tagline || 'Professional services in Melbourne'}</p>
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      <button
+                        className="px-6 py-3 rounded-lg font-bold text-lg"
+                        style={{ backgroundColor: colors.accent, color: colors.secondary }}
+                      >
+                        {content?.ctaText || 'Get Started'} →
+                      </button>
+                      <button className="bg-white/20 px-6 py-3 rounded-lg font-bold text-lg backdrop-blur">
+                        📞 Call Now
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Features Bar */}
@@ -161,38 +254,76 @@ export default function ClaimPage() {
                 </div>
               )}
 
-              {/* Services Section */}
+              {/* Services Section - Style-aware */}
               {content?.services && content.services.length > 0 && (
-                <div className="p-8 md:p-12">
-                  <h2 className="text-2xl font-bold text-center mb-8">Our Services</h2>
+                <div className="p-8 md:p-12" style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : undefined }}>
+                  <h2 className={`text-2xl ${headingFont} ${headingWeight} text-center mb-8`} style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}>
+                    {heroStyle === 'minimal' ? 'Services' : 'Our Services'}
+                  </h2>
                   <div className="grid md:grid-cols-3 gap-6">
                     {content.services.slice(0, 6).map((service, i) => (
-                      <div key={i} className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
-                        <div className="text-3xl mb-3">{service.icon}</div>
-                        <h3 className="font-bold mb-2">{service.name}</h3>
-                        <p className="text-gray-600 text-sm">{service.description}</p>
+                      <div
+                        key={i}
+                        className={`rounded-xl p-6 transition-shadow ${heroStyle === 'minimal' ? 'border hover:shadow-md' : 'bg-gray-50 hover:shadow-lg'}`}
+                        style={{ borderColor: heroStyle === 'minimal' ? colors.text + '20' : undefined }}
+                      >
+                        {heroStyle !== 'minimal' && <div className="text-3xl mb-3">{service.icon}</div>}
+                        <h3 className={`${headingWeight} mb-2`} style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}>{service.name}</h3>
+                        <p className="text-sm" style={{ color: heroStyle === 'minimal' ? colors.text + 'cc' : '#4b5563' }}>{service.description}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Testimonials */}
+              {/* Testimonials - Style-aware */}
               {content?.testimonials && content.testimonials.length > 0 && (
-                <div className="bg-gray-50 p-8 md:p-12">
-                  <h2 className="text-2xl font-bold text-center mb-8">What Our Customers Say</h2>
+                <div
+                  className="p-8 md:p-12"
+                  style={{ backgroundColor: heroStyle === 'minimal' ? colors.text + '08' : '#f9fafb' }}
+                >
+                  <h2
+                    className={`text-2xl ${headingFont} ${headingWeight} text-center mb-8`}
+                    style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}
+                  >
+                    {heroStyle === 'minimal' ? 'Testimonials' : 'What Our Customers Say'}
+                  </h2>
                   <div className="grid md:grid-cols-3 gap-6">
                     {content.testimonials.map((testimonial, i) => (
-                      <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
-                        <div className="text-yellow-400 mb-3">{'★'.repeat(testimonial.rating)}</div>
-                        <p className="text-gray-700 mb-4">"{testimonial.text}"</p>
+                      <div
+                        key={i}
+                        className={`rounded-xl p-6 ${heroStyle === 'minimal' ? 'border' : 'bg-white shadow-sm'}`}
+                        style={{
+                          backgroundColor: heroStyle === 'minimal' ? colors.background : undefined,
+                          borderColor: heroStyle === 'minimal' ? colors.text + '15' : undefined
+                        }}
+                      >
+                        {heroStyle !== 'minimal' && (
+                          <div className="text-yellow-400 mb-3">{'★'.repeat(testimonial.rating)}</div>
+                        )}
+                        <p
+                          className="mb-4"
+                          style={{ color: heroStyle === 'minimal' ? colors.text + 'dd' : '#374151' }}
+                        >
+                          {heroStyle === 'minimal' ? `"${testimonial.text}"` : `"${testimonial.text}"`}
+                        </p>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600">
+                          <div
+                            className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
+                            style={{
+                              backgroundColor: heroStyle === 'minimal' ? colors.text + '10' : '#e5e7eb',
+                              color: heroStyle === 'minimal' ? colors.text : '#4b5563'
+                            }}
+                          >
                             {testimonial.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-bold text-sm">{testimonial.name}</div>
-                            <div className="text-gray-500 text-xs">{testimonial.suburb}</div>
+                            <div className="font-bold text-sm" style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}>
+                              {testimonial.name}
+                            </div>
+                            <div className="text-xs" style={{ color: heroStyle === 'minimal' ? colors.text + '99' : '#6b7280' }}>
+                              {testimonial.suburb}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -201,16 +332,35 @@ export default function ClaimPage() {
                 </div>
               )}
 
-              {/* Contact Section Preview */}
-              <div className="p-8 md:p-12 text-center">
-                <h2 className="text-2xl font-bold mb-4">Ready to get started?</h2>
-                <p className="text-gray-600 mb-6">Contact us today for a free quote</p>
-                <button
-                  className="px-8 py-4 rounded-lg font-bold text-lg"
-                  style={{ backgroundColor: colors.primary, color: 'white' }}
+              {/* Contact Section Preview - Style-aware */}
+              <div
+                className="p-8 md:p-12 text-center"
+                style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : undefined }}
+              >
+                <h2
+                  className={`text-2xl ${headingFont} ${headingWeight} mb-4`}
+                  style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}
                 >
-                  Contact Us →
-                </button>
+                  {heroStyle === 'minimal' ? 'Get in Touch' : 'Ready to get started?'}
+                </h2>
+                <p className="mb-6" style={{ color: heroStyle === 'minimal' ? colors.text + 'cc' : '#4b5563' }}>
+                  {heroStyle === 'minimal' ? 'We would love to hear from you' : 'Contact us today for a free quote'}
+                </p>
+                {heroStyle === 'minimal' ? (
+                  <button
+                    className="px-8 py-3 text-sm tracking-widest uppercase font-medium border-2 transition-all hover:opacity-80"
+                    style={{ borderColor: colors.primary, color: colors.primary }}
+                  >
+                    Contact
+                  </button>
+                ) : (
+                  <button
+                    className="px-8 py-4 rounded-lg font-bold text-lg"
+                    style={{ backgroundColor: colors.primary, color: 'white' }}
+                  >
+                    Contact Us →
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -328,7 +478,6 @@ export default function ClaimPage() {
       <footer className="border-t border-white/10 py-8 px-6 text-center text-sm opacity-60">
         <p>Questions? Email <a href="mailto:hello@onboard.com.au" className="underline">hello@onboard.com.au</a></p>
       </footer>
-
     </div>
   )
 }
