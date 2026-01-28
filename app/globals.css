@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --blue: #2563eb;
+  --lime: #d4ff00;
+  --pink: #ff2d92;
+  --black: #0a0a0a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility classes */
+.text-gradient {
+  background: linear-gradient(135deg, var(--lime), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button styles */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold text-base transition-all duration-200;
+}
+
+.btn:hover {
+  @apply -translate-y-0.5;
+}
+
+.btn-lime {
+  @apply bg-brand-lime text-brand-black;
+}
+
+.btn-lime:hover {
+  box-shadow: 0 8px 25px rgba(212, 255, 0, 0.4);
+}
+
+.btn-black {
+  @apply bg-brand-black text-white;
+}
+
+.btn-black:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.btn-outline {
+  @apply bg-transparent border-2 border-current;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white/5 border border-white/10 rounded-2xl p-6;
+}
+
+/* Form styles */
+.input {
+  @apply w-full px-4 py-3 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-white/50 outline-none transition-colors;
+}
+
+.input:focus {
+  @apply border-brand-lime;
+}
