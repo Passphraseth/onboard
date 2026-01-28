@@ -3,8 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { PLANS, type PlanKey } from '@/lib/stripe/client'
-
+import { PLANS, type PlanKey } from '@/lib/stripe/plans'
 function CheckoutForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
