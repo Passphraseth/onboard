@@ -1,36 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic' // Disable caching
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   try {
     const supabase = createAdminClient()
+    const slug = params.slug
 
     // Fetch lead by slug
-    const { data: lead, error } = await supabase
+    const { data: lead, error: leadError } = await supabase
       .from('leads')
-      .select('*, client_sites(*)')
-      .eq('slug', params.slug)
+      .select('*')
+      .eq('slug', slug)
       .single()
 
-    if (error || !lead) {
+    if (leadError || !lead) {
       return NextResponse.json(
         { error: 'Preview not found' },
         { status: 404 }
       )
     }
 
-    // Get site content
-    const site = lead.client_sites?.[0] || lead.preview_site_id
-      ? await supabase
-          .from('client_sites')
-          .select('*')
-          .eq('id', lead.preview_site_id)
-          .single()
-          .then(r => r.data)
-      : null
+    // Fetch site content directly by slug (more reliable than joins)
+    const { data: site } = await supabase
+      .from('client_sites')
+      .select('*')
+      .eq('slug', slug)
+      .single()
 
     return NextResponse.json({
       leadId: lead.id,
