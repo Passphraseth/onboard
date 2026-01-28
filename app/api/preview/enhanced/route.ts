@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/utils'
+import {
+  detectStyleFromPreferences,
+  categoryDefaults,
+  getLayoutVariation,
+  StylePreset
+} from '@/lib/design-system'
 
 interface OnboardingData {
   businessName: string
@@ -31,8 +37,19 @@ interface InstagramData {
 }
 
 // Generate rich preview content from detailed onboarding data
+// Now uses design-system.ts for variety and preference detection
 function generateEnhancedPreview(data: OnboardingData, instagramData?: InstagramData) {
   const businessType = data.businessType === 'other' ? data.customType : data.businessType
+
+  // DETECT STYLE FROM USER PREFERENCES (additionalNotes)
+  // This is the key change - now "black and white minimalist Chanel" will work!
+  const detectedStyle = detectStyleFromPreferences(data.additionalNotes, data.businessType)
+
+  // Get category defaults for icons and CTAs
+  const category = categoryDefaults[data.businessType] || categoryDefaults.construction
+
+  // Get layout variation based on business name (for variety)
+  const layoutVariation = getLayoutVariation(data.businessName)
 
   // Combine selected services with custom services
   const allServices = [
@@ -40,41 +57,18 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
     ...(data.customServices ? data.customServices.split('\n').filter(s => s.trim()) : [])
   ]
 
-  // Generate color scheme based on business type
-  const colorSchemes: Record<string, { primary: string; secondary: string; accent: string }> = {
-    plumber: { primary: '#1e40af', secondary: '#0f172a', accent: '#3b82f6' },
-    electrician: { primary: '#f59e0b', secondary: '#1f2937', accent: '#fbbf24' },
-    hairdresser: { primary: '#ec4899', secondary: '#1f2937', accent: '#f472b6' },
-    beautician: { primary: '#8b5cf6', secondary: '#1f2937', accent: '#a78bfa' },
-    cleaner: { primary: '#10b981', secondary: '#1f2937', accent: '#34d399' },
-    landscaper: { primary: '#22c55e', secondary: '#1f2937', accent: '#4ade80' },
-    mechanic: { primary: '#ef4444', secondary: '#1f2937', accent: '#f87171' },
-    cafe: { primary: '#78350f', secondary: '#1f2937', accent: '#d97706' },
-    fitness: { primary: '#dc2626', secondary: '#1f2937', accent: '#f87171' },
-    photographer: { primary: '#6366f1', secondary: '#1f2937', accent: '#818cf8' },
-    construction: { primary: '#f59e0b', secondary: '#1f2937', accent: '#fbbf24' },
-    hvac: { primary: '#0891b2', secondary: '#1f2937', accent: '#22d3ee' },
+  // Use detected style colors instead of hardcoded per-category
+  const colors = {
+    primary: detectedStyle.colors.primary,
+    secondary: detectedStyle.colors.secondary,
+    accent: detectedStyle.colors.accent,
+    background: detectedStyle.colors.background,
+    text: detectedStyle.colors.text
   }
 
-  const icons: Record<string, string> = {
-    plumber: '🔧',
-    electrician: '⚡',
-    hairdresser: '💇',
-    beautician: '💅',
-    cleaner: '🧹',
-    landscaper: '🌳',
-    mechanic: '🔩',
-    cafe: '☕',
-    fitness: '💪',
-    photographer: '📸',
-    construction: '🏗️',
-    hvac: '❄️',
-  }
+  const icon = category.icon
 
-  const colors = colorSchemes[data.businessType] || { primary: '#2563eb', secondary: '#0f172a', accent: '#d4ff00' }
-  const icon = icons[data.businessType] || '🏢'
-
-  // Generate tagline based on business info
+  // Generate tagline based on business info and style
   let tagline = `Professional ${businessType} services in ${data.suburb}`
   if (data.uniqueSellingPoints) {
     const usp = data.uniqueSellingPoints.split(',')[0].trim()
@@ -83,7 +77,7 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
     }
   }
 
-  // Generate description
+  // Generate description - incorporate style vibe
   let description = `${data.businessName} provides quality ${businessType} services to ${data.targetCustomers || 'customers'} in ${data.suburb} and surrounding areas.`
   if (data.uniqueSellingPoints) {
     description += ` ${data.uniqueSellingPoints}`
@@ -94,8 +88,8 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
     description = instagramData.bio + ' ' + description
   }
 
-  // Generate service cards
-  const serviceIcons = ['🔨', '⚙️', '🛠️', '📐', '🔧', '💡', '🎯', '⭐']
+  // Use category-specific service icons for variety
+  const serviceIcons = category.serviceIcons
   const services = allServices.slice(0, 6).map((name, i) => ({
     name,
     description: `Professional ${name.toLowerCase()} services with attention to detail and customer satisfaction.`,
@@ -109,25 +103,28 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
     : []
   const features = customFeatures.length >= 3 ? customFeatures : defaultFeatures
 
-  // Generate testimonials
+  // Generate testimonials with variety
   const firstNames = ['Sarah', 'Michael', 'Emma', 'James', 'Sophie', 'David', 'Lisa', 'Chris']
   const nearbySuburbs = getNearbySuburbs(data.suburb)
 
+  // Use seeded random for consistent but varied testimonials
+  const nameIndex = (data.businessName.length * 7) % firstNames.length
+
   const testimonials = [
     {
-      name: firstNames[Math.floor(Math.random() * firstNames.length)],
+      name: firstNames[(nameIndex + 0) % firstNames.length],
       text: `Absolutely fantastic service from ${data.businessName}! Professional, punctual, and did an amazing job. Highly recommend!`,
       rating: 5,
       suburb: nearbySuburbs[0] || data.suburb,
     },
     {
-      name: firstNames[Math.floor(Math.random() * firstNames.length)],
+      name: firstNames[(nameIndex + 3) % firstNames.length],
       text: `Best ${businessType} I've used in years. Fair pricing and excellent quality work. Will definitely use again.`,
       rating: 5,
       suburb: nearbySuburbs[1] || data.suburb,
     },
     {
-      name: firstNames[Math.floor(Math.random() * firstNames.length)],
+      name: firstNames[(nameIndex + 5) % firstNames.length],
       text: `Great communication and reliable service. They went above and beyond to help us. Thank you!`,
       rating: 5,
       suburb: nearbySuburbs[2] || data.suburb,
@@ -140,6 +137,9 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
   // Get images from Instagram if available
   const images = instagramData?.posts?.slice(0, 6).map(p => p.imageUrl) || []
 
+  // Pick CTA based on category and variation
+  const ctaText = category.ctaOptions[layoutVariation] || 'Get a Free Quote'
+
   return {
     businessName: data.businessName,
     category: businessType,
@@ -150,7 +150,7 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
     features,
     testimonials,
     colors,
-    ctaText: 'Get a Free Quote',
+    ctaText,
     suburb: data.suburb,
     state: data.state,
     phone: data.phone,
@@ -160,7 +160,14 @@ function generateEnhancedPreview(data: OnboardingData, instagramData?: Instagram
     instagram: data.instagram,
     facebook: data.facebook,
     images,
-    heroStyle: 'gradient',
+    // NEW: Include style metadata for frontend to use
+    heroStyle: detectedStyle.layout.heroStyle,
+    typography: detectedStyle.typography,
+    layout: detectedStyle.layout,
+    styleName: detectedStyle.name,
+    styleVibe: detectedStyle.vibe,
+    // Store user's original preferences for reference
+    userPreferences: data.additionalNotes,
   }
 }
 
@@ -259,7 +266,7 @@ export async function POST(request: NextRequest) {
       .from('leads')
       .select('*')
       .eq('slug', slug)
-      .maybeSingle()
+      .single()
 
     if (existingLead) {
       return NextResponse.json({
