@@ -3,6 +3,151 @@ import { createAdminClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+interface EditAction {
+  type: 'text' | 'image' | 'color' | 'layout' | 'general' | 'none'
+  instruction?: string
+  oldText?: string
+  newText?: string
+  colorType?: 'primary' | 'accent' | 'background'
+  colorValue?: string
+  imageUrl?: string
+  imageSection?: string
+}
+
+// Parse user message to detect edit intent
+function parseEditIntent(message: string): EditAction {
+  const msg = message.toLowerCase()
+
+  // Direct text replacement: "change X to Y"
+  const changeMatch = message.match(/change\s+["']?(.+?)["']?\s+to\s+["']?(.+?)["']?$/i)
+  if (changeMatch) {
+    return {
+      type: 'text',
+      oldText: changeMatch[1].trim(),
+      newText: changeMatch[2].trim()
+    }
+  }
+
+  // "Replace X with Y"
+  const replaceMatch = message.match(/replace\s+["']?(.+?)["']?\s+with\s+["']?(.+?)["']?$/i)
+  if (replaceMatch) {
+    return {
+      type: 'text',
+      oldText: replaceMatch[1].trim(),
+      newText: replaceMatch[2].trim()
+    }
+  }
+
+  // Color changes
+  const colorMatch = msg.match(/(primary|accent|background|main)\s*(colou?r)?\s*(?:to|=|:)?\s*([#\w]+)/i)
+  if (colorMatch) {
+    const colorType = colorMatch[1] === 'main' ? 'primary' : colorMatch[1] as 'primary' | 'accent' | 'background'
+    return {
+      type: 'color',
+      colorType,
+      colorValue: colorMatch[3]
+    }
+  }
+
+  // Simple color mentions with hex
+  const hexMatch = message.match(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})/i)
+  if (hexMatch && msg.includes('color')) {
+    return {
+      type: 'color',
+      colorType: 'primary',
+      colorValue: `#${hexMatch[1]}`
+    }
+  }
+
+  // Color name changes
+  if (msg.match(/colou?r.*(blue|green|red|black|white|purple|orange|pink|navy|gold)/i)) {
+    const colorNames: Record<string, string> = {
+      blue: '#2563eb',
+      navy: '#1e3a8a',
+      green: '#16a34a',
+      red: '#dc2626',
+      black: '#18181b',
+      white: '#ffffff',
+      purple: '#9333ea',
+      orange: '#ea580c',
+      pink: '#ec4899',
+      gold: '#ca8a04'
+    }
+    const colorName = msg.match(/blue|green|red|black|white|purple|orange|pink|navy|gold/i)?.[0].toLowerCase()
+    if (colorName && colorNames[colorName]) {
+      return {
+        type: 'color',
+        colorType: 'primary',
+        colorValue: colorNames[colorName]
+      }
+    }
+  }
+
+  // Image URL provided
+  const urlMatch = message.match(/(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp))/i)
+  if (urlMatch) {
+    const section = msg.includes('hero') ? 'hero' :
+                   msg.includes('about') ? 'about' :
+                   msg.includes('portfolio') ? 'portfolio' : 'hero'
+    return {
+      type: 'image',
+      imageUrl: urlMatch[1],
+      imageSection: section
+    }
+  }
+
+  // Layout-related requests
+  if (msg.match(/move|rearrange|swap|reorder|layout|section|position/i)) {
+    return {
+      type: 'layout',
+      instruction: message
+    }
+  }
+
+  // General edit requests that need AI
+  if (msg.match(/add|remove|delete|update|change|modify|make|set/i)) {
+    return {
+      type: 'general',
+      instruction: message
+    }
+  }
+
+  return { type: 'none' }
+}
+
+// Apply edit via the edit-site API
+async function applyEdit(slug: string, action: EditAction): Promise<{ success: boolean; message: string }> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+    const response = await fetch(`${baseUrl}/api/edit-site`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug,
+        editType: action.type,
+        instruction: action.instruction,
+        oldText: action.oldText,
+        newText: action.newText,
+        colorType: action.colorType,
+        colorValue: action.colorValue,
+        imageUrl: action.imageUrl,
+        imageSection: action.imageSection
+      })
+    })
+
+    if (response.ok) {
+      return { success: true, message: 'Changes applied successfully!' }
+    } else {
+      const error = await response.json()
+      return { success: false, message: error.error || 'Failed to apply changes' }
+    }
+  } catch (error) {
+    console.error('Edit API error:', error)
+    return { success: false, message: 'Failed to connect to edit service' }
+  }
+}
+
 // Get chat messages for a lead
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +171,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ messages: [] })
     }
 
-    // Try to get messages - handle if table doesn't exist
+    // Try to get messages
     try {
       const { data: messages, error } = await supabase
         .from('chat_messages')
@@ -75,7 +220,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    // Try to save the user's message (don't fail if table doesn't exist)
+    // Save the user's message
     try {
       await supabase
         .from('chat_messages')
@@ -88,10 +233,27 @@ export async function POST(request: NextRequest) {
       console.log('Could not save user message:', e)
     }
 
-    // Generate intelligent response
-    const response = generateResponse(message, lead.business_name)
+    // Parse edit intent
+    const editAction = parseEditIntent(message)
+    let response: string
+    let editApplied = false
 
-    // Try to save the assistant's response
+    // If this is an actionable edit, apply it
+    if (editAction.type !== 'none') {
+      const result = await applyEdit(slug, editAction)
+      editApplied = result.success
+
+      if (result.success) {
+        response = generateSuccessResponse(editAction, lead.business_name)
+      } else {
+        response = generateHelpResponse(message, lead.business_name, result.message)
+      }
+    } else {
+      // Not an edit request - provide helpful guidance
+      response = generateHelpResponse(message, lead.business_name)
+    }
+
+    // Save the assistant's response
     try {
       await supabase
         .from('chat_messages')
@@ -109,6 +271,8 @@ export async function POST(request: NextRequest) {
         sender: 'assistant',
         message: response,
       },
+      editApplied,
+      editType: editAction.type
     })
   } catch (error) {
     console.error('Chat POST error:', error)
@@ -119,85 +283,70 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateResponse(userMessage: string, businessName: string): string {
+function generateSuccessResponse(action: EditAction, businessName: string): string {
+  switch (action.type) {
+    case 'text':
+      return `Done! I've updated "${action.oldText}" to "${action.newText}". Refresh the preview to see the change.`
+    case 'color':
+      return `I've updated the ${action.colorType} color to ${action.colorValue}. Refresh to see the new look!`
+    case 'image':
+      return `Image updated in the ${action.imageSection} section. Refresh to see it!`
+    case 'layout':
+      return `Layout changes applied! Refresh the preview to see the new arrangement.`
+    case 'general':
+      return `Done! I've made the changes you requested. Refresh the preview to see them.`
+    default:
+      return `Changes applied successfully! Refresh to see the updates.`
+  }
+}
+
+function generateHelpResponse(userMessage: string, businessName: string, errorMessage?: string): string {
   const msg = userMessage.toLowerCase()
+
+  if (errorMessage) {
+    return `I couldn't apply that change: ${errorMessage}\n\nTry being more specific, like:\n• "Change [old text] to [new text]"\n• "Make the primary color blue"\n• "Add a section about our team"`
+  }
 
   // Image/photo requests
   if (msg.match(/image|photo|picture|logo|banner|hero image/i)) {
-    return `I can add imagery to your site. Here are your options:\n\n1. Send us your photos after subscribing and we'll add them\n2. If you have an Instagram, we can pull images from there (Growth plan)\n3. We can source professional stock photos that match your industry\n\nWhich would work best for ${businessName}?`
+    return `To update images, you can:\n\n1. Paste an image URL directly\n2. Use the Image Editor (click the edit icon on images)\n3. Email photos to hello@onboard.com.au\n\nFor example: "Add this image to the hero: https://example.com/photo.jpg"`
   }
 
   // Color changes
   if (msg.match(/colou?r|palette|theme|brand colou?r/i)) {
-    return `I can update the color scheme. Could you share:\n\n• Your preferred primary color (main brand color)\n• An accent color (for buttons and highlights)\n\nYou can describe them (like "navy blue" or "forest green") or share hex codes if you have them.`
+    return `To change colors, try:\n\n• "Make the primary color navy"\n• "Change accent color to #ff6b35"\n• "Set background to black"\n\nSupported colors: blue, navy, green, red, black, purple, orange, pink, gold - or use hex codes.`
   }
 
-  // Font/typography
-  if (msg.match(/font|typeface|text style|typography|heading/i)) {
-    return `I can adjust the typography. What style fits ${businessName} best?\n\n• Modern & Clean (current style)\n• Traditional & Professional (serif fonts)\n• Bold & Impactful (heavy weights)\n• Elegant & Refined (thin, sophisticated)\n\nLet me know and I'll update it.`
+  // Text/content changes
+  if (msg.match(/text|wording|copy|tagline|headline|description|about|bio/i)) {
+    return `To update text, use this format:\n\n• "Change [old text] to [new text]"\n• "Replace 'Quality Service' with 'Premium Service'"\n\nOr use the Text Editor - click directly on any text in the preview to edit it.`
   }
 
   // Layout changes
   if (msg.match(/layout|design|structure|section|move|rearrange|order/i)) {
-    return `I can restructure the layout. What would you like to change?\n\n• Hero section style (full-width image, split layout, minimal)\n• Section order (move testimonials higher, services first, etc.)\n• Add or remove sections\n\nJust describe what you're thinking.`
-  }
-
-  // Content/copy changes
-  if (msg.match(/text|wording|copy|tagline|headline|description|about|bio/i)) {
-    return `Happy to update the copy. Which section needs work?\n\n• Hero tagline/headline\n• About section\n• Service descriptions\n• Testimonials\n\nShare the new text you'd like, or describe what you want to say and I'll draft options.`
-  }
-
-  // Service changes
-  if (msg.match(/service|offering|add service|remove service|what we do/i)) {
-    return `I can update your services. Would you like to:\n\n• Add a new service\n• Remove a service\n• Edit an existing service description\n• Reorder services\n\nTell me the details and I'll make the changes.`
-  }
-
-  // Contact/hours/location
-  if (msg.match(/contact|phone|email|address|location|hours|opening/i)) {
-    return `I can update your contact details. What needs to change?\n\n• Phone number\n• Email address\n• Business address\n• Opening hours\n• Service areas\n\nJust share the correct information.`
+    return `Tell me what you'd like to rearrange:\n\n• "Move the testimonials section above services"\n• "Add a new section for our team"\n• "Remove the portfolio section"\n\nI'll restructure the layout for you.`
   }
 
   // Pricing questions
   if (msg.match(/price|cost|plan|subscription|how much|payment/i)) {
-    return `Here are the plans:\n\nStarter - $29/mo\nSingle page, contact form, 2 updates/month\n\nGrowth - $49/mo (Most Popular)\nUp to 5 pages, custom domain, booking widget, 5 updates/month\n\nPro - $79/mo\nUnlimited pages & updates, payment integration, priority support\n\nAll plans include hosting and SSL. Which interests you?`
+    return `Plans:\n\nStarter - $29/mo: Single page, contact form, 2 updates/month\n\nGrowth - $49/mo: Up to 5 pages, custom domain, 5 updates/month\n\nPro - $79/mo: Unlimited pages & updates, priority support\n\nClick "Choose a Plan" when ready!`
   }
 
   // Ready to proceed
   if (msg.match(/ready|buy|purchase|subscribe|sign up|get started|proceed/i)) {
-    return `Click the "Choose a Plan" tab above to select your plan and complete checkout. Your site will be live within 24 hours.\n\nAny final tweaks you want before we publish?`
+    return `Click the "Choose a Plan" tab to select your plan and complete checkout. Your site will be live within 24 hours!`
   }
 
   // Looks good / approval
   if (msg.match(/looks good|perfect|love it|happy|great|awesome|nice/i)) {
-    return `Glad you like it. When you're ready, head to the "Choose a Plan" tab to go live.\n\nIs there anything you'd like to adjust first?`
-  }
-
-  // Questions about process
-  if (msg.match(/how long|timeline|when|process|what happens|next step/i)) {
-    return `Here's how it works:\n\n1. Choose a plan and checkout\n2. We finalize your site within 24 hours\n3. You review and approve\n4. We publish to your domain\n\nAfter that, just text or email us anytime you need updates.`
-  }
-
-  // Competitor mention
-  if (msg.match(/competitor|other site|like their|similar to|website i saw/i)) {
-    return `If you've seen a site you like, share the URL and I'll note the elements you want to incorporate:\n\n• Layout style\n• Color scheme\n• Section structure\n• Specific features\n\nWe can match the quality while making it unique to ${businessName}.`
-  }
-
-  // Domain questions
-  if (msg.match(/domain|url|web address|\.com|\.au/i)) {
-    const cleanName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '')
-    return `Good question about domains:\n\nStarter Plan: Your site lives at ${cleanName}.onboard.site\n\nGrowth & Pro Plans: We set up your own domain (like ${cleanName}.com.au) - included free\n\nAlready own a domain? We can connect it on any plan.`
+    return `Glad you like it! When you're ready, head to "Choose a Plan" to go live. Any final tweaks first?`
   }
 
   // Greeting
   if (msg.match(/^(hi|hello|hey|g'day|good morning|good afternoon)/i)) {
-    return `Hello. How can I help you customize ${businessName}'s website? I can update colors, layout, content, contact details - just let me know what you'd like to change.`
+    return `Hello! I can help you customize ${businessName}'s website. What would you like to change?\n\nTry things like:\n• "Change the tagline to..."\n• "Make the colors darker"\n• "Add my photo to the hero"`
   }
 
-  // Thank you
-  if (msg.match(/thank|thanks|cheers|appreciate/i)) {
-    return `You're welcome. Let me know if there's anything else you'd like to adjust. Otherwise, the "Choose a Plan" tab is ready when you are.`
-  }
-
-  // Default - helpful and specific
-  return `I can help with that. To make sure I understand correctly, could you be more specific about what you'd like to change?\n\nFor example:\n• "Change the main color to dark blue"\n• "Update the tagline to [your text]"\n• "Add a new service called [name]"\n• "Move testimonials above services"\n\nWhat would you like to do?`
+  // Default
+  return `I can help you edit the site! Try:\n\n• Text: "Change [old text] to [new text]"\n• Colors: "Make the primary color blue"\n• Images: "Add this image: [URL]"\n• Layout: "Move testimonials above services"\n\nOr use the visual editors - click directly on text or images to edit them.`
 }
