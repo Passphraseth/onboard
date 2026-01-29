@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
+// Force dynamic rendering - never cache this route
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Serve generated HTML directly as a page
 export async function GET(
   request: NextRequest,
@@ -30,12 +34,18 @@ export async function GET(
       </html>`,
       {
         status: 404,
-        headers: { 'Content-Type': 'text/html' }
+        headers: {
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        }
       }
     )
   }
 
   return new NextResponse(data.generated_html, {
-    headers: { 'Content-Type': 'text/html' }
+    headers: {
+      'Content-Type': 'text/html',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+    }
   })
 }
