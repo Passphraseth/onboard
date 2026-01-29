@@ -1,308 +1,310 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { slugify } from '@/lib/utils'
 import Anthropic from '@anthropic-ai/sdk'
+
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 interface BusinessData {
   businessName: string
-  businessType: string
-  customType?: string
+  category: string
   suburb: string
   state: string
-  phone?: string
-  email?: string
+  phone: string
+  email: string
   address?: string
-  website?: string
-  facebook?: string
+  postcode?: string
+  operatingHours?: Record<string, { open: string; close: string; closed: boolean }>
   instagram?: string
-  services: string[]
+  facebook?: string
+  website?: string
+  services?: string[]
   customServices?: string
   targetCustomers?: string
   uniqueSellingPoints?: string
   additionalNotes?: string
-  operatingHours?: Record<string, { open: string; close: string; closed: boolean }>
 }
 
-// Format operating hours for display
 function formatHours(hours?: Record<string, { open: string; close: string; closed: boolean }>): string {
-  if (!hours) return 'Contact for hours'
+  if (!hours) return 'Contact us for hours'
 
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-  const parts: string[] = []
+  const formatted: string[] = []
 
-  // Group consecutive days with same hours
-  let currentGroup = { start: '', end: '', hours: '' }
-
-  days.forEach((day, i) => {
-    const dayHours = hours[day]
-    const hoursStr = dayHours?.closed ? 'Closed' : dayHours ? `${dayHours.open}-${dayHours.close}` : ''
-
-    if (hoursStr === currentGroup.hours) {
-      currentGroup.end = day
-    } else {
-      if (currentGroup.start) {
-        const dayNames: Record<string, string> = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' }
-        const range = currentGroup.start === currentGroup.end
-          ? dayNames[currentGroup.start]
-          : `${dayNames[currentGroup.start]}-${dayNames[currentGroup.end]}`
-        parts.push(`${range} ${currentGroup.hours}`)
+  days.forEach(day => {
+    const h = hours[day]
+    if (h) {
+      if (h.closed) {
+        formatted.push(`${day.charAt(0).toUpperCase() + day.slice(1)}: Closed`)
+      } else {
+        formatted.push(`${day.charAt(0).toUpperCase() + day.slice(1)}: ${h.open} - ${h.close}`)
       }
-      currentGroup = { start: day, end: day, hours: hoursStr }
     }
   })
 
-  // Don't forget the last group
-  if (currentGroup.start) {
-    const dayNames: Record<string, string> = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' }
-    const range = currentGroup.start === currentGroup.end
-      ? dayNames[currentGroup.start]
-      : `${dayNames[currentGroup.start]}-${dayNames[currentGroup.end]}`
-    parts.push(`${range} ${currentGroup.hours}`)
-  }
-
-  return parts.join(', ')
+  return formatted.join(' | ')
 }
 
-// Combine services from selected + custom
 function getAllServices(data: BusinessData): string[] {
-  const services = [...(data.services || [])]
+  const services: string[] = [...(data.services || [])]
   if (data.customServices) {
-    const custom = data.customServices.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
-    services.push(...custom)
+    services.push(...data.customServices.split('\n').filter(s => s.trim()))
   }
-  return services
+  return services.length > 0 ? services : ['General Services']
 }
 
-// Get the actual business type from category or customType
 function getBusinessType(data: BusinessData): string {
-  if (data.businessType === 'other' && data.customType) {
-    return data.customType
+  const category = data.category?.toLowerCase() || ''
+  const customServices = data.customServices?.toLowerCase() || ''
+  const target = data.targetCustomers?.toLowerCase() || ''
+
+  if (category.includes('fashion') || customServices.includes('fashion') || target.includes('fashion')) {
+    return 'fashion'
   }
-  return data.businessType || data.customType || 'business'
+  if (category.includes('wedding') || customServices.includes('wedding')) {
+    return 'wedding'
+  }
+  if (category.includes('beauty') || category.includes('salon')) {
+    return 'beauty'
+  }
+  if (category.includes('plumb') || category.includes('electric') || category.includes('trade')) {
+    return 'trades'
+  }
+  if (category.includes('photo')) {
+    return 'photography'
+  }
+  return 'business'
 }
 
-// Generate site using Claude API
 async function generateWithClaude(data: BusinessData): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const client = new Anthropic()
 
-  if (!apiKey) {
-    console.log('No Anthropic API key, using fallback')
-    return generateFallbackHTML(data)
-  }
-
-  const client = new Anthropic({ apiKey })
-
-  const businessType = getBusinessType(data)
   const services = getAllServices(data)
+  const businessType = getBusinessType(data)
   const hours = formatHours(data.operatingHours)
 
-  const prompt = `You are an expert web designer. Create a complete, production-ready HTML website.
+  const prompt = `Generate a complete, production-ready HTML website for this business. Use ONLY the information provided.
 
-BUSINESS INFORMATION (use this EXACTLY - do not make assumptions):
-- Business Name: ${data.businessName}
-- Type: ${businessType}
+BUSINESS INFORMATION:
+- Name: ${data.businessName}
+- Category: ${data.category}
 - Location: ${data.suburb}, ${data.state}
-- Phone: ${data.phone || 'Not provided'}
-- Email: ${data.email || 'Not provided'}
-- Website: ${data.website || 'Not provided'}
-- Facebook: ${data.facebook || 'Not provided'}
-- Instagram: ${data.instagram || 'Not provided'}
-- Services: ${services.length > 0 ? services.join(', ') : 'Not specified'}
-- Target Customers: ${data.targetCustomers || 'Not specified'}
-- Unique Selling Points: ${data.uniqueSellingPoints || 'Not specified'}
-- Operating Hours: ${hours}
-- Additional Notes: ${data.additionalNotes || 'None'}
+- Phone: ${data.phone}
+- Email: ${data.email}
+${data.address ? `- Address: ${data.address}` : ''}
+- Hours: ${hours}
+${data.instagram ? `- Instagram: @${data.instagram}` : ''}
+${data.facebook ? `- Facebook: ${data.facebook}` : ''}
 
-CREATE A WEBSITE THAT:
-1. Matches the industry aesthetic (fashion = bold/editorial, trades = professional/trustworthy, beauty = elegant, etc.)
-2. Uses the ACTUAL services they listed, not generic ones
-3. Has unique, compelling copy written specifically for this business
-4. Includes: Nav, Hero, Services/Work, About, Contact sections
-5. Is fully responsive with modern CSS
-6. Uses Google Fonts and Font Awesome (NO emojis anywhere)
-7. Has smooth hover effects and transitions
+SERVICES OFFERED:
+${services.map(s => `- ${s}`).join('\n')}
 
-CRITICAL RULES:
+TARGET CUSTOMERS: ${data.targetCustomers || 'General customers'}
+
+UNIQUE SELLING POINTS: ${data.uniqueSellingPoints || 'Quality service'}
+
+${data.additionalNotes ? `ADDITIONAL NOTES: ${data.additionalNotes}` : ''}
+
+DESIGN REQUIREMENTS:
+- Business type: ${businessType}
+${businessType === 'fashion' ? '- Use bold, editorial design with Bebas Neue or similar display font' : ''}
+${businessType === 'fashion' ? '- High contrast black/white with minimal accent colors' : ''}
+${businessType === 'beauty' ? '- Elegant, soft design with refined typography' : ''}
+${businessType === 'trades' ? '- Professional, trustworthy design with clear CTAs' : ''}
+- Mobile-responsive
+- Include hero, services, about, contact sections
+- Use real contact info provided
+- Professional stock photos from Unsplash (use actual URLs like https://images.unsplash.com/photo-...)
+
+CRITICAL:
 - Use ONLY the information provided above
-- Do NOT assume wedding photography for photographers, or any other defaults
-- Write copy that sounds human and specific, not template-like
-- Match the design to the industry (${businessType})
+- Do NOT assume wedding photography for photographers unless explicitly stated
+- Do NOT make up services or contact details
+- Generate complete, working HTML with embedded CSS
 
-Return ONLY the complete HTML code, starting with <!DOCTYPE html>.`
+Return ONLY the HTML code, no explanations.`
 
-  try {
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 8000,
-      messages: [{ role: 'user', content: prompt }]
-    })
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 8000,
+    messages: [{ role: 'user', content: prompt }]
+  })
 
-    const content = response.content[0]
-    if (content.type === 'text') {
-      let html = content.text
-      // Clean up markdown code blocks if present
-      if (html.startsWith('```')) {
-        html = html.replace(/^```html?\n?/, '').replace(/\n?```$/, '')
-      }
-      return html.trim()
-    }
-  } catch (error) {
-    console.error('Claude API error:', error)
+  const content = response.content[0]
+  if (content.type === 'text') {
+    let html = content.text
+    // Clean up if wrapped in code blocks
+    html = html.replace(/^```html?\n?/i, '').replace(/\n?```$/i, '')
+    return html
   }
 
-  return generateFallbackHTML(data)
+  throw new Error('No text response from Claude')
 }
 
-// Fallback when no API key - uses actual data
 function generateFallbackHTML(data: BusinessData): string {
-  const businessType = getBusinessType(data)
   const services = getAllServices(data)
+  const businessType = getBusinessType(data)
   const hours = formatHours(data.operatingHours)
 
-  // Determine design based on business type keywords
-  const typeLC = businessType.toLowerCase()
-
-  let design = {
-    primary: '#1a1a1a',
-    accent: '#c9a86c',
-    bg: '#0a0a0a',
-    headingFont: 'Bebas Neue',
-    style: 'bold' // bold, elegant, professional, warm
-  }
-
-  if (typeLC.includes('fashion') || typeLC.includes('model')) {
-    design = { primary: '#0a0a0a', accent: '#ffffff', bg: '#0a0a0a', headingFont: 'Bebas Neue', style: 'bold' }
-  } else if (typeLC.includes('beauty') || typeLC.includes('salon') || typeLC.includes('hair')) {
-    design = { primary: '#1a1a1a', accent: '#c9a86c', bg: '#faf8f5', headingFont: 'Cormorant Garamond', style: 'elegant' }
-  } else if (typeLC.includes('photo')) {
-    design = { primary: '#0a0a0a', accent: '#888888', bg: '#0a0a0a', headingFont: 'Bebas Neue', style: 'bold' }
-  } else if (typeLC.includes('plumb') || typeLC.includes('electric') || typeLC.includes('build') || typeLC.includes('construct')) {
-    design = { primary: '#1e3a5f', accent: '#f59e0b', bg: '#0f172a', headingFont: 'Montserrat', style: 'professional' }
-  } else if (typeLC.includes('clean') || typeLC.includes('garden') || typeLC.includes('landscape')) {
-    design = { primary: '#166534', accent: '#86efac', bg: '#14532d', headingFont: 'Poppins', style: 'professional' }
-  }
-
-  const servicesHTML = services.slice(0, 6).map((service, i) => `
-      <div class="service-item">
-        <span class="service-num">0${i + 1}</span>
-        <h3>${service}</h3>
-      </div>`).join('')
+  // Style based on business type
+  const isFashion = businessType === 'fashion'
+  const primaryColor = isFashion ? '#000000' : '#2563eb'
+  const accentColor = isFashion ? '#ffffff' : '#d4ff00'
+  const fontFamily = isFashion ? "'Bebas Neue', sans-serif" : "'Inter', sans-serif"
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${data.businessName} | ${businessType} in ${data.suburb}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=${design.headingFont.replace(' ', '+')}:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>${data.businessName} | ${data.suburb}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --primary: ${design.primary}; --accent: ${design.accent}; --bg: ${design.bg}; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; }
-    a { color: inherit; text-decoration: none; }
+    body { font-family: ${fontFamily}; line-height: 1.6; color: #1a1a1a; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
-    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; mix-blend-mode: difference; }
-    .nav-logo { font-family: '${design.headingFont}', sans-serif; font-size: 1.5rem; letter-spacing: 0.1em; }
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-    .nav-links a { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; }
+    /* Hero */
+    .hero {
+      background: ${isFashion ? '#000' : `linear-gradient(135deg, ${primaryColor}, #0f172a)`};
+      color: white;
+      padding: 120px 24px;
+      text-align: ${isFashion ? 'left' : 'center'};
+    }
+    .hero h1 {
+      font-size: ${isFashion ? '5rem' : '3rem'};
+      font-weight: 900;
+      margin-bottom: 16px;
+      ${isFashion ? 'text-transform: uppercase; letter-spacing: 0.1em;' : ''}
+    }
+    .hero p { font-size: 1.25rem; opacity: 0.9; max-width: 600px; ${isFashion ? '' : 'margin: 0 auto;'} }
+    .hero-cta {
+      margin-top: 32px;
+      display: inline-block;
+      background: ${accentColor};
+      color: ${isFashion ? '#000' : '#0f172a'};
+      padding: 16px 32px;
+      font-weight: 700;
+      text-decoration: none;
+      ${isFashion ? 'text-transform: uppercase; letter-spacing: 0.1em;' : 'border-radius: 8px;'}
+    }
 
-    .hero { min-height: 100vh; display: flex; align-items: flex-end; padding: 4rem; background: linear-gradient(135deg, var(--bg), var(--primary)); }
-    .hero-content { max-width: 800px; }
-    .hero h1 { font-family: '${design.headingFont}', sans-serif; font-size: clamp(3rem, 10vw, 7rem); line-height: 0.95; margin-bottom: 1.5rem; }
-    .hero p { font-size: 1.1rem; opacity: 0.7; max-width: 500px; line-height: 1.7; }
+    /* Services */
+    .services { padding: 80px 24px; background: ${isFashion ? '#fff' : '#f9fafb'}; }
+    .services h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 48px;
+      ${isFashion ? 'text-transform: uppercase; letter-spacing: 0.1em;' : ''}
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .service-card {
+      background: white;
+      padding: 32px;
+      ${isFashion ? 'border: 1px solid #000;' : 'border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'}
+    }
+    .service-card h3 { margin-bottom: 12px; }
+    .service-card p { color: #666; font-size: 0.95rem; }
 
-    section { padding: 6rem 4rem; }
-    .section-title { font-family: '${design.headingFont}', sans-serif; font-size: 3rem; margin-bottom: 3rem; }
+    /* Contact */
+    .contact { padding: 80px 24px; background: ${isFashion ? '#000' : primaryColor}; color: white; }
+    .contact h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 48px;
+      ${isFashion ? 'text-transform: uppercase; letter-spacing: 0.1em;' : ''}
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 32px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .contact-item { display: flex; align-items: center; gap: 16px; }
+    .contact-icon { font-size: 1.5rem; }
+    .contact-item a { color: white; text-decoration: none; }
+    .contact-item a:hover { text-decoration: underline; }
 
-    .services { background: #fff; color: #1a1a1a; }
-    .services-grid { display: grid; gap: 1px; background: #e5e5e5; }
-    .service-item { background: #fff; padding: 2.5rem; display: flex; align-items: flex-start; gap: 2rem; transition: background 0.3s; }
-    .service-item:hover { background: #fafafa; }
-    .service-num { font-family: '${design.headingFont}', sans-serif; font-size: 2rem; opacity: 0.2; }
-    .service-item h3 { font-size: 1.25rem; font-weight: 500; }
-
-    .about { background: var(--primary); }
-    .about-content { max-width: 700px; }
-    .about-content p { font-size: 1.15rem; line-height: 1.9; opacity: 0.8; margin-bottom: 1.5rem; }
-
-    .contact { background: #0a0a0a; }
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
-    .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
-    .contact-item { display: flex; align-items: center; gap: 1rem; font-size: 1rem; opacity: 0.8; }
-    .contact-item i { width: 20px; }
-    .contact-form { display: flex; flex-direction: column; gap: 1.25rem; }
-    .contact-form input, .contact-form textarea { padding: 1rem; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-family: inherit; font-size: 1rem; }
-    .contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--accent); }
-    .contact-form textarea { min-height: 120px; resize: vertical; }
-    .contact-form button { padding: 1rem 2.5rem; background: var(--accent); color: #1a1a1a; border: none; font-family: '${design.headingFont}', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; transition: opacity 0.3s; }
-    .contact-form button:hover { opacity: 0.8; }
-
-    footer { padding: 2rem 4rem; background: #050505; text-align: center; opacity: 0.5; font-size: 0.85rem; }
+    /* Footer */
+    footer { background: #0f172a; color: white; padding: 32px 24px; text-align: center; }
+    footer p { opacity: 0.7; font-size: 0.9rem; }
 
     @media (max-width: 768px) {
-      .nav, section { padding: 2rem; }
-      .nav-links { display: none; }
-      .contact-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: ${isFashion ? '3rem' : '2rem'}; }
+      .hero { padding: 80px 24px; }
     }
   </style>
 </head>
 <body>
-  <nav class="nav">
-    <a href="#" class="nav-logo">${data.businessName}</a>
-    <ul class="nav-links">
-      <li><a href="#services">Services</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-
   <section class="hero">
-    <div class="hero-content">
+    <div class="container">
       <h1>${data.businessName}</h1>
-      <p>${data.targetCustomers ? `Serving ${data.targetCustomers} in ${data.suburb}` : `${businessType} based in ${data.suburb}, ${data.state}`}</p>
+      <p>${data.targetCustomers ? `Serving ${data.targetCustomers} in ${data.suburb}` : `Professional ${data.category} services in ${data.suburb}`}</p>
+      <a href="tel:${data.phone}" class="hero-cta">Call ${data.phone}</a>
     </div>
   </section>
 
-  <section id="services" class="services">
-    <h2 class="section-title">Services</h2>
-    <div class="services-grid">
-      ${servicesHTML || '<div class="service-item"><span class="service-num">01</span><h3>Contact for services</h3></div>'}
-    </div>
-  </section>
-
-  <section id="about" class="about">
-    <h2 class="section-title">About</h2>
-    <div class="about-content">
-      <p>${data.uniqueSellingPoints || `${data.businessName} provides ${businessType.toLowerCase()} services in ${data.suburb} and surrounding areas.`}</p>
-      ${data.targetCustomers ? `<p>We work with ${data.targetCustomers.toLowerCase()}, delivering quality results every time.</p>` : ''}
-    </div>
-  </section>
-
-  <section id="contact" class="contact">
-    <h2 class="section-title">Contact</h2>
-    <div class="contact-grid">
-      <div class="contact-info">
-        ${data.phone ? `<a href="tel:${data.phone}" class="contact-item"><i class="fas fa-phone"></i><span>${data.phone}</span></a>` : ''}
-        ${data.email ? `<a href="mailto:${data.email}" class="contact-item"><i class="fas fa-envelope"></i><span>${data.email}</span></a>` : ''}
-        ${data.address ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>${data.address}, ${data.suburb} ${data.state}</span></div>` : `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>${data.suburb}, ${data.state}</span></div>`}
-        <div class="contact-item"><i class="fas fa-clock"></i><span>${hours}</span></div>
-        ${data.facebook ? `<a href="https://facebook.com/${data.facebook}" class="contact-item"><i class="fab fa-facebook"></i><span>${data.facebook}</span></a>` : ''}
-        ${data.instagram ? `<a href="https://instagram.com/${data.instagram}" class="contact-item"><i class="fab fa-instagram"></i><span>@${data.instagram}</span></a>` : ''}
-        ${data.website ? `<a href="${data.website}" class="contact-item"><i class="fas fa-globe"></i><span>Website</span></a>` : ''}
+  <section class="services">
+    <div class="container">
+      <h2>Services</h2>
+      <div class="services-grid">
+        ${services.slice(0, 6).map(service => `
+        <div class="service-card">
+          <h3>${service}</h3>
+          <p>Professional ${service.toLowerCase()} services tailored to your needs.</p>
+        </div>
+        `).join('')}
       </div>
-      <form class="contact-form">
-        <input type="text" placeholder="Name" required>
-        <input type="email" placeholder="Email" required>
-        <textarea placeholder="Message"></textarea>
-        <button type="submit">Send</button>
-      </form>
+    </div>
+  </section>
+
+  <section class="contact">
+    <div class="container">
+      <h2>Get in Touch</h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <span class="contact-icon">📞</span>
+          <div>
+            <strong>Phone</strong><br>
+            <a href="tel:${data.phone}">${data.phone}</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">✉️</span>
+          <div>
+            <strong>Email</strong><br>
+            <a href="mailto:${data.email}">${data.email}</a>
+          </div>
+        </div>
+        ${data.address ? `
+        <div class="contact-item">
+          <span class="contact-icon">📍</span>
+          <div>
+            <strong>Location</strong><br>
+            ${data.address}, ${data.suburb} ${data.state}
+          </div>
+        </div>
+        ` : ''}
+        <div class="contact-item">
+          <span class="contact-icon">🕐</span>
+          <div>
+            <strong>Hours</strong><br>
+            ${hours}
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <footer>
-    <p>&copy; ${new Date().getFullYear()} ${data.businessName}. ${data.suburb}, ${data.state}.</p>
+    <p>&copy; ${new Date().getFullYear()} ${data.businessName}. All rights reserved.</p>
   </footer>
 </body>
 </html>`
@@ -311,98 +313,95 @@ function generateFallbackHTML(data: BusinessData): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    const { slug } = body
 
-    // Accept either direct data or a slug to fetch from DB
-    let data: BusinessData
-
-    if (body.slug && !body.businessName) {
-      // Fetch from database
-      const supabase = createAdminClient()
-      const { data: lead, error } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('slug', body.slug)
-        .single()
-
-      if (error || !lead) {
-        return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
-      }
-
-      const metadata = typeof lead.metadata === 'string' ? JSON.parse(lead.metadata) : (lead.metadata || {})
-
-      data = {
-        businessName: lead.business_name,
-        businessType: lead.category || '',
-        suburb: lead.suburb || 'Melbourne',
-        state: lead.state || 'VIC',
-        phone: lead.phone,
-        email: lead.email,
-        address: metadata.address,
-        website: metadata.website,
-        facebook: metadata.facebook,
-        instagram: metadata.instagram,
-        services: metadata.services || [],
-        customServices: metadata.customServices,
-        targetCustomers: metadata.targetCustomers,
-        uniqueSellingPoints: metadata.uniqueSellingPoints,
-        additionalNotes: metadata.additionalNotes,
-        operatingHours: metadata.operatingHours
-      }
-    } else {
-      data = body
+    if (!slug) {
+      return NextResponse.json({ error: 'Slug required' }, { status: 400 })
     }
 
-    if (!data.businessName) {
-      return NextResponse.json({ error: 'Business name required' }, { status: 400 })
-    }
-
-    const slug = slugify(data.businessName)
-
-    // Generate HTML
-    console.log(`Generating site for ${data.businessName} (${getBusinessType(data)})...`)
-    const html = await generateWithClaude(data)
-
-    // Store in database
     const supabase = createAdminClient()
 
-    await supabase
+    // Fetch lead data
+    const { data: lead, error: leadError } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+
+    if (leadError || !lead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    // Build business data from lead
+    const metadata = lead.metadata || {}
+    const businessData: BusinessData = {
+      businessName: lead.business_name,
+      category: metadata.customType || lead.category || 'Business',
+      suburb: lead.suburb,
+      state: lead.state || 'VIC',
+      phone: lead.phone || '',
+      email: lead.email || '',
+      address: metadata.address,
+      postcode: metadata.postcode,
+      operatingHours: metadata.operatingHours,
+      instagram: metadata.instagram,
+      facebook: metadata.facebook,
+      website: metadata.website,
+      services: metadata.services,
+      customServices: metadata.customServices,
+      targetCustomers: metadata.targetCustomers,
+      uniqueSellingPoints: metadata.uniqueSellingPoints,
+      additionalNotes: metadata.additionalNotes,
+    }
+
+    let generatedHtml: string
+
+    // Try Claude first, fall back to template
+    try {
+      if (process.env.ANTHROPIC_API_KEY) {
+        generatedHtml = await generateWithClaude(businessData)
+      } else {
+        console.log('No ANTHROPIC_API_KEY, using fallback')
+        generatedHtml = generateFallbackHTML(businessData)
+      }
+    } catch (claudeError) {
+      console.error('Claude error, using fallback:', claudeError)
+      generatedHtml = generateFallbackHTML(businessData)
+    }
+
+    // Save to client_sites
+    const { error: updateError } = await supabase
       .from('client_sites')
-      .upsert({
-        slug,
-        generated_html: html,
-        template: 'ai-generated-v2',
-        status: 'preview'
-      }, { onConflict: 'slug' })
+      .update({ generated_html: generatedHtml })
+      .eq('slug', slug)
+
+    if (updateError) {
+      // If update fails, try upsert
+      const { error: upsertError } = await supabase
+        .from('client_sites')
+        .upsert({
+          slug,
+          generated_html: generatedHtml,
+          status: 'preview',
+          template: 'ai-generated'
+        })
+
+      if (upsertError) {
+        console.error('Error saving HTML:', upsertError)
+        return NextResponse.json({ error: 'Failed to save' }, { status: 500 })
+      }
+    }
 
     return NextResponse.json({
       success: true,
       slug,
-      html,
-      businessType: getBusinessType(data),
-      services: getAllServices(data)
+      message: 'Site generated successfully'
     })
-
   } catch (error) {
-    console.error('Generation error:', error)
-    return NextResponse.json({ error: 'Failed to generate site' }, { status: 500 })
+    console.error('Generate error:', error)
+    return NextResponse.json(
+      { error: 'Failed to generate site' },
+      { status: 500 }
+    )
   }
-}
-
-// GET - Generate from existing lead by slug
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const slug = searchParams.get('slug')
-
-  if (!slug) {
-    return NextResponse.json({ error: 'Slug required' }, { status: 400 })
-  }
-
-  // Trigger generation via POST
-  const response = await fetch(request.url.replace('/api/generate-site-v2', '/api/generate-site-v2'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ slug })
-  })
-
-  return response
 }

@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Chat from '@/components/Chat'
-import SiteEditorTools from '@/components/SiteEditorTools'
 
 interface PreviewData {
   businessName: string
@@ -53,13 +52,6 @@ export default function ClaimPage() {
   // Contact form state
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
-  const [useIframePreview, setUseIframePreview] = useState(true)
-  const [iframeKey, setIframeKey] = useState(0)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-
-  const refreshPreview = () => {
-    setIframeKey(prev => prev + 1)
-  }
 
   useEffect(() => {
     async function fetchPreview() {
@@ -172,7 +164,7 @@ export default function ClaimPage() {
       {activeTab === 'preview' ? (
         <div className="max-w-6xl mx-auto px-6 py-8">
           {/* Device Toggle */}
-          <div className="flex justify-center mb-4 gap-2 flex-wrap">
+          <div className="flex justify-center mb-4 gap-2">
             <button
               onClick={() => setMobilePreview(false)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -189,23 +181,7 @@ export default function ClaimPage() {
             >
               📱 Mobile
             </button>
-            <span className="w-px h-8 bg-white/20 mx-2 hidden sm:block" />
-            <button
-              onClick={() => setUseIframePreview(!useIframePreview)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                useIframePreview ? 'bg-purple-600 text-white' : 'bg-white/10 text-white'
-              }`}
-            >
-              {useIframePreview ? '✨ Live Site' : '📋 Component View'}
-            </button>
           </div>
-
-          {/* Preview Mode Info */}
-          {useIframePreview && (
-            <div className="text-center mb-4 text-sm text-brand-lime">
-              ✏️ Use the edit buttons below to customize your site
-            </div>
-          )}
 
           {/* Browser Preview Window */}
           <div
@@ -224,26 +200,9 @@ export default function ClaimPage() {
                 <span className="text-green-600">🔒</span>
                 {slug}.onboard.site
               </div>
-              {useIframePreview && (
-                <button
-                  onClick={refreshPreview}
-                  className="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300 transition-colors"
-                >
-                  🔄 Refresh
-                </button>
-              )}
             </div>
 
-            {/* Site Preview - Iframe or Component */}
-            {useIframePreview ? (
-              <iframe
-                ref={iframeRef}
-                key={iframeKey}
-                src={`/site/${slug}`}
-                className={`w-full border-0 ${mobilePreview ? 'h-[600px]' : 'h-[800px]'}`}
-                title={`Preview of ${businessName}`}
-              />
-            ) : (
+            {/* Site Preview */}
             <div className="text-gray-900">
               {/* HERO SECTION - Multiple Layouts */}
               {heroLayout === 'minimal' ? (
@@ -764,13 +723,7 @@ export default function ClaimPage() {
                 )}
               </div>
             </div>
-            )}
           </div>
-
-          {/* Editor Tools - only show when using iframe preview */}
-          {useIframePreview && (
-            <SiteEditorTools slug={slug} onRefresh={refreshPreview} />
-          )}
 
           {/* CTA to pricing */}
           <div className="text-center">

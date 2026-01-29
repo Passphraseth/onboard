@@ -2,100 +2,102 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
 
+export const dynamic = 'force-dynamic'
+
 interface EditRequest {
   slug: string
   editType: 'text' | 'image' | 'color' | 'layout' | 'general'
-  instruction: string
-  // For text edits
+  instruction?: string
   oldText?: string
   newText?: string
-  // For image edits
   imageUrl?: string
-  imageSection?: string // 'hero', 'portfolio', 'about', etc.
-  // For color edits
+  imageSection?: string
   colorType?: 'primary' | 'accent' | 'background'
   colorValue?: string
 }
 
-// Apply a text replacement to HTML
 function applyTextEdit(html: string, oldText: string, newText: string): string {
-  // Escape regex special characters in oldText
-  const escaped = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const regex = new RegExp(escaped, 'g')
-  return html.replace(regex, newText)
+  return html.replace(new RegExp(escapeRegex(oldText), 'g'), newText)
 }
 
-// Apply color change to HTML
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 function applyColorEdit(html: string, colorType: string, colorValue: string): string {
-  // Update CSS variable
-  const varName = colorType === 'primary' ? '--primary'
-    : colorType === 'accent' ? '--accent'
-    : colorType === 'background' ? '--bg'
-    : '--primary'
+  // Replace CSS variable or inline styles
+  const colorMap: Record<string, string[]> = {
+    primary: ['--primary', 'primary-color', '#2563eb'],
+    accent: ['--accent', 'accent-color', '#d4ff00'],
+    background: ['--background', 'background-color', '#ffffff']
+  }
 
-  // Replace in :root CSS
-  const regex = new RegExp(`(${varName}:\\s*)#[0-9a-fA-F]{3,6}`, 'g')
-  return html.replace(regex, `$1${colorValue}`)
+  let result = html
+  const targets = colorMap[colorType] || []
+
+  targets.forEach(target => {
+    if (target.startsWith('--')) {
+      result = result.replace(new RegExp(`${target}:\\s*[^;]+`, 'g'), `${target}: ${colorValue}`)
+    } else if (target.startsWith('#')) {
+      result = result.replace(new RegExp(target, 'gi'), colorValue)
+    }
+  })
+
+  return result
 }
 
-// Apply image URL change
 function applyImageEdit(html: string, section: string, imageUrl: string): string {
-  // Find image in the specified section and replace src
-  // This is a simplified version - production would need smarter matching
-
-  if (section === 'hero') {
-    // Replace hero background image
-    return html.replace(
-      /background:\s*url\(['"]?([^'")\s]+)['"]?\)([^;]*);?\s*(\/\*\s*hero\s*\*\/)?/gi,
-      `background: url('${imageUrl}')$2;`
-    ).replace(
-      /\.hero-bg\s*\{[^}]*background:\s*url\(['"]?([^'")\s]+)['"]?\)/gi,
-      `.hero-bg { background: url('${imageUrl}')`
-    )
+  // Find image in the specified section and replace
+  const sectionPatterns: Record<string, RegExp> = {
+    hero: /<section[^>]*class="[^"]*hero[^"]*"[^>]*>[\s\S]*?<\/section>/i,
+    about: /<section[^>]*class="[^"]*about[^"]*"[^>]*>[\s\S]*?<\/section>/i,
+    portfolio: /<section[^>]*class="[^"]*portfolio[^"]*"[^>]*>[\s\S]*?<\/section>/i,
   }
 
-  // For other sections, try to find and replace first image
-  const imgRegex = new RegExp(`(<img[^>]*src=["'])([^"']+)(["'][^>]*>)`, 'i')
-  return html.replace(imgRegex, `$1${imageUrl}$3`)
+  const pattern = sectionPatterns[section]
+  if (pattern) {
+    const match = html.match(pattern)
+    if (match) {
+      const sectionHtml = match[0]
+      const updatedSection = sectionHtml.replace(
+        /<img[^>]*src="[^"]*"[^>]*>/i,
+        `<img src="${imageUrl}" alt="${section}" style="width: 100%; height: auto;">`
+      )
+      return html.replace(sectionHtml, updatedSection)
+    }
+  }
+
+  // Fallback: replace first image
+  return html.replace(
+    /<img[^>]*src="[^"]*"/i,
+    `<img src="${imageUrl}"`
+  )
 }
 
-// Use Claude to apply complex edits
 async function applyWithClaude(html: string, instruction: string): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-
-  if (!apiKey) {
-    throw new Error('Claude API key required for complex edits')
-  }
-
-  const client = new Anthropic({ apiKey })
-
-  const prompt = `You are editing an HTML website. Apply this change:
-
-INSTRUCTION: ${instruction}
-
-CURRENT HTML:
-${html}
-
-Apply the requested change and return the COMPLETE modified HTML.
-- Keep all existing structure intact
-- Only modify what's specifically requested
-- Return ONLY the HTML, no explanations
-
-Return the complete modified HTML starting with <!DOCTYPE html>`
+  const client = new Anthropic()
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 12000,
-    messages: [{ role: 'user', content: prompt }]
+    max_tokens: 8000,
+    messages: [{
+      role: 'user',
+      content: `Modify this HTML according to the instruction. Return ONLY the modified HTML, no explanations.
+
+INSTRUCTION: ${instruction}
+
+HTML:
+${html}
+
+Return the complete modified HTML:`
+    }]
   })
 
   const content = response.content[0]
   if (content.type === 'text') {
     let result = content.text
-    if (result.startsWith('```')) {
-      result = result.replace(/^```html?\n?/, '').replace(/\n?```$/, '')
-    }
-    return result.trim()
+    result = result.replace(/^```html?\n?/i, '').replace(/\n?```$/i, '')
+    return result
   }
 
   throw new Error('Failed to apply edit')
@@ -152,7 +154,6 @@ export async function POST(request: NextRequest) {
 
       case 'layout':
       case 'general':
-        // Complex edits require Claude
         if (edit.instruction) {
           updatedHtml = await applyWithClaude(updatedHtml, edit.instruction)
         }
@@ -173,63 +174,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to save changes' }, { status: 500 })
     }
 
-    // Log the edit for history
-    await supabase
-      .from('update_requests')
-      .insert({
-        lead_id: null, // Will be set by trigger or manually
-        channel: 'chat',
-        raw_message: edit.instruction || `${edit.editType} edit`,
-        parsed_intent: edit,
-        status: 'published',
-        processed_by: edit.instruction ? 'ai' : 'manual'
-      })
-
     return NextResponse.json({
       success: true,
-      slug: edit.slug,
-      editType: edit.editType,
-      message: 'Changes applied successfully'
+      message: 'Edit applied successfully'
     })
-
   } catch (error) {
     console.error('Edit error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to apply edit' },
+      { error: 'Failed to apply edit' },
       { status: 500 }
     )
   }
-}
-
-// GET - Fetch edit history for a site
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const slug = searchParams.get('slug')
-
-  if (!slug) {
-    return NextResponse.json({ error: 'Slug required' }, { status: 400 })
-  }
-
-  const supabase = createAdminClient()
-
-  // Get lead ID for this slug
-  const { data: lead } = await supabase
-    .from('leads')
-    .select('id')
-    .eq('slug', slug)
-    .single()
-
-  if (!lead) {
-    return NextResponse.json({ edits: [] })
-  }
-
-  // Get edit history
-  const { data: edits } = await supabase
-    .from('update_requests')
-    .select('*')
-    .eq('lead_id', lead.id)
-    .order('created_at', { ascending: false })
-    .limit(20)
-
-  return NextResponse.json({ edits: edits || [] })
 }

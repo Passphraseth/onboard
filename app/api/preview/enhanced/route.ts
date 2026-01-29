@@ -502,6 +502,19 @@ export async function POST(request: NextRequest) {
             },
           })
           .eq('id', existingSite.id)
+
+        // Regenerate HTML for the updated site
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+          await fetch(`${baseUrl}/api/generate-site-v2`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: existingLead.slug }),
+          })
+          console.log(`Regenerated HTML for ${existingLead.slug}`)
+        } catch (genError) {
+          console.error('Error regenerating HTML:', genError)
+        }
       }
 
       return NextResponse.json({
@@ -575,6 +588,19 @@ export async function POST(request: NextRequest) {
         .from('leads')
         .update({ preview_site_id: site.id })
         .eq('id', lead.id)
+
+      // Generate actual HTML using the v2 generator
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        await fetch(`${baseUrl}/api/generate-site-v2`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug }),
+        })
+        console.log(`Generated HTML for ${slug}`)
+      } catch (genError) {
+        console.error('Error generating HTML:', genError)
+      }
     }
 
     return NextResponse.json({
