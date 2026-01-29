@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import Chat from '@/components/Chat'
 
 interface PreviewData {
   businessName: string
@@ -35,6 +36,8 @@ interface PreviewData {
     }
     styleName?: string
     styleVibe?: string
+    // Layout variation (0, 1, or 2)
+    layoutVariation?: number
   }
 }
 
@@ -44,6 +47,11 @@ export default function ClaimPage() {
   const [preview, setPreview] = useState<PreviewData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'preview' | 'pricing'>('preview')
+  const [mobilePreview, setMobilePreview] = useState(false)
+
+  // Contact form state
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
 
   useEffect(() => {
     async function fetchPreview() {
@@ -63,6 +71,28 @@ export default function ClaimPage() {
     fetchPreview()
   }, [slug])
 
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormStatus('sending')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, ...formData }),
+      })
+
+      if (res.ok) {
+        setFormStatus('success')
+        setFormData({ name: '', email: '', phone: '', message: '' })
+      } else {
+        setFormStatus('error')
+      }
+    } catch {
+      setFormStatus('error')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-brand-blue to-brand-black flex items-center justify-center">
@@ -80,43 +110,15 @@ export default function ClaimPage() {
   const colors = content?.colors || { primary: '#2563eb', secondary: '#0f172a', accent: '#d4ff00', background: '#ffffff', text: '#1a1a1a' }
   const heroStyle = content?.heroStyle || 'gradient'
   const typography = content?.typography || { headingStyle: 'sans-serif', bodyStyle: 'sans-serif', headingWeight: 'bold' }
+  const layoutVariation = content?.layoutVariation || 0
 
   // Typography classes based on style
   const headingFont = typography.headingStyle === 'serif' ? 'font-serif' : typography.headingStyle === 'display' ? 'font-black tracking-tight' : 'font-sans'
   const headingWeight = typography.headingWeight === 'black' ? 'font-black' : typography.headingWeight === 'bold' ? 'font-bold' : 'font-normal'
 
-  // Hero styles based on detected style
-  const getHeroStyles = () => {
-    switch (heroStyle) {
-      case 'minimal':
-        // Clean, minimal - like Chanel (white bg, black text)
-        return {
-          background: colors.background || '#ffffff',
-          color: colors.text || '#000000',
-          className: ''
-        }
-      case 'gradient':
-        return {
-          background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-          color: '#ffffff',
-          className: ''
-        }
-      case 'split':
-        return {
-          background: colors.background || '#ffffff',
-          color: colors.text || '#000000',
-          className: 'md:grid md:grid-cols-2 md:gap-0'
-        }
-      default:
-        return {
-          background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-          color: '#ffffff',
-          className: ''
-        }
-    }
-  }
-
-  const heroStyles = getHeroStyles()
+  // Determine layout based on variation
+  const heroLayout = heroStyle === 'minimal' ? 'minimal' : heroStyle === 'split' ? 'split' : layoutVariation === 0 ? 'centered' : layoutVariation === 1 ? 'left-aligned' : 'bold'
+  const servicesLayout = layoutVariation === 0 ? 'grid' : layoutVariation === 1 ? 'list' : 'cards'
 
   return (
     <div className="min-h-screen bg-brand-black text-white">
@@ -161,8 +163,32 @@ export default function ClaimPage() {
 
       {activeTab === 'preview' ? (
         <div className="max-w-6xl mx-auto px-6 py-8">
+          {/* Device Toggle */}
+          <div className="flex justify-center mb-4 gap-2">
+            <button
+              onClick={() => setMobilePreview(false)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                !mobilePreview ? 'bg-white text-black' : 'bg-white/10 text-white'
+              }`}
+            >
+              🖥️ Desktop
+            </button>
+            <button
+              onClick={() => setMobilePreview(true)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                mobilePreview ? 'bg-white text-black' : 'bg-white/10 text-white'
+              }`}
+            >
+              📱 Mobile
+            </button>
+          </div>
+
           {/* Browser Preview Window */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-2xl mb-8">
+          <div
+            className={`bg-white rounded-2xl overflow-hidden shadow-2xl mb-8 mx-auto transition-all duration-300 ${
+              mobilePreview ? 'max-w-[375px]' : 'w-full'
+            }`}
+          >
             {/* Browser Bar */}
             <div className="bg-gray-100 px-4 py-3 flex items-center gap-3">
               <div className="flex gap-2">
@@ -178,77 +204,144 @@ export default function ClaimPage() {
 
             {/* Site Preview */}
             <div className="text-gray-900">
-              {/* Hero Section - Style-aware */}
-              <div
-                className={`p-8 md:p-16 text-center ${heroStyles.className}`}
-                style={{ background: heroStyles.background, color: heroStyles.color }}
-              >
-                {heroStyle === 'minimal' ? (
-                  // Minimal/Luxury style - clean, elegant
-                  <>
-                    <h1 className={`text-4xl md:text-6xl ${headingFont} ${headingWeight} mb-4 tracking-tight`}>
+              {/* HERO SECTION - Multiple Layouts */}
+              {heroLayout === 'minimal' ? (
+                // Minimal/Luxury Layout
+                <div
+                  className="p-8 md:p-16 text-center"
+                  style={{ background: colors.background, color: colors.text }}
+                >
+                  <h1 className={`text-4xl ${mobilePreview ? 'text-3xl' : 'md:text-6xl'} ${headingFont} ${headingWeight} mb-4 tracking-tight`}>
+                    {businessName}
+                  </h1>
+                  <div className="w-16 h-px mx-auto mb-4" style={{ backgroundColor: colors.accent }}></div>
+                  <p className={`${mobilePreview ? 'text-base' : 'text-lg md:text-xl'} opacity-80 mb-8 max-w-xl mx-auto`}>
+                    {content?.tagline || 'Professional services in Melbourne'}
+                  </p>
+                  <div className={`flex flex-wrap gap-4 justify-center ${mobilePreview ? 'flex-col' : ''}`}>
+                    <button
+                      className="px-8 py-3 text-sm tracking-widest uppercase font-medium border-2 transition-all hover:opacity-80"
+                      style={{ borderColor: colors.primary, color: colors.primary }}
+                    >
+                      {content?.ctaText || 'Get Started'}
+                    </button>
+                    <button
+                      className="px-8 py-3 text-sm tracking-widest uppercase font-medium transition-all hover:opacity-80"
+                      style={{ backgroundColor: colors.primary, color: colors.background }}
+                    >
+                      Contact
+                    </button>
+                  </div>
+                </div>
+              ) : heroLayout === 'split' ? (
+                // Split Layout
+                <div
+                  className={`${mobilePreview ? 'flex flex-col' : 'grid md:grid-cols-2'}`}
+                  style={{ background: colors.background, color: colors.text }}
+                >
+                  <div className="p-8 md:p-12 flex flex-col justify-center">
+                    <div className="text-4xl mb-4">{content?.icon || '🏢'}</div>
+                    <h1 className={`text-3xl ${mobilePreview ? '' : 'md:text-4xl'} ${headingFont} ${headingWeight} mb-3`}>
                       {businessName}
                     </h1>
-                    <div className="w-16 h-px mx-auto mb-4" style={{ backgroundColor: colors.accent }}></div>
-                    <p className="text-lg md:text-xl opacity-80 mb-8 max-w-xl mx-auto">
-                      {content?.tagline || 'Professional services in Melbourne'}
-                    </p>
-                    <div className="flex flex-wrap gap-4 justify-center">
-                      <button
-                        className="px-8 py-3 text-sm tracking-widest uppercase font-medium border-2 transition-all hover:opacity-80"
-                        style={{ borderColor: colors.primary, color: colors.primary }}
-                      >
-                        {content?.ctaText || 'Get Started'}
-                      </button>
-                      <button
-                        className="px-8 py-3 text-sm tracking-widest uppercase font-medium transition-all hover:opacity-80"
-                        style={{ backgroundColor: colors.primary, color: colors.background }}
-                      >
-                        Contact
-                      </button>
-                    </div>
-                  </>
-                ) : heroStyle === 'split' ? (
-                  // Split layout
-                  <>
-                    <div className="flex flex-col justify-center">
-                      <div className="text-5xl mb-4">{content?.icon || '🏢'}</div>
-                      <h1 className={`text-3xl md:text-4xl ${headingFont} ${headingWeight} mb-3`}>{businessName}</h1>
-                      <p className="text-lg opacity-80 mb-6">{content?.tagline || 'Professional services in Melbourne'}</p>
-                      <button
-                        className="px-6 py-3 rounded-lg font-bold w-fit"
-                        style={{ backgroundColor: colors.primary, color: '#ffffff' }}
-                      >
-                        {content?.ctaText || 'Get Started'} →
-                      </button>
-                    </div>
-                    <div className="hidden md:block" style={{ backgroundColor: colors.secondary }}></div>
-                  </>
-                ) : (
-                  // Default gradient style
-                  <>
-                    <div className="text-6xl mb-4">{content?.icon || '🏢'}</div>
-                    <h1 className={`text-3xl md:text-5xl ${headingFont} ${headingWeight} mb-3`}>{businessName}</h1>
-                    <p className="text-xl opacity-90 mb-6">{content?.tagline || 'Professional services in Melbourne'}</p>
-                    <div className="flex flex-wrap gap-4 justify-center">
+                    <p className="text-lg opacity-80 mb-6">{content?.tagline}</p>
+                    <button
+                      className="px-6 py-3 rounded-lg font-bold w-fit"
+                      style={{ backgroundColor: colors.primary, color: '#ffffff' }}
+                    >
+                      {content?.ctaText || 'Get Started'} →
+                    </button>
+                  </div>
+                  <div
+                    className={`${mobilePreview ? 'h-48' : 'min-h-[300px]'}`}
+                    style={{ backgroundColor: colors.secondary }}
+                  />
+                </div>
+              ) : heroLayout === 'left-aligned' ? (
+                // Left-Aligned Hero
+                <div
+                  className="p-8 md:p-16 text-white"
+                  style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` }}
+                >
+                  <div className="max-w-2xl">
+                    <div className="text-5xl mb-4">{content?.icon || '🏢'}</div>
+                    <h1 className={`text-3xl ${mobilePreview ? '' : 'md:text-5xl'} ${headingFont} ${headingWeight} mb-4`}>
+                      {businessName}
+                    </h1>
+                    <p className="text-xl opacity-90 mb-6">{content?.tagline}</p>
+                    <div className={`flex gap-4 ${mobilePreview ? 'flex-col' : ''}`}>
                       <button
                         className="px-6 py-3 rounded-lg font-bold text-lg"
                         style={{ backgroundColor: colors.accent, color: colors.secondary }}
                       >
                         {content?.ctaText || 'Get Started'} →
                       </button>
-                      <button className="bg-white/20 px-6 py-3 rounded-lg font-bold text-lg backdrop-blur">
-                        📞 Call Now
-                      </button>
+                      {content?.phone && (
+                        <a
+                          href={`tel:${content.phone}`}
+                          className="px-6 py-3 rounded-lg font-bold text-lg bg-white/20 backdrop-blur"
+                        >
+                          📞 {content.phone}
+                        </a>
+                      )}
                     </div>
-                  </>
-                )}
-              </div>
+                  </div>
+                </div>
+              ) : heroLayout === 'bold' ? (
+                // Bold/Full-width Hero
+                <div
+                  className="p-8 md:p-20 text-white text-center relative overflow-hidden"
+                  style={{ background: colors.secondary }}
+                >
+                  <div
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                      background: `radial-gradient(circle at 30% 50%, ${colors.primary}, transparent 50%)`,
+                    }}
+                  />
+                  <div className="relative z-10">
+                    <div className="text-7xl mb-6">{content?.icon || '🏢'}</div>
+                    <h1 className={`text-4xl ${mobilePreview ? '' : 'md:text-6xl'} ${headingFont} font-black mb-4`}>
+                      {businessName}
+                    </h1>
+                    <p className="text-xl md:text-2xl opacity-80 mb-8 max-w-2xl mx-auto">{content?.tagline}</p>
+                    <button
+                      className="px-8 py-4 rounded-full font-bold text-lg"
+                      style={{ backgroundColor: colors.accent, color: colors.secondary }}
+                    >
+                      {content?.ctaText || 'Get Started'} →
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Default Centered Gradient
+                <div
+                  className="p-8 md:p-16 text-center text-white"
+                  style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` }}
+                >
+                  <div className="text-6xl mb-4">{content?.icon || '🏢'}</div>
+                  <h1 className={`text-3xl ${mobilePreview ? '' : 'md:text-5xl'} ${headingFont} ${headingWeight} mb-3`}>
+                    {businessName}
+                  </h1>
+                  <p className="text-xl opacity-90 mb-6">{content?.tagline}</p>
+                  <div className={`flex flex-wrap gap-4 justify-center ${mobilePreview ? 'flex-col' : ''}`}>
+                    <button
+                      className="px-6 py-3 rounded-lg font-bold text-lg"
+                      style={{ backgroundColor: colors.accent, color: colors.secondary }}
+                    >
+                      {content?.ctaText || 'Get Started'} →
+                    </button>
+                    <button className="bg-white/20 px-6 py-3 rounded-lg font-bold text-lg backdrop-blur">
+                      📞 Call Now
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Features Bar */}
-              {content?.features && (
+              {content?.features && heroStyle !== 'minimal' && (
                 <div className="bg-gray-50 py-4 px-6">
-                  <div className="flex flex-wrap justify-center gap-6 text-sm">
+                  <div className={`flex flex-wrap justify-center gap-4 ${mobilePreview ? 'gap-2' : 'gap-6'} text-sm`}>
                     {content.features.map((feature, i) => (
                       <span key={i} className="flex items-center gap-2">
                         <span className="text-green-600">✓</span> {feature}
@@ -258,29 +351,89 @@ export default function ClaimPage() {
                 </div>
               )}
 
-              {/* Services Section - Style-aware */}
+              {/* SERVICES SECTION - Multiple Layouts */}
               {content?.services && content.services.length > 0 && (
-                <div className="p-8 md:p-12" style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : undefined }}>
-                  <h2 className={`text-2xl ${headingFont} ${headingWeight} text-center mb-8`} style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}>
+                <div
+                  className="p-8 md:p-12"
+                  style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : undefined }}
+                >
+                  <h2
+                    className={`text-2xl ${headingFont} ${headingWeight} text-center mb-8`}
+                    style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}
+                  >
                     {heroStyle === 'minimal' ? 'Services' : 'Our Services'}
                   </h2>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {content.services.slice(0, 6).map((service, i) => (
-                      <div
-                        key={i}
-                        className={`rounded-xl p-6 transition-shadow ${heroStyle === 'minimal' ? 'border hover:shadow-md' : 'bg-gray-50 hover:shadow-lg'}`}
-                        style={{ borderColor: heroStyle === 'minimal' ? colors.text + '20' : undefined }}
-                      >
-                        {heroStyle !== 'minimal' && <div className="text-3xl mb-3">{service.icon}</div>}
-                        <h3 className={`${headingWeight} mb-2`} style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}>{service.name}</h3>
-                        <p className="text-sm" style={{ color: heroStyle === 'minimal' ? colors.text + 'cc' : '#4b5563' }}>{service.description}</p>
-                      </div>
-                    ))}
-                  </div>
+
+                  {servicesLayout === 'grid' ? (
+                    // Grid Layout
+                    <div className={`grid ${mobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'} gap-6`}>
+                      {content.services.slice(0, 6).map((service, i) => (
+                        <div
+                          key={i}
+                          className={`rounded-xl p-6 transition-shadow ${
+                            heroStyle === 'minimal'
+                              ? 'border hover:shadow-md'
+                              : 'bg-gray-50 hover:shadow-lg'
+                          }`}
+                          style={{ borderColor: heroStyle === 'minimal' ? colors.text + '20' : undefined }}
+                        >
+                          {heroStyle !== 'minimal' && <div className="text-3xl mb-3">{service.icon}</div>}
+                          <h3
+                            className={`${headingWeight} mb-2`}
+                            style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}
+                          >
+                            {service.name}
+                          </h3>
+                          <p
+                            className="text-sm"
+                            style={{ color: heroStyle === 'minimal' ? colors.text + 'cc' : '#4b5563' }}
+                          >
+                            {service.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : servicesLayout === 'list' ? (
+                    // List Layout
+                    <div className="max-w-2xl mx-auto space-y-4">
+                      {content.services.slice(0, 6).map((service, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-4 p-4 rounded-lg bg-gray-50"
+                        >
+                          <div
+                            className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl flex-shrink-0"
+                            style={{ backgroundColor: colors.primary + '20' }}
+                          >
+                            {service.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-bold mb-1">{service.name}</h3>
+                            <p className="text-sm text-gray-600">{service.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    // Cards Layout (horizontal scroll on mobile)
+                    <div className={`${mobilePreview ? 'flex overflow-x-auto gap-4 pb-4 -mx-4 px-4' : 'grid md:grid-cols-3 gap-6'}`}>
+                      {content.services.slice(0, 6).map((service, i) => (
+                        <div
+                          key={i}
+                          className={`${mobilePreview ? 'flex-shrink-0 w-64' : ''} rounded-xl p-6 text-white`}
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          <div className="text-4xl mb-3">{service.icon}</div>
+                          <h3 className="font-bold mb-2">{service.name}</h3>
+                          <p className="text-sm opacity-80">{service.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Testimonials - Style-aware */}
+              {/* Testimonials */}
               {content?.testimonials && content.testimonials.length > 0 && (
                 <div
                   className="p-8 md:p-12"
@@ -292,7 +445,7 @@ export default function ClaimPage() {
                   >
                     {heroStyle === 'minimal' ? 'Testimonials' : 'What Our Customers Say'}
                   </h2>
-                  <div className="grid md:grid-cols-3 gap-6">
+                  <div className={`grid ${mobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'} gap-6`}>
                     {content.testimonials.map((testimonial, i) => (
                       <div
                         key={i}
@@ -309,7 +462,7 @@ export default function ClaimPage() {
                           className="mb-4"
                           style={{ color: heroStyle === 'minimal' ? colors.text + 'dd' : '#374151' }}
                         >
-                          {heroStyle === 'minimal' ? `"${testimonial.text}"` : `"${testimonial.text}"`}
+                          "{testimonial.text}"
                         </p>
                         <div className="flex items-center gap-3">
                           <div
@@ -322,10 +475,16 @@ export default function ClaimPage() {
                             {testimonial.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-bold text-sm" style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}>
+                            <div
+                              className="font-bold text-sm"
+                              style={{ color: heroStyle === 'minimal' ? colors.text : undefined }}
+                            >
                               {testimonial.name}
                             </div>
-                            <div className="text-xs" style={{ color: heroStyle === 'minimal' ? colors.text + '99' : '#6b7280' }}>
+                            <div
+                              className="text-xs"
+                              style={{ color: heroStyle === 'minimal' ? colors.text + '99' : '#6b7280' }}
+                            >
                               {testimonial.suburb}
                             </div>
                           </div>
@@ -336,7 +495,7 @@ export default function ClaimPage() {
                 </div>
               )}
 
-              {/* Contact Section - Full details */}
+              {/* CONTACT SECTION */}
               <div
                 className="p-8 md:p-12"
                 style={{ backgroundColor: heroStyle === 'minimal' ? colors.background : '#f9fafb' }}
@@ -348,10 +507,9 @@ export default function ClaimPage() {
                   {heroStyle === 'minimal' ? 'Contact' : 'Get in Touch'}
                 </h2>
 
-                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div className={`grid ${mobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'} gap-8 max-w-4xl mx-auto`}>
                   {/* Contact Info */}
-                  <div className="space-y-6">
-                    {/* Phone */}
+                  <div className="space-y-4">
                     {content?.phone && (
                       <a
                         href={`tel:${content.phone}`}
@@ -374,7 +532,6 @@ export default function ClaimPage() {
                       </a>
                     )}
 
-                    {/* Email */}
                     {content?.email && (
                       <a
                         href={`mailto:${content.email}`}
@@ -397,7 +554,6 @@ export default function ClaimPage() {
                       </a>
                     )}
 
-                    {/* Address */}
                     {content?.address && (
                       <div
                         className="flex items-center gap-4 p-4 rounded-lg"
@@ -420,7 +576,6 @@ export default function ClaimPage() {
                       </div>
                     )}
 
-                    {/* Hours */}
                     {content?.operatingHours && (
                       <div
                         className="flex items-center gap-4 p-4 rounded-lg"
@@ -442,7 +597,6 @@ export default function ClaimPage() {
                       </div>
                     )}
 
-                    {/* Social Links */}
                     {(content?.instagram || content?.facebook) && (
                       <div className="flex gap-4 pt-2">
                         {content?.instagram && (
@@ -475,7 +629,7 @@ export default function ClaimPage() {
                   <div
                     className="p-6 rounded-xl"
                     style={{
-                      backgroundColor: heroStyle === 'minimal' ? 'white' : 'white',
+                      backgroundColor: 'white',
                       border: heroStyle === 'minimal' ? `1px solid ${colors.text}15` : undefined,
                       boxShadow: heroStyle === 'minimal' ? undefined : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                     }}
@@ -486,54 +640,75 @@ export default function ClaimPage() {
                     >
                       Send a Message
                     </h3>
-                    <form className="space-y-4">
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Your Name"
-                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
-                          style={{
-                            borderColor: '#e5e7eb',
-                            focusRing: colors.primary
-                          }}
-                        />
+
+                    {formStatus === 'success' ? (
+                      <div className="text-center py-8">
+                        <div className="text-4xl mb-4">✅</div>
+                        <p className="font-semibold text-green-600">Message sent successfully!</p>
+                        <p className="text-sm text-gray-500 mt-2">We'll get back to you soon.</p>
                       </div>
-                      <div>
-                        <input
-                          type="email"
-                          placeholder="Your Email"
-                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
-                          style={{ borderColor: '#e5e7eb' }}
-                        />
-                      </div>
-                      <div>
-                        <input
-                          type="tel"
-                          placeholder="Your Phone"
-                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
-                          style={{ borderColor: '#e5e7eb' }}
-                        />
-                      </div>
-                      <div>
-                        <textarea
-                          placeholder="How can we help?"
-                          rows={4}
-                          className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 resize-none"
-                          style={{ borderColor: '#e5e7eb' }}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        className="w-full py-3 rounded-lg font-semibold transition-all hover:opacity-90"
-                        style={{ backgroundColor: colors.primary, color: 'white' }}
-                      >
-                        Send Message
-                      </button>
-                    </form>
+                    ) : (
+                      <form onSubmit={handleContactSubmit} className="space-y-4">
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Your Name"
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            style={{ borderColor: '#e5e7eb' }}
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="email"
+                            placeholder="Your Email"
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            style={{ borderColor: '#e5e7eb' }}
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="tel"
+                            placeholder="Your Phone (optional)"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            style={{ borderColor: '#e5e7eb' }}
+                          />
+                        </div>
+                        <div>
+                          <textarea
+                            placeholder="How can we help?"
+                            required
+                            rows={4}
+                            value={formData.message}
+                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                            className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            style={{ borderColor: '#e5e7eb' }}
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          disabled={formStatus === 'sending'}
+                          className="w-full py-3 rounded-lg font-semibold transition-all hover:opacity-90 disabled:opacity-50"
+                          style={{ backgroundColor: colors.primary, color: 'white' }}
+                        >
+                          {formStatus === 'sending' ? 'Sending...' : 'Send Message'}
+                        </button>
+                        {formStatus === 'error' && (
+                          <p className="text-red-500 text-sm text-center">Something went wrong. Please try again.</p>
+                        )}
+                      </form>
+                    )}
                   </div>
                 </div>
 
-                {/* Map placeholder */}
+                {/* Map */}
                 {content?.address && content?.suburb && (
                   <div className="mt-8 rounded-xl overflow-hidden h-64 bg-gray-200">
                     <iframe
@@ -585,8 +760,8 @@ export default function ClaimPage() {
                 <li className="flex items-center gap-2">✅ Single page website</li>
                 <li className="flex items-center gap-2">✅ Mobile responsive</li>
                 <li className="flex items-center gap-2">✅ Contact form</li>
-                <li className="flex items-center gap-2">✅ 2 text updates/month</li>
-                <li className="flex items-center gap-2">✅ 48hr response time</li>
+                <li className="flex items-center gap-2">✅ Google Maps</li>
+                <li className="flex items-center gap-2">✅ 2 updates/month</li>
               </ul>
               <Link
                 href={`/checkout?plan=starter&lead=${preview?.leadId || ''}`}
@@ -609,10 +784,10 @@ export default function ClaimPage() {
               <ul className="space-y-3 mb-6 text-sm">
                 <li className="flex items-center gap-2">✅ Up to 5 pages</li>
                 <li className="flex items-center gap-2">✅ Custom domain included</li>
-                <li className="flex items-center gap-2">✅ 5 text updates/month</li>
-                <li className="flex items-center gap-2">✅ 24hr response time</li>
+                <li className="flex items-center gap-2">✅ 5 updates/month</li>
                 <li className="flex items-center gap-2">✅ Google Business sync</li>
                 <li className="flex items-center gap-2">✅ Booking widget</li>
+                <li className="flex items-center gap-2">✅ 24hr response time</li>
               </ul>
               <Link
                 href={`/checkout?plan=growth&lead=${preview?.leadId || ''}`}
@@ -663,6 +838,9 @@ export default function ClaimPage() {
       <footer className="border-t border-white/10 py-8 px-6 text-center text-sm opacity-60">
         <p>Questions? Email <a href="mailto:hello@onboard.com.au" className="underline">hello@onboard.com.au</a></p>
       </footer>
+
+      {/* Chat Widget */}
+      <Chat slug={slug} businessName={businessName} primaryColor={colors.primary} />
     </div>
   )
 }
