@@ -83,88 +83,99 @@ async function generateWithClaude(data: BusinessData): Promise<string> {
   const businessType = getBusinessType(data)
   const hours = formatHours(data.operatingHours)
 
-  const prompt = `You are an elite web designer creating a stunning, agency-quality landing page. Create a complete HTML website that looks like it cost $5,000+ to design.
+  const prompt = `Create a minimal, architectural-style landing page. Think luxury real estate or high-end design studio aesthetic.
 
-BUSINESS DETAILS:
-- Business Name: ${data.businessName}
+BUSINESS:
+- Name: ${data.businessName}
 - Industry: ${data.category}
 - Location: ${data.suburb}, ${data.state}
 - Phone: ${data.phone}
 - Email: ${data.email}
-${data.address ? `- Full Address: ${data.address}` : ''}
-- Operating Hours: ${hours}
+${data.address ? `- Address: ${data.address}` : ''}
+- Hours: ${hours}
 ${data.instagram ? `- Instagram: @${data.instagram}` : ''}
 ${data.facebook ? `- Facebook: ${data.facebook}` : ''}
 
-SERVICES:
-${services.map(s => `• ${s}`).join('\n')}
+SERVICES: ${services.join(', ')}
 
-TARGET AUDIENCE: ${data.targetCustomers || 'Local customers seeking quality service'}
-KEY DIFFERENTIATORS: ${data.uniqueSellingPoints || 'Professional service, local expertise'}
-${data.additionalNotes ? `ADDITIONAL CONTEXT: ${data.additionalNotes}` : ''}
+=== DESIGN SYSTEM (FOLLOW EXACTLY) ===
 
-=== DESIGN SPECIFICATIONS (CRITICAL) ===
+**TYPOGRAPHY - CRITICAL:**
+- Google Font: Inter only
+- Logo/Brand: font-weight: 200, letter-spacing: 0.3em, text-transform: uppercase
+- Section labels: font-weight: 400, font-size: 0.75rem, letter-spacing: 0.2em, text-transform: uppercase, color: #888
+- Headings: font-weight: 300, font-size: 2.5rem (desktop), normal case
+- Body: font-weight: 300, font-size: 1rem, line-height: 1.8, color: #555
+- Buttons: font-weight: 400, font-size: 0.8rem, letter-spacing: 0.15em, text-transform: uppercase
 
-**VISUAL STYLE:**
-- Modern, premium aesthetic with generous whitespace
-- Sophisticated color palette: Use a bold primary color with subtle gradients
-- Typography: Google Fonts - Use Playfair Display or Cormorant for headings, Inter or DM Sans for body
-- Smooth CSS transitions on all interactive elements (0.3s ease)
-- Subtle box shadows (0 20px 40px rgba(0,0,0,0.1)) for depth
-- Rounded corners (12-20px) for a friendly, modern feel
+**COLORS - STRICT PALETTE:**
+- Background: #ffffff
+- Text primary: #1a1a1a
+- Text secondary: #666666
+- Text muted: #999999
+- Borders: #e5e5e5
+- Dark sections: #1a1a1a (background), #ffffff (text)
+- NO other colors. NO gradients. NO colored accents.
 
-**HERO SECTION (Most Important):**
-- Full viewport height (100vh) with dramatic impact
-- Large, bold headline with gradient text or text shadow
-- Compelling subheadline that speaks to customer pain points
-- Two CTA buttons: Primary "Get Quote" and secondary "Learn More"
-- Background: Use a high-quality Unsplash image with dark overlay (rgba(0,0,0,0.5))
-- Sticky navigation bar with logo and smooth scroll links
+**COMPONENTS:**
+- Buttons: border: 1px solid currentColor, background: transparent, padding: 16px 32px
+- Cards: border: 1px solid #e5e5e5, NO shadows, NO border-radius
+- Icons: Use simple SVG line icons, stroke-width: 1.5, color: #999
 
-**IMAGES - USE THESE EXACT UNSPLASH URLS:**
-For ${data.category} business, use relevant images:
-- Hero: https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80 (construction/industrial)
-- About: https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80 (team working)
-- Service cards: https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80 (architecture)
+**NAVIGATION:**
+- Fixed top, background: white, border-bottom: 1px solid #e5e5e5
+- Logo left (letter-spaced uppercase), links right
+- Links: font-weight: 400, no underline, subtle hover
+- CTA button: outline style with border
+
+**HERO SECTION:**
+- Full viewport height (100vh)
+- Full-bleed background image with subtle dark overlay (rgba(0,0,0,0.3))
+- Centered content: Logo large, tagline below, location below that
+- Two buttons: "EXPLORE SERVICES" (outline white) and "GET A QUOTE" (filled white, dark text)
+- Use this image: https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80
 
 **SERVICES SECTION:**
-- 3-column grid with hover animations
-- Each card: Icon/image, title, description, "Learn More" link
-- Cards should lift on hover (transform: translateY(-8px))
-- Alternating background colors or subtle patterns
+- White background, generous padding (120px vertical)
+- Label above: "WHAT WE DO"
+- Heading: "Our Services"
+- 4-column grid of cards (3 on tablet, 1 on mobile)
+- Each card: thin border, SVG icon at top, title, short description, "LEARN MORE →" link
+- NO hover effects, NO shadows
+
+**STATS SECTION:**
+- Dark background (#1a1a1a), white text
+- 4 stats in a row: numbers large (font-weight: 200, font-size: 3rem), labels small below
+- Example: "15+" / "Years Experience"
 
 **ABOUT SECTION:**
-- Two-column layout: Image left, text right
-- Include trust indicators: Years in business, projects completed, satisfaction rate
-- Professional tone that builds credibility
+- Two columns: text left, image right
+- Label: "ABOUT ${data.businessName.toUpperCase()}"
+- Clean heading, 2 paragraphs of text
+- "DISCOVER MORE →" link
+- Image with small overlapping stat badge
 
 **CONTACT SECTION:**
-- Dark background for contrast
-- Two columns: Contact details left, contact form right
-- Form fields: Name, Email, Phone, Message, Submit button
-- Display actual business hours in a clean grid
-- Show social media links if provided
+- Dark background
+- Label: "GET IN TOUCH"
+- Two columns: contact info left, simple form right
+- Form: minimal inputs with bottom-border only, white submit button
 
 **FOOTER:**
-- Compact, professional footer
-- Copyright, quick links, contact summary
+- Dark background, minimal
+- Logo, nav links, copyright in one row
 
-**TECHNICAL REQUIREMENTS:**
-- Single HTML file with embedded <style> tag
-- Mobile-first responsive (use @media queries for 768px+ and 1024px+)
-- Smooth scroll behavior: html { scroll-behavior: smooth; }
-- No external dependencies except Google Fonts
-- All images must use real Unsplash URLs (not placeholders)
+**IMAGES:**
+- Hero: https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80
+- About: https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80
 
-**BRAND VOICE:**
-Write copy that is confident, professional, and customer-focused. Avoid generic phrases. Make it feel personal to ${data.suburb}.
+**TECHNICAL:**
+- Single HTML file with embedded CSS
+- Mobile responsive with clean breakpoints
+- Smooth scroll: html { scroll-behavior: smooth }
+- Transitions: all 0.3s ease
 
-CRITICAL RULES:
-1. Use ONLY the business information provided - never invent details
-2. Every Unsplash image URL must be complete and working
-3. The design must look expensive and professional
-4. Mobile experience must be flawless
-5. Return ONLY the HTML code, no markdown, no explanations`
+CRITICAL: Return ONLY valid HTML. No markdown, no explanations. The design must feel expensive through restraint and typography, not through effects or colors.`
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
