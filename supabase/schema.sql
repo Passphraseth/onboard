@@ -223,6 +223,94 @@ CREATE POLICY "Service role has full access to messages"
   USING (auth.role() = 'service_role');
 
 -- ============================================
+-- CHAT MESSAGES TABLE
+-- ============================================
+-- Stores pre-purchase chat conversations
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+  sender TEXT NOT NULL CHECK (sender IN ('user', 'assistant')),
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_chat_messages_lead ON chat_messages(lead_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(created_at);
+
+-- Enable RLS
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role has full access to chat_messages"
+  ON chat_messages FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- ============================================
+-- CONTACT SUBMISSIONS TABLE
+-- ============================================
+-- Stores contact form submissions from live sites
+CREATE TABLE IF NOT EXISTS contact_submissions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+  slug TEXT NOT NULL,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  message TEXT NOT NULL,
+  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'read', 'replied', 'archived')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_lead ON contact_submissions(lead_id);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_slug ON contact_submissions(slug);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_status ON contact_submissions(status);
+
+-- Enable RLS
+ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role has full access to contact_submissions"
+  ON contact_submissions FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- ============================================
+-- ADD lead_id TO UPDATE REQUESTS (for pre-purchase)
+-- ============================================
+-- Allow update requests from leads (not just customers)
+ALTER TABLE update_requests
+  ALTER COLUMN customer_id DROP NOT NULL,
+  ALTER COLUMN site_id DROP NOT NULL;
+
+ALTER TABLE update_requests
+  ADD COLUMN IF NOT EXISTS lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+  ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'general',
+  ALTER COLUMN channel SET DEFAULT 'dashboard',
+  ALTER COLUMN channel DROP NOT NULL;
+
+-- Make channel constraint more flexible
+ALTER TABLE update_requests DROP CONSTRAINT IF EXISTS update_requests_channel_check;
+ALTER TABLE update_requests ADD CONSTRAINT update_requests_channel_check
+  CHECK (channel IS NULL OR channel IN ('sms', 'email', 'dashboard', 'chat'));
+
+-- Index for lead-based lookups
+CREATE INDEX IF NOT EXISTS idx_updates_lead ON update_requests(lead_id);
+
+-- ============================================
+-- ADD lead_id TO CLIENT SITES (for previews)
+-- ============================================
+ALTER TABLE client_sites
+  ADD COLUMN IF NOT EXISTS lead_id UUID REFERENCES leads(id) ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS idx_sites_lead ON client_sites(lead_id);
+
+-- ============================================
+-- ADD plan TO LEADS (for tracking selected plan)
+-- ============================================
+ALTER TABLE leads
+  ADD COLUMN IF NOT EXISTS plan TEXT CHECK (plan IS NULL OR plan IN ('starter', 'growth', 'pro')),
+  ADD COLUMN IF NOT EXISTS contact_name TEXT;
+
+-- ============================================
 -- DONE! 🎉
 -- ============================================
 -- Your database is now set up and ready to use.
