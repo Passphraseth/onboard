@@ -83,50 +83,92 @@ async function generateWithClaude(data: BusinessData): Promise<string> {
   const businessType = getBusinessType(data)
   const hours = formatHours(data.operatingHours)
 
-  const prompt = `Generate a complete, production-ready HTML website for this business. Use ONLY the information provided.
+  const prompt = `You are an elite web designer creating a stunning, agency-quality landing page. Create a complete HTML website that looks like it cost $5,000+ to design.
 
-BUSINESS INFORMATION:
-- Name: ${data.businessName}
-- Category: ${data.category}
+BUSINESS DETAILS:
+- Business Name: ${data.businessName}
+- Industry: ${data.category}
 - Location: ${data.suburb}, ${data.state}
 - Phone: ${data.phone}
 - Email: ${data.email}
-${data.address ? `- Address: ${data.address}` : ''}
-- Hours: ${hours}
+${data.address ? `- Full Address: ${data.address}` : ''}
+- Operating Hours: ${hours}
 ${data.instagram ? `- Instagram: @${data.instagram}` : ''}
 ${data.facebook ? `- Facebook: ${data.facebook}` : ''}
 
-SERVICES OFFERED:
-${services.map(s => `- ${s}`).join('\n')}
+SERVICES:
+${services.map(s => `• ${s}`).join('\n')}
 
-TARGET CUSTOMERS: ${data.targetCustomers || 'General customers'}
+TARGET AUDIENCE: ${data.targetCustomers || 'Local customers seeking quality service'}
+KEY DIFFERENTIATORS: ${data.uniqueSellingPoints || 'Professional service, local expertise'}
+${data.additionalNotes ? `ADDITIONAL CONTEXT: ${data.additionalNotes}` : ''}
 
-UNIQUE SELLING POINTS: ${data.uniqueSellingPoints || 'Quality service'}
+=== DESIGN SPECIFICATIONS (CRITICAL) ===
 
-${data.additionalNotes ? `ADDITIONAL NOTES: ${data.additionalNotes}` : ''}
+**VISUAL STYLE:**
+- Modern, premium aesthetic with generous whitespace
+- Sophisticated color palette: Use a bold primary color with subtle gradients
+- Typography: Google Fonts - Use Playfair Display or Cormorant for headings, Inter or DM Sans for body
+- Smooth CSS transitions on all interactive elements (0.3s ease)
+- Subtle box shadows (0 20px 40px rgba(0,0,0,0.1)) for depth
+- Rounded corners (12-20px) for a friendly, modern feel
 
-DESIGN REQUIREMENTS:
-- Business type: ${businessType}
-${businessType === 'fashion' ? '- Use bold, editorial design with Bebas Neue or similar display font' : ''}
-${businessType === 'fashion' ? '- High contrast black/white with minimal accent colors' : ''}
-${businessType === 'beauty' ? '- Elegant, soft design with refined typography' : ''}
-${businessType === 'trades' ? '- Professional, trustworthy design with clear CTAs' : ''}
-- Mobile-responsive
-- Include hero, services, about, contact sections
-- Use real contact info provided
-- Professional stock photos from Unsplash (use actual URLs like https://images.unsplash.com/photo-...)
+**HERO SECTION (Most Important):**
+- Full viewport height (100vh) with dramatic impact
+- Large, bold headline with gradient text or text shadow
+- Compelling subheadline that speaks to customer pain points
+- Two CTA buttons: Primary "Get Quote" and secondary "Learn More"
+- Background: Use a high-quality Unsplash image with dark overlay (rgba(0,0,0,0.5))
+- Sticky navigation bar with logo and smooth scroll links
 
-CRITICAL:
-- Use ONLY the information provided above
-- Do NOT assume wedding photography for photographers unless explicitly stated
-- Do NOT make up services or contact details
-- Generate complete, working HTML with embedded CSS
+**IMAGES - USE THESE EXACT UNSPLASH URLS:**
+For ${data.category} business, use relevant images:
+- Hero: https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80 (construction/industrial)
+- About: https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80 (team working)
+- Service cards: https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80 (architecture)
 
-Return ONLY the HTML code, no explanations.`
+**SERVICES SECTION:**
+- 3-column grid with hover animations
+- Each card: Icon/image, title, description, "Learn More" link
+- Cards should lift on hover (transform: translateY(-8px))
+- Alternating background colors or subtle patterns
+
+**ABOUT SECTION:**
+- Two-column layout: Image left, text right
+- Include trust indicators: Years in business, projects completed, satisfaction rate
+- Professional tone that builds credibility
+
+**CONTACT SECTION:**
+- Dark background for contrast
+- Two columns: Contact details left, contact form right
+- Form fields: Name, Email, Phone, Message, Submit button
+- Display actual business hours in a clean grid
+- Show social media links if provided
+
+**FOOTER:**
+- Compact, professional footer
+- Copyright, quick links, contact summary
+
+**TECHNICAL REQUIREMENTS:**
+- Single HTML file with embedded <style> tag
+- Mobile-first responsive (use @media queries for 768px+ and 1024px+)
+- Smooth scroll behavior: html { scroll-behavior: smooth; }
+- No external dependencies except Google Fonts
+- All images must use real Unsplash URLs (not placeholders)
+
+**BRAND VOICE:**
+Write copy that is confident, professional, and customer-focused. Avoid generic phrases. Make it feel personal to ${data.suburb}.
+
+CRITICAL RULES:
+1. Use ONLY the business information provided - never invent details
+2. Every Unsplash image URL must be complete and working
+3. The design must look expensive and professional
+4. Mobile experience must be flawless
+5. Return ONLY the HTML code, no markdown, no explanations`
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 8000,
+    max_tokens: 16000,
     messages: [{ role: 'user', content: prompt }]
   })
 
