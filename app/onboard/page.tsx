@@ -6,28 +6,26 @@ import Link from 'next/link'
 
 type Step = 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'branding' | 'services' | 'usp' | 'generating'
 
-// Brand tone options
 const BRAND_TONES = [
-  { id: 'professional', name: 'Professional', icon: '💼', description: 'Clean, trustworthy, corporate' },
-  { id: 'casual', name: 'Casual', icon: '😊', description: 'Friendly, approachable, relaxed' },
-  { id: 'luxurious', name: 'Luxurious', icon: '✨', description: 'Premium, elegant, sophisticated' },
-  { id: 'fun', name: 'Fun', icon: '🎉', description: 'Playful, energetic, vibrant' },
-  { id: 'minimal', name: 'Minimal', icon: '◻️', description: 'Simple, clean, modern' },
-  { id: 'warm', name: 'Warm', icon: '🤝', description: 'Welcoming, caring, personal' },
-  { id: 'bold', name: 'Bold', icon: '💪', description: 'Strong, confident, impactful' },
-  { id: 'elegant', name: 'Elegant', icon: '🌸', description: 'Graceful, refined, tasteful' },
+  { id: 'professional', name: 'Professional', description: 'Clean, trustworthy' },
+  { id: 'casual', name: 'Casual', description: 'Friendly, approachable' },
+  { id: 'luxurious', name: 'Luxurious', description: 'Premium, elegant' },
+  { id: 'fun', name: 'Fun', description: 'Playful, energetic' },
+  { id: 'minimal', name: 'Minimal', description: 'Simple, modern' },
+  { id: 'warm', name: 'Warm', description: 'Welcoming, personal' },
+  { id: 'bold', name: 'Bold', description: 'Strong, confident' },
+  { id: 'elegant', name: 'Elegant', description: 'Graceful, refined' },
 ]
 
-// Preset color palettes
 const COLOR_PALETTES = [
-  { id: 'navy-gold', name: 'Navy & Gold', colors: ['#1e3a5f', '#d4af37', '#f8fafc'], description: 'Professional & Premium' },
-  { id: 'charcoal-copper', name: 'Charcoal & Copper', colors: ['#2d2d2d', '#c5a572', '#ffffff'], description: 'Modern & Sophisticated' },
-  { id: 'forest-cream', name: 'Forest & Cream', colors: ['#2d5a3d', '#d4a574', '#faf8f5'], description: 'Natural & Organic' },
-  { id: 'slate-coral', name: 'Slate & Coral', colors: ['#3d4f5f', '#e8735f', '#ffffff'], description: 'Contemporary & Warm' },
-  { id: 'black-lime', name: 'Black & Lime', colors: ['#1a1a1a', '#c5f82a', '#ffffff'], description: 'Bold & Modern' },
-  { id: 'plum-blush', name: 'Plum & Blush', colors: ['#4a2c4a', '#e8b4b8', '#fdf6f6'], description: 'Elegant & Feminine' },
-  { id: 'ocean-sand', name: 'Ocean & Sand', colors: ['#1e6091', '#e8dcc4', '#ffffff'], description: 'Coastal & Relaxed' },
-  { id: 'custom', name: 'Custom', colors: ['#6366f1', '#8b5cf6', '#ffffff'], description: 'I have my own colors' },
+  { id: 'navy-gold', name: 'Navy & Gold', colors: ['#1e3a5f', '#d4af37', '#f8fafc'], description: 'Professional' },
+  { id: 'charcoal-copper', name: 'Charcoal & Copper', colors: ['#2d2d2d', '#c5a572', '#ffffff'], description: 'Sophisticated' },
+  { id: 'forest-cream', name: 'Forest & Cream', colors: ['#2d5a3d', '#d4a574', '#faf8f5'], description: 'Natural' },
+  { id: 'slate-coral', name: 'Slate & Coral', colors: ['#3d4f5f', '#e8735f', '#ffffff'], description: 'Contemporary' },
+  { id: 'black-white', name: 'Black & White', colors: ['#1a1a1a', '#ffffff', '#f5f5f5'], description: 'Classic' },
+  { id: 'plum-blush', name: 'Plum & Blush', colors: ['#4a2c4a', '#e8b4b8', '#fdf6f6'], description: 'Elegant' },
+  { id: 'ocean-sand', name: 'Ocean & Sand', colors: ['#1e6091', '#e8dcc4', '#ffffff'], description: 'Coastal' },
+  { id: 'custom', name: 'Custom', colors: ['#6366f1', '#8b5cf6', '#ffffff'], description: 'My own colors' },
 ]
 
 interface OnboardingData {
@@ -57,7 +55,6 @@ interface OnboardingData {
   targetCustomers: string
   uniqueSellingPoints: string
   additionalNotes: string
-  // NEW: Branding preferences
   preferredTone: string
   selectedPalette: string
   customColors: string[]
@@ -65,19 +62,19 @@ interface OnboardingData {
 }
 
 const BUSINESS_TYPES = [
-  { id: 'plumber', name: 'Plumber', icon: '🔧' },
-  { id: 'electrician', name: 'Electrician', icon: '⚡' },
-  { id: 'hairdresser', name: 'Hairdresser / Barber', icon: '💇' },
-  { id: 'beautician', name: 'Beauty / Nails', icon: '💅' },
-  { id: 'cleaner', name: 'Cleaner', icon: '🧹' },
-  { id: 'landscaper', name: 'Landscaper / Gardener', icon: '🌳' },
-  { id: 'mechanic', name: 'Mechanic', icon: '🔩' },
-  { id: 'cafe', name: 'Cafe / Restaurant', icon: '☕' },
-  { id: 'fitness', name: 'Personal Trainer / Gym', icon: '💪' },
-  { id: 'photographer', name: 'Photographer', icon: '📸' },
-  { id: 'construction', name: 'Builder / Construction', icon: '🏗️' },
-  { id: 'hvac', name: 'HVAC / Air Conditioning', icon: '❄️' },
-  { id: 'other', name: 'Other', icon: '✨' },
+  { id: 'plumber', name: 'Plumber' },
+  { id: 'electrician', name: 'Electrician' },
+  { id: 'hairdresser', name: 'Hairdresser / Barber' },
+  { id: 'beautician', name: 'Beauty / Nails' },
+  { id: 'cleaner', name: 'Cleaner' },
+  { id: 'landscaper', name: 'Landscaper' },
+  { id: 'mechanic', name: 'Mechanic' },
+  { id: 'cafe', name: 'Cafe / Restaurant' },
+  { id: 'fitness', name: 'Personal Trainer' },
+  { id: 'photographer', name: 'Photographer' },
+  { id: 'construction', name: 'Builder' },
+  { id: 'hvac', name: 'HVAC / Air Con' },
+  { id: 'other', name: 'Other' },
 ]
 
 const DEFAULT_HOURS = {
@@ -112,7 +109,6 @@ export default function OnboardingPage() {
     targetCustomers: '',
     uniqueSellingPoints: '',
     additionalNotes: '',
-    // NEW: Branding preferences
     preferredTone: '',
     selectedPalette: '',
     customColors: [],
@@ -163,26 +159,19 @@ export default function OnboardingPage() {
     setGenerationStatus('Creating your business profile...')
 
     try {
-      // Update status based on what data we have
       if (data.instagram) {
-        setGenerationStatus('Analyzing your Instagram for branding and photos...')
+        setGenerationStatus('Analyzing your brand...')
         await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
-      if (data.website) {
-        setGenerationStatus('Extracting colors and style from your existing website...')
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-
-      setGenerationStatus('Researching competitors in your area...')
+      setGenerationStatus('Designing your website...')
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      setGenerationStatus('Building your unique brand profile...')
+      setGenerationStatus('Generating content...')
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      setGenerationStatus('Generating your personalized website...')
+      setGenerationStatus('Almost there...')
 
-      // Include branding preferences in the API call
       const requestData = {
         ...data,
         preferredColors: data.selectedPalette === 'custom'
@@ -201,8 +190,8 @@ export default function OnboardingPage() {
       const result = await res.json()
 
       if (result.slug) {
-        setGenerationStatus('Your preview is ready! Redirecting...')
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        setGenerationStatus('Your preview is ready!')
+        await new Promise(resolve => setTimeout(resolve, 800))
         router.push(`/claim/${result.slug}`)
       } else {
         throw new Error('Failed to generate preview')
@@ -255,13 +244,13 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-blue">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="px-6 py-4 flex justify-between items-center max-w-4xl mx-auto">
-        <Link href="/" className="text-xl font-black">
-          Onboard 🛫
+        <Link href="/" className="text-lg font-semibold tracking-tight">
+          onboard
         </Link>
-        <div className="text-sm opacity-70">
+        <div className="text-sm text-neutral-500">
           {currentStep !== 'generating' && `Step ${Object.keys(progress).indexOf(currentStep) + 1} of 9`}
         </div>
       </header>
@@ -269,23 +258,22 @@ export default function OnboardingPage() {
       {/* Progress Bar */}
       {currentStep !== 'generating' && (
         <div className="max-w-4xl mx-auto px-6 mb-8">
-          <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+          <div className="h-1 bg-neutral-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-brand-lime transition-all duration-500"
+              className="h-full bg-white transition-all duration-500"
               style={{ width: `${progress[currentStep]}%` }}
             />
           </div>
         </div>
       )}
 
-      <main className="max-w-2xl mx-auto px-6 pb-12">
+      <main className="max-w-xl mx-auto px-6 pb-12">
         {/* Step: Business Name */}
         {currentStep === 'name' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">🏢</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">What's your business called?</h1>
-              <p className="opacity-80">This will be the name that appears on your website.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">What's your business called?</h1>
+              <p className="text-neutral-400">This will be the name on your website.</p>
             </div>
             <div className="space-y-4">
               <input
@@ -293,15 +281,15 @@ export default function OnboardingPage() {
                 value={data.businessName}
                 onChange={(e) => updateData({ businessName: e.target.value })}
                 placeholder="e.g. Smith's Plumbing"
-                className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 text-lg focus:border-brand-lime outline-none"
+                className="input text-lg py-4"
                 autoFocus
               />
               <button
                 onClick={nextStep}
                 disabled={!data.businessName.trim()}
-                className="btn btn-lime w-full text-lg py-4 disabled:opacity-50"
+                className="btn btn-primary w-full py-4 disabled:opacity-30"
               >
-                Continue →
+                Continue
               </button>
             </div>
           </div>
@@ -309,25 +297,23 @@ export default function OnboardingPage() {
 
         {/* Step: Business Type */}
         {currentStep === 'type' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">📋</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">What type of business is it?</h1>
-              <p className="opacity-80">We'll customize your website based on your industry.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">What type of business?</h1>
+              <p className="text-neutral-400">We'll customise your site for your industry.</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-3 mb-6">
               {BUSINESS_TYPES.map((type) => (
                 <button
                   key={type.id}
                   onClick={() => updateData({ businessType: type.id })}
-                  className={`p-4 rounded-xl text-left transition-all ${
+                  className={`p-4 rounded-lg text-left transition-all ${
                     data.businessType === type.id
-                      ? 'bg-brand-lime text-brand-black scale-105'
-                      : 'bg-white/10 hover:bg-white/20'
+                      ? 'bg-white text-black'
+                      : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
                   }`}
                 >
-                  <div className="text-2xl mb-1">{type.icon}</div>
-                  <div className="font-bold text-sm">{type.name}</div>
+                  <div className="font-medium text-sm">{type.name}</div>
                 </button>
               ))}
             </div>
@@ -337,19 +323,19 @@ export default function OnboardingPage() {
                 value={data.customType}
                 onChange={(e) => updateData({ customType: e.target.value })}
                 placeholder="Tell us what you do..."
-                className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 mb-4 focus:border-brand-lime outline-none"
+                className="input mb-4"
               />
             )}
             <div className="flex gap-3">
-              <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                ← Back
+              <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                Back
               </button>
               <button
                 onClick={nextStep}
                 disabled={!data.businessType || (data.businessType === 'other' && !data.customType.trim())}
-                className="btn btn-lime flex-1 py-4 disabled:opacity-50"
+                className="btn btn-primary flex-1 py-4 disabled:opacity-30"
               >
-                Continue →
+                Continue
               </button>
             </div>
           </div>
@@ -357,25 +343,24 @@ export default function OnboardingPage() {
 
         {/* Step: Location */}
         {currentStep === 'location' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">📍</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">Where are you located?</h1>
-              <p className="opacity-80">Customers will find you based on your service area.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Where are you located?</h1>
+              <p className="text-neutral-400">Customers will find you by location.</p>
             </div>
             <div className="space-y-4">
               <input
                 type="text"
                 value={data.suburb}
                 onChange={(e) => updateData({ suburb: e.target.value })}
-                placeholder="Suburb (e.g. Richmond)"
-                className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                placeholder="Suburb"
+                className="input"
               />
               <div className="grid grid-cols-2 gap-4">
                 <select
                   value={data.state}
                   onChange={(e) => updateData({ state: e.target.value })}
-                  className="px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white focus:border-brand-lime outline-none"
+                  className="input"
                 >
                   <option value="VIC">VIC</option>
                   <option value="NSW">NSW</option>
@@ -391,26 +376,26 @@ export default function OnboardingPage() {
                   value={data.postcode}
                   onChange={(e) => updateData({ postcode: e.target.value })}
                   placeholder="Postcode"
-                  className="px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  className="input"
                 />
               </div>
               <input
                 type="text"
                 value={data.address}
                 onChange={(e) => updateData({ address: e.target.value })}
-                placeholder="Street address (optional - for map)"
-                className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                placeholder="Street address (optional)"
+                className="input"
               />
               <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                  ← Back
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
                 </button>
                 <button
                   onClick={nextStep}
                   disabled={!data.suburb.trim()}
-                  className="btn btn-lime flex-1 py-4 disabled:opacity-50"
+                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
                 >
-                  Continue →
+                  Continue
                 </button>
               </div>
             </div>
@@ -419,24 +404,23 @@ export default function OnboardingPage() {
 
         {/* Step: Operating Hours */}
         {currentStep === 'hours' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">🕐</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">When are you open?</h1>
-              <p className="opacity-80">Let customers know your availability.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">When are you open?</h1>
+              <p className="text-neutral-400">Let customers know your availability.</p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {Object.entries(data.operatingHours).map(([day, hours]) => (
-                <div key={day} className="bg-white/10 rounded-xl p-4 flex items-center gap-4">
-                  <div className="w-24 font-bold capitalize">{day}</div>
+                <div key={day} className="bg-neutral-900 rounded-lg p-3 flex items-center gap-3">
+                  <div className="w-20 font-medium text-sm capitalize">{day}</div>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={hours.closed}
                       onChange={(e) => updateHours(day, 'closed', e.target.checked)}
-                      className="w-5 h-5 rounded"
+                      className="w-4 h-4 rounded bg-neutral-800 border-neutral-700"
                     />
-                    <span className="text-sm opacity-80">Closed</span>
+                    <span className="text-xs text-neutral-400">Closed</span>
                   </label>
                   {!hours.closed && (
                     <>
@@ -444,14 +428,14 @@ export default function OnboardingPage() {
                         type="time"
                         value={hours.open}
                         onChange={(e) => updateHours(day, 'open', e.target.value)}
-                        className="px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm"
+                        className="px-2 py-1 rounded bg-neutral-800 border border-neutral-700 text-white text-sm"
                       />
-                      <span className="opacity-60">to</span>
+                      <span className="text-neutral-500 text-sm">to</span>
                       <input
                         type="time"
                         value={hours.close}
                         onChange={(e) => updateHours(day, 'close', e.target.value)}
-                        className="px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm"
+                        className="px-2 py-1 rounded bg-neutral-800 border border-neutral-700 text-white text-sm"
                       />
                     </>
                   )}
@@ -459,11 +443,11 @@ export default function OnboardingPage() {
               ))}
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                ← Back
+              <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                Back
               </button>
-              <button onClick={nextStep} className="btn btn-lime flex-1 py-4">
-                Continue →
+              <button onClick={nextStep} className="btn btn-primary flex-1 py-4">
+                Continue
               </button>
             </div>
           </div>
@@ -471,43 +455,42 @@ export default function OnboardingPage() {
 
         {/* Step: Contact Details */}
         {currentStep === 'contact' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">📞</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">How can customers reach you?</h1>
-              <p className="opacity-80">These will be displayed prominently on your site.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Contact details</h1>
+              <p className="text-neutral-400">How can customers reach you?</p>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm opacity-70 mb-2">Phone Number *</label>
+                <label className="block text-sm text-neutral-400 mb-2">Phone</label>
                 <input
                   type="tel"
                   value={data.phone}
                   onChange={(e) => updateData({ phone: e.target.value })}
                   placeholder="0412 345 678"
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  className="input"
                 />
               </div>
               <div>
-                <label className="block text-sm opacity-70 mb-2">Email Address *</label>
+                <label className="block text-sm text-neutral-400 mb-2">Email</label>
                 <input
                   type="email"
                   value={data.email}
                   onChange={(e) => updateData({ email: e.target.value })}
                   placeholder="hello@yourbusiness.com"
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  className="input"
                 />
               </div>
               <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                  ← Back
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
                 </button>
                 <button
                   onClick={nextStep}
                   disabled={!data.phone.trim() || !data.email.trim()}
-                  className="btn btn-lime flex-1 py-4 disabled:opacity-50"
+                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
                 >
-                  Continue →
+                  Continue
                 </button>
               </div>
             </div>
@@ -516,192 +499,156 @@ export default function OnboardingPage() {
 
         {/* Step: Social Media */}
         {currentStep === 'socials' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">📱</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">Got social media?</h1>
-              <p className="opacity-80">We'll pull in your photos and style from Instagram to personalize your site!</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Social media</h1>
+              <p className="text-neutral-400">We'll use your photos to personalise your site.</p>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm opacity-70 mb-2">
-                  <span className="text-pink-400">Instagram</span> (Recommended - we'll use your photos!)
-                </label>
+                <label className="block text-sm text-neutral-400 mb-2">Instagram (recommended)</label>
                 <div className="flex">
-                  <span className="px-4 py-4 bg-white/5 rounded-l-xl border-2 border-r-0 border-white/20 text-white/50">@</span>
+                  <span className="px-4 py-3 bg-neutral-800 rounded-l-lg border border-r-0 border-neutral-700 text-neutral-500">@</span>
                   <input
                     type="text"
                     value={data.instagram}
                     onChange={(e) => updateData({ instagram: e.target.value.replace('@', '') })}
                     placeholder="yourbusiness"
-                    className="w-full px-5 py-4 rounded-r-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                    className="input rounded-l-none"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm opacity-70 mb-2">Facebook (optional)</label>
+                <label className="block text-sm text-neutral-400 mb-2">Facebook (optional)</label>
                 <input
                   type="text"
                   value={data.facebook}
                   onChange={(e) => updateData({ facebook: e.target.value })}
                   placeholder="facebook.com/yourbusiness"
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  className="input"
                 />
               </div>
               <div>
-                <label className="block text-sm opacity-70 mb-2">Existing Website (optional)</label>
+                <label className="block text-sm text-neutral-400 mb-2">Existing website (optional)</label>
                 <input
                   type="text"
                   value={data.website}
                   onChange={(e) => updateData({ website: e.target.value })}
                   placeholder="www.yourbusiness.com"
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  className="input"
                 />
               </div>
               <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                  ← Back
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
                 </button>
-                <button onClick={nextStep} className="btn btn-lime flex-1 py-4">
-                  Continue →
+                <button onClick={nextStep} className="btn btn-primary flex-1 py-4">
+                  Continue
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Step: Branding - Logo, Tone, Colors */}
+        {/* Step: Branding */}
         {currentStep === 'branding' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">🎨</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">Let's style your brand</h1>
-              <p className="opacity-80">These choices will make your website uniquely yours.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Brand style</h1>
+              <p className="text-neutral-400">How should your website feel?</p>
             </div>
             <div className="space-y-6">
-              {/* Logo URL (optional) */}
               <div>
-                <label className="block text-sm opacity-70 mb-2">Got a logo? (Optional)</label>
+                <label className="block text-sm text-neutral-400 mb-2">Logo URL (optional)</label>
                 <input
                   type="text"
                   value={data.logoUrl}
                   onChange={(e) => updateData({ logoUrl: e.target.value })}
-                  placeholder="Paste your logo URL (e.g., from Google Drive or Dropbox)"
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  placeholder="Paste your logo URL"
+                  className="input"
                 />
-                <p className="text-xs opacity-50 mt-1">We'll use this instead of generating a text logo</p>
               </div>
 
-              {/* Brand Tone Selection */}
               <div>
-                <label className="block text-sm opacity-70 mb-3">How should your brand feel?</label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <label className="block text-sm text-neutral-400 mb-3">Brand tone</label>
+                <div className="grid grid-cols-2 gap-2">
                   {BRAND_TONES.map((tone) => (
                     <button
                       key={tone.id}
                       onClick={() => updateData({ preferredTone: tone.id })}
-                      className={`p-3 rounded-xl text-left transition-all ${
+                      className={`p-3 rounded-lg text-left transition-all ${
                         data.preferredTone === tone.id
-                          ? 'bg-brand-lime text-brand-black scale-105'
-                          : 'bg-white/10 hover:bg-white/20'
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
                       }`}
                     >
-                      <div className="text-xl mb-1">{tone.icon}</div>
-                      <div className="font-bold text-sm">{tone.name}</div>
-                      <div className="text-xs opacity-70">{tone.description}</div>
+                      <div className="font-medium text-sm">{tone.name}</div>
+                      <div className={`text-xs ${data.preferredTone === tone.id ? 'text-neutral-600' : 'text-neutral-500'}`}>
+                        {tone.description}
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Color Palette Selection */}
               <div>
-                <label className="block text-sm opacity-70 mb-3">Pick a color palette</label>
-                <div className="grid grid-cols-2 gap-3">
+                <label className="block text-sm text-neutral-400 mb-3">Colour palette</label>
+                <div className="grid grid-cols-2 gap-2">
                   {COLOR_PALETTES.map((palette) => (
                     <button
                       key={palette.id}
                       onClick={() => updateData({ selectedPalette: palette.id, customColors: palette.colors })}
-                      className={`p-4 rounded-xl text-left transition-all ${
+                      className={`p-3 rounded-lg text-left transition-all ${
                         data.selectedPalette === palette.id
-                          ? 'ring-2 ring-brand-lime scale-105'
-                          : 'hover:bg-white/10'
+                          ? 'ring-2 ring-white'
+                          : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
                       }`}
-                      style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
                     >
                       <div className="flex gap-1 mb-2">
                         {palette.colors.map((color, i) => (
                           <div
                             key={i}
-                            className="w-8 h-8 rounded-lg border border-white/20"
+                            className="w-6 h-6 rounded border border-neutral-700"
                             style={{ backgroundColor: color }}
                           />
                         ))}
                       </div>
-                      <div className="font-bold text-sm">{palette.name}</div>
-                      <div className="text-xs opacity-70">{palette.description}</div>
+                      <div className="font-medium text-xs">{palette.name}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Custom Colors (if selected) */}
               {data.selectedPalette === 'custom' && (
                 <div>
-                  <label className="block text-sm opacity-70 mb-2">Enter your brand colors (hex codes)</label>
+                  <label className="block text-sm text-neutral-400 mb-2">Custom colours (hex)</label>
                   <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-xs opacity-50">Primary</label>
-                      <input
-                        type="text"
-                        value={data.customColors[0] || ''}
-                        onChange={(e) => {
-                          const newColors = [...data.customColors]
-                          newColors[0] = e.target.value
-                          updateData({ customColors: newColors })
-                        }}
-                        placeholder="#1a1a1a"
-                        className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs opacity-50">Accent</label>
-                      <input
-                        type="text"
-                        value={data.customColors[1] || ''}
-                        onChange={(e) => {
-                          const newColors = [...data.customColors]
-                          newColors[1] = e.target.value
-                          updateData({ customColors: newColors })
-                        }}
-                        placeholder="#c5f82a"
-                        className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs opacity-50">Background</label>
-                      <input
-                        type="text"
-                        value={data.customColors[2] || ''}
-                        onChange={(e) => {
-                          const newColors = [...data.customColors]
-                          newColors[2] = e.target.value
-                          updateData({ customColors: newColors })
-                        }}
-                        placeholder="#ffffff"
-                        className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none text-sm"
-                      />
-                    </div>
+                    {['Primary', 'Accent', 'Background'].map((label, i) => (
+                      <div key={label}>
+                        <label className="text-xs text-neutral-500">{label}</label>
+                        <input
+                          type="text"
+                          value={data.customColors[i] || ''}
+                          onChange={(e) => {
+                            const newColors = [...data.customColors]
+                            newColors[i] = e.target.value
+                            updateData({ customColors: newColors })
+                          }}
+                          placeholder={i === 0 ? '#1a1a1a' : i === 1 ? '#ffffff' : '#f5f5f5'}
+                          className="input text-sm mt-1"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
               <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                  ← Back
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
                 </button>
-                <button onClick={nextStep} className="btn btn-lime flex-1 py-4">
-                  Continue →
+                <button onClick={nextStep} className="btn btn-primary flex-1 py-4">
+                  Continue
                 </button>
               </div>
             </div>
@@ -710,11 +657,10 @@ export default function OnboardingPage() {
 
         {/* Step: Services */}
         {currentStep === 'services' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">🛠️</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">What services do you offer?</h1>
-              <p className="opacity-80">Select all that apply, or add your own.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">What services do you offer?</h1>
+              <p className="text-neutral-400">Select all that apply.</p>
             </div>
             <div className="space-y-4">
               {data.businessType && data.businessType !== 'other' && (
@@ -723,13 +669,13 @@ export default function OnboardingPage() {
                     <button
                       key={service}
                       onClick={() => toggleService(service)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      className={`px-3 py-2 rounded-full text-sm transition-all ${
                         data.services.includes(service)
-                          ? 'bg-brand-lime text-brand-black'
-                          : 'bg-white/10 hover:bg-white/20'
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
                       }`}
                     >
-                      {data.services.includes(service) ? '✓ ' : ''}{service}
+                      {data.services.includes(service) && '· '}{service}
                     </button>
                   ))}
                 </div>
@@ -739,18 +685,18 @@ export default function OnboardingPage() {
                 onChange={(e) => updateData({ customServices: e.target.value })}
                 placeholder="Add any other services (one per line)..."
                 rows={4}
-                className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none resize-none"
+                className="input resize-none"
               />
               <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                  ← Back
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
                 </button>
                 <button
                   onClick={nextStep}
                   disabled={data.services.length === 0 && !data.customServices.trim()}
-                  className="btn btn-lime flex-1 py-4 disabled:opacity-50"
+                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
                 >
-                  Continue →
+                  Continue
                 </button>
               </div>
             </div>
@@ -759,49 +705,48 @@ export default function OnboardingPage() {
 
         {/* Step: Unique Selling Points */}
         {currentStep === 'usp' && (
-          <div className="animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-4">⭐</div>
-              <h1 className="text-3xl md:text-4xl font-black mb-3">What makes you special?</h1>
-              <p className="opacity-80">Help us highlight what sets you apart from the competition.</p>
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">What makes you different?</h1>
+              <p className="text-neutral-400">Help us highlight what sets you apart.</p>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm opacity-70 mb-2">Who are your ideal customers?</label>
+                <label className="block text-sm text-neutral-400 mb-2">Ideal customers</label>
                 <input
                   type="text"
                   value={data.targetCustomers}
                   onChange={(e) => updateData({ targetCustomers: e.target.value })}
-                  placeholder="e.g. Homeowners, young professionals, families..."
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                  placeholder="e.g. Homeowners, young professionals..."
+                  className="input"
                 />
               </div>
               <div>
-                <label className="block text-sm opacity-70 mb-2">What makes you different? (Optional)</label>
+                <label className="block text-sm text-neutral-400 mb-2">What makes you special? (optional)</label>
                 <textarea
                   value={data.uniqueSellingPoints}
                   onChange={(e) => updateData({ uniqueSellingPoints: e.target.value })}
-                  placeholder="e.g. 20 years experience, same-day service, locally owned, eco-friendly products..."
+                  placeholder="e.g. 20 years experience, same-day service..."
                   rows={3}
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none resize-none"
+                  className="input resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm opacity-70 mb-2">Anything else we should know? (Optional)</label>
+                <label className="block text-sm text-neutral-400 mb-2">Anything else? (optional)</label>
                 <textarea
                   value={data.additionalNotes}
                   onChange={(e) => updateData({ additionalNotes: e.target.value })}
-                  placeholder="Any specific style preferences, colors, or information you want included..."
+                  placeholder="Any specific preferences..."
                   rows={3}
-                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none resize-none"
+                  className="input resize-none"
                 />
               </div>
               <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
-                  ← Back
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
                 </button>
-                <button onClick={nextStep} className="btn btn-lime flex-1 py-4 text-lg">
-                  Generate My Website! 🚀
+                <button onClick={nextStep} className="btn btn-primary flex-1 py-4 text-base">
+                  Generate my website
                 </button>
               </div>
             </div>
@@ -810,26 +755,13 @@ export default function OnboardingPage() {
 
         {/* Step: Generating */}
         {currentStep === 'generating' && (
-          <div className="animate-fadeIn text-center py-12">
-            <div className="text-7xl mb-6 animate-bounce">✨</div>
-            <h1 className="text-3xl md:text-4xl font-black mb-4">Creating Your Website...</h1>
-            <p className="text-lg opacity-80 mb-8">{generationStatus}</p>
-            <div className="w-full max-w-md mx-auto h-2 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-brand-lime animate-pulse" style={{ width: '60%' }} />
-            </div>
+          <div className="animate-fade-in text-center py-20">
+            <div className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-8" />
+            <h1 className="text-2xl font-semibold tracking-tight mb-4">Creating your website</h1>
+            <p className="text-neutral-400">{generationStatus}</p>
           </div>
         )}
       </main>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   )
 }

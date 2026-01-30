@@ -5,158 +5,198 @@ import { PLANS } from '@/lib/stripe/plans'
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-brand-blue">
-      {/* Header */}
-      <header className="px-6 py-4 flex justify-between items-center max-w-7xl mx-auto">
-        <Link href="/" className="text-xl font-black">
-          Onboard 🛫
-        </Link>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/#how-it-works" className="hover:underline">How It Works</Link>
-          <Link href="/pricing" className="hover:underline">Pricing</Link>
-          <Link href="/" className="btn btn-lime">
-            Get Started →
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="text-lg font-semibold tracking-tight">
+            onboard
           </Link>
-        </nav>
-      </header>
+          <div className="flex items-center gap-8">
+            <Link href="/pricing" className="text-sm text-white">
+              Pricing
+            </Link>
+            <Link href="/onboard" className="btn btn-primary text-sm">
+              Get started
+            </Link>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero */}
-      <section className="px-6 py-12 md:py-20 text-center max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-black leading-tight mb-4 tracking-tight">
-          Simple pricing 💰
-          <br />
-          <span className="text-brand-lime">No surprises.</span>
-        </h1>
-        <p className="text-xl opacity-90">
-          No setup fees. No contracts. No hidden costs. Cancel anytime.
-        </p>
+      <section className="pt-32 pb-16 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
+            Simple pricing
+          </h1>
+          <p className="text-neutral-400 text-lg">
+            Preview free. Pay only when you're ready to launch.
+          </p>
+        </div>
       </section>
 
       {/* Pricing Cards */}
-      <section className="bg-brand-lime py-12 md:py-20 px-6">
+      <section className="pb-24 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-3 gap-6">
             {/* Starter */}
-            <PricingCard
-              plan="starter"
-              name={PLANS.starter.name}
-              price={PLANS.starter.price}
-              features={PLANS.starter.features}
-            />
+            <div className="card p-8">
+              <p className="text-neutral-500 text-sm mb-1">{PLANS.starter.name}</p>
+              <p className="text-4xl font-semibold mb-2">
+                ${PLANS.starter.price}
+                <span className="text-lg text-neutral-500">/mo</span>
+              </p>
+              <p className="text-neutral-400 text-sm mb-8">Get online quickly</p>
 
-            {/* Growth */}
-            <PricingCard
-              plan="growth"
-              name={PLANS.growth.name}
-              price={PLANS.growth.price}
-              features={PLANS.growth.features}
-              popular
-            />
+              <ul className="space-y-3 mb-8">
+                {PLANS.starter.features.map((feature) => (
+                  <li key={feature} className="text-sm text-neutral-400 flex items-start gap-2">
+                    <span className="text-white mt-0.5">·</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={`/checkout?plan=starter`}
+                className="btn btn-secondary w-full justify-center"
+              >
+                Get started
+              </Link>
+            </div>
+
+            {/* Growth - Featured */}
+            <div className="card p-8 border-white/30 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black px-3 py-1 rounded-full text-xs font-medium">
+                Most popular
+              </div>
+              <p className="text-neutral-500 text-sm mb-1">{PLANS.growth.name}</p>
+              <p className="text-4xl font-semibold mb-2">
+                ${PLANS.growth.price}
+                <span className="text-lg text-neutral-500">/mo</span>
+              </p>
+              <p className="text-neutral-400 text-sm mb-8">Best for growing businesses</p>
+
+              <ul className="space-y-3 mb-8">
+                {PLANS.growth.features.map((feature) => (
+                  <li key={feature} className="text-sm text-neutral-400 flex items-start gap-2">
+                    <span className="text-white mt-0.5">·</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={`/checkout?plan=growth`}
+                className="btn btn-primary w-full justify-center"
+              >
+                Get started
+              </Link>
+            </div>
 
             {/* Pro */}
-            <PricingCard
-              plan="pro"
-              name={PLANS.pro.name}
-              price={PLANS.pro.price}
-              features={PLANS.pro.features}
-            />
+            <div className="card p-8">
+              <p className="text-neutral-500 text-sm mb-1">{PLANS.pro.name}</p>
+              <p className="text-4xl font-semibold mb-2">
+                ${PLANS.pro.price}
+                <span className="text-lg text-neutral-500">/mo</span>
+              </p>
+              <p className="text-neutral-400 text-sm mb-8">For established businesses</p>
+
+              <ul className="space-y-3 mb-8">
+                {PLANS.pro.features.map((feature) => (
+                  <li key={feature} className="text-sm text-neutral-400 flex items-start gap-2">
+                    <span className="text-white mt-0.5">·</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={`/checkout?plan=pro`}
+                className="btn btn-secondary w-full justify-center"
+              >
+                Get started
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Teaser */}
-      <section className="bg-brand-black py-16 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl md:text-4xl font-black mb-6">Questions? 🤔</h2>
-          <div className="space-y-4 text-left">
-            <details className="bg-white/5 rounded-xl p-4 cursor-pointer">
-              <summary className="font-bold">What if I need more updates?</summary>
-              <p className="mt-3 opacity-70">Upgrade anytime, or we can do one-off updates for $10 each. No drama.</p>
-            </details>
-            <details className="bg-white/5 rounded-xl p-4 cursor-pointer">
-              <summary className="font-bold">Can I cancel anytime?</summary>
-              <p className="mt-3 opacity-70">Yep. No contracts, no cancellation fees. Cancel whenever you want.</p>
-            </details>
-            <details className="bg-white/5 rounded-xl p-4 cursor-pointer">
-              <summary className="font-bold">Do I own my website?</summary>
-              <p className="mt-3 opacity-70">You own your content. If you leave, we'll export everything for you.</p>
-            </details>
+      {/* FAQ */}
+      <section className="section bg-neutral-950">
+        <div className="container">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-2xl font-semibold mb-12 text-center">Questions</h2>
+
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-medium mb-2">Can I cancel anytime?</h3>
+                <p className="text-neutral-400 text-sm">
+                  Yes. No contracts, no cancellation fees. Cancel whenever you want.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-2">What if I need changes to my site?</h3>
+                <p className="text-neutral-400 text-sm">
+                  Request changes anytime. Updates included in your plan, or $10 each for one-offs.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-2">Do I own my website?</h3>
+                <p className="text-neutral-400 text-sm">
+                  You own your content. If you leave, we'll export everything for you.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-2">How long does it take?</h3>
+                <p className="text-neutral-400 text-sm">
+                  Your preview is ready in minutes. Once you subscribe, your site goes live within 24 hours.
+                </p>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="section">
+        <div className="container text-center">
+          <h2 className="text-3xl font-semibold tracking-tight mb-4">
+            Ready to get started?
+          </h2>
+          <p className="text-neutral-400 mb-8">
+            Preview your site for free. No credit card required.
+          </p>
+          <Link href="/onboard" className="btn btn-primary h-12 px-8 text-base">
+            Create your site
+          </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-brand-black py-12 px-6 border-t border-white/10">
-        <div className="max-w-6xl mx-auto flex flex-wrap justify-between gap-8">
-          <div>
-            <div className="text-xl font-black mb-2">Onboard 🛫</div>
-            <p className="opacity-60 text-sm">Get results, no bullsh*t.</p>
+      <footer className="border-t border-neutral-800 py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between gap-8">
+            <div>
+              <p className="font-semibold mb-2">onboard</p>
+              <p className="text-neutral-600 text-sm">Websites for service businesses</p>
+            </div>
+            <div className="flex gap-8 text-sm text-neutral-500">
+              <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+              <a href="mailto:hello@onboard.com.au" className="hover:text-white transition-colors">Contact</a>
+            </div>
           </div>
-          <div className="flex gap-8 text-sm opacity-60">
-            <Link href="/" className="hover:opacity-100">Home</Link>
-            <Link href="/pricing" className="hover:opacity-100">Pricing</Link>
-            <a href="mailto:hello@onboard.com.au" className="hover:opacity-100">Contact</a>
+          <div className="mt-8 pt-8 border-t border-neutral-800 text-sm text-neutral-600">
+            © 2024 Onboard. Melbourne, Australia.
           </div>
         </div>
       </footer>
-    </div>
-  )
-}
-
-function PricingCard({
-  plan,
-  name,
-  price,
-  features,
-  popular = false,
-}: {
-  plan: string
-  name: string
-  price: number
-  features: string[]
-  popular?: boolean
-}) {
-  return (
-    <div
-      className={`rounded-2xl p-6 relative ${
-        popular
-          ? 'bg-brand-black text-white scale-105'
-          : 'bg-black/15 text-brand-black'
-      }`}
-    >
-      {popular && (
-        <div className="absolute -top-3 right-4 bg-brand-pink text-white px-3 py-1 rounded-full text-xs font-bold">
-          🔥 Most Popular
-        </div>
-      )}
-
-      <div className="font-bold text-lg mb-1">{name}</div>
-      <div className="text-5xl font-black mb-1">
-        ${price}
-        <span className="text-base font-medium opacity-60">/mo</span>
-      </div>
-      <div className="text-sm opacity-70 mb-6">
-        {plan === 'starter' && 'Get online fast'}
-        {plan === 'growth' && 'Best for growing businesses'}
-        {plan === 'pro' && 'For serious businesses'}
-      </div>
-
-      <ul className="space-y-3 mb-6">
-        {features.map((feature) => (
-          <li key={feature} className="text-sm border-b border-gray-500/20 pb-2">
-            ✅ {feature}
-          </li>
-        ))}
-      </ul>
-
-      <Link
-        href={`/checkout?plan=${plan}`}
-        className={`btn w-full justify-center ${
-          popular ? 'btn-lime' : 'btn-black'
-        }`}
-      >
-        Get Started
-      </Link>
     </div>
   )
 }

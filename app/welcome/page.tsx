@@ -16,85 +16,90 @@ function WelcomeContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4 animate-bounce">🛫</div>
-          <div className="text-xl font-bold">Setting up your account...</div>
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="text-neutral-400">Setting up your account...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-brand-black text-white">
-      <div className="max-w-2xl mx-auto px-6 py-20 text-center">
-        <div className="text-8xl mb-6">🎉</div>
-        <h1 className="text-4xl md:text-5xl font-black mb-4">
-          Welcome to Onboard!
+    <div className="min-h-screen">
+      <div className="max-w-xl mx-auto px-6 py-20 text-center">
+        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-8">
+          <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
+          Welcome to Onboard
         </h1>
-        <p className="text-xl opacity-80 mb-8">
-          You're all set. Here's what happens next:
+        <p className="text-neutral-400 mb-12">
+          You're all set. Here's what happens next.
         </p>
 
-        <div className="bg-white/5 rounded-2xl p-8 text-left mb-8 border border-white/10">
-          <div className="space-y-6">
+        <div className="card p-8 text-left mb-8">
+          <div className="space-y-8">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-brand-lime text-brand-black rounded-full flex items-center justify-center font-bold shrink-0">
+              <div className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center font-medium shrink-0 text-sm">
                 1
               </div>
               <div>
-                <h3 className="font-bold text-lg">We build your site ⚡</h3>
-                <p className="opacity-70">
-                  Our team will create your website within the next 24 hours using your business info.
+                <h3 className="font-medium mb-1">We build your site</h3>
+                <p className="text-neutral-400 text-sm">
+                  Your website will be ready within 24 hours.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-brand-lime text-brand-black rounded-full flex items-center justify-center font-bold shrink-0">
+              <div className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center font-medium shrink-0 text-sm">
                 2
               </div>
               <div>
-                <h3 className="font-bold text-lg">You'll get a text 💬</h3>
-                <p className="opacity-70">
-                  We'll text you when your site is ready with a link to preview it.
+                <h3 className="font-medium mb-1">You'll get a notification</h3>
+                <p className="text-neutral-400 text-sm">
+                  We'll text you when your site is ready to preview.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-brand-lime text-brand-black rounded-full flex items-center justify-center font-bold shrink-0">
+              <div className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center font-medium shrink-0 text-sm">
                 3
               </div>
               <div>
-                <h3 className="font-bold text-lg">Request any changes ✏️</h3>
-                <p className="opacity-70">
-                  Just text us any tweaks you want. We'll handle it and send you a preview before publishing.
+                <h3 className="font-medium mb-1">Request changes</h3>
+                <p className="text-neutral-400 text-sm">
+                  Text us any tweaks. We'll handle it and send you a preview.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-brand-blue/20 rounded-xl p-6 mb-8 border border-brand-blue/30">
-          <h3 className="font-bold mb-2">📱 Save this number for updates:</h3>
-          <div className="text-2xl font-black text-brand-lime">0400 XXX XXX</div>
-          <p className="text-sm opacity-70 mt-2">
-            Text us anytime to update your site. "Change hours to 9-5" → Done.
+        <div className="bg-neutral-900 rounded-lg p-6 mb-8 border border-neutral-800">
+          <h3 className="font-medium mb-2">Save this number for updates</h3>
+          <div className="text-2xl font-semibold mb-2">0400 XXX XXX</div>
+          <p className="text-sm text-neutral-400">
+            Text us anytime to update your site.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/dashboard" className="btn btn-lime">
-            Go to Dashboard 📊
+          <Link href="/dashboard" className="btn btn-primary">
+            Go to Dashboard
           </Link>
-          <Link href="/" className="btn btn-outline border-white/30">
+          <Link href="/" className="btn btn-secondary">
             Back to Home
           </Link>
         </div>
 
-        <p className="mt-8 text-sm opacity-50">
-          Check your email for a receipt and login link. Questions? Email hello@onboard.com.au
+        <p className="mt-8 text-sm text-neutral-500">
+          Check your email for a receipt. Questions? hello@onboard.com.au
         </p>
       </div>
     </div>
@@ -103,10 +108,10 @@ function WelcomeContent() {
 
 function LoadingFallback() {
   return (
-    <div className="min-h-screen bg-brand-black flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="text-6xl mb-4 animate-bounce">🛫</div>
-        <div className="text-xl font-bold text-white">Loading...</div>
+        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="text-neutral-400">Loading...</div>
       </div>
     </div>
   )
