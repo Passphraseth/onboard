@@ -294,6 +294,7 @@ function buildBrandProfile(
 
 /**
  * Extract color palette with priority
+ * USER PREFERENCES ALWAYS WIN - this is critical for respecting user choices
  */
 function extractColors(
   input: ExtractionInput,
@@ -302,14 +303,33 @@ function extractColors(
   competitors: CompetitorPatterns | null
 ): BrandProfile['colors'] {
 
-  // User-specified colors take priority
-  if (input.preferredColors && input.preferredColors.length >= 2) {
+  // Log what we're working with
+  console.log(`\n🎨 COLOR EXTRACTION:`)
+  console.log(`- User preferredColors: ${JSON.stringify(input.preferredColors)}`)
+  console.log(`- Instagram colors: ${JSON.stringify(instagram?.brand?.colors)}`)
+
+  // USER-SPECIFIED COLORS ALWAYS TAKE ABSOLUTE PRIORITY
+  // Even if they only provide 1 color, we use it
+  if (input.preferredColors && input.preferredColors.length >= 1) {
+    const primary = input.preferredColors[0]
+    const secondary = input.preferredColors[1] || primary
+    const accent = input.preferredColors[2] || secondary
+
+    // Determine background and text based on the primary color
+    // If primary is dark, use it as background with light text
+    // If primary is light, use white background with dark text
+    const primaryIsDark = isDarkColor(primary)
+    const background = primaryIsDark ? primary : (input.preferredColors[2] || '#ffffff')
+    const text = primaryIsDark ? '#ffffff' : '#1a1a1a'
+
+    console.log(`✅ USING USER COLORS: primary=${primary}, bg=${background}, text=${text}`)
+
     return {
-      primary: input.preferredColors[0],
-      secondary: input.preferredColors[1] || input.preferredColors[0],
-      accent: input.preferredColors[2] || adjustColor(input.preferredColors[0], 20),
-      background: '#ffffff',
-      text: '#1a1a1a',
+      primary,
+      secondary,
+      accent,
+      background,
+      text,
       source: 'user'
     }
   }

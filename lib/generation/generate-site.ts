@@ -64,6 +64,9 @@ export async function generateAndSaveSite(input: GenerationInput): Promise<Gener
   console.log('🚀 SITE GENERATION V3 - DATA DRIVEN')
   console.log(`Business: ${input.businessName}`)
   console.log(`Type: ${input.businessType}`)
+  console.log(`USER PREFERENCES:`)
+  console.log(`- Preferred Colors: ${JSON.stringify(input.preferredColors)}`)
+  console.log(`- Preferred Tone: ${input.preferredTone}`)
   console.log('================================================\n')
 
   // STEP 1: Extract comprehensive brand profile

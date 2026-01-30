@@ -455,6 +455,14 @@ export async function POST(request: NextRequest) {
   try {
     const data: OnboardingData = await request.json()
 
+    // DEBUG: Log what user preferences we received
+    console.log('\n========================================')
+    console.log('ONBOARDING DATA RECEIVED:')
+    console.log(`- Business: ${data.businessName}`)
+    console.log(`- Preferred Colors: ${JSON.stringify(data.preferredColors)}`)
+    console.log(`- Preferred Tone: ${data.preferredTone}`)
+    console.log('========================================\n')
+
     if (!data.businessName) {
       return NextResponse.json(
         { error: 'Business name is required' },
