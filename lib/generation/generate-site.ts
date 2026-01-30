@@ -232,6 +232,7 @@ ${profile.industryContext.differentiators.length > 0 ? `Differentiators to highl
 3. **Professional Quality**: Clean, modern, polished appearance
 4. **Brand-Aligned Content**: All copy should match the tone (${profile.tone.overall}, ${profile.tone.copyStyle})
 5. **Performance**: Keep file size reasonable, optimize images
+6. **CRITICAL - NO EMOJIS**: Do NOT use any emoji characters anywhere in the design. Use Font Awesome icons (via CDN) or simple SVG icons instead. This is a B2B professional website - emojis are not appropriate.
 
 ## SECTIONS TO INCLUDE
 

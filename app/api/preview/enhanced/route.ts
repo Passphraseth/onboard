@@ -517,6 +517,10 @@ export async function POST(request: NextRequest) {
             targetCustomers: data.targetCustomers,
             uniqueSellingPoints: data.uniqueSellingPoints,
             additionalNotes: data.additionalNotes,
+            // CRITICAL: Store user preferences for regeneration and debugging
+            preferredColors: data.preferredColors,
+            preferredTone: data.preferredTone,
+            logoUrl: data.logoUrl,
           },
         })
         .eq('id', existingLead.id)
@@ -537,6 +541,12 @@ export async function POST(request: NextRequest) {
 
         // Regenerate HTML using the data-driven v3 generator (direct call, no HTTP)
         try {
+          // CRITICAL: Combine services AND customServices - both should be passed to generation
+          const combinedServices = [
+            ...data.services,
+            ...(data.customServices ? data.customServices.split('\n').filter(s => s.trim()) : [])
+          ]
+
           const genInput: GenerationInput = {
             businessName: data.businessName,
             businessType: data.businessType === 'other' ? data.customType : data.businessType,
@@ -544,7 +554,7 @@ export async function POST(request: NextRequest) {
             website: data.website,
             instagram: data.instagram,
             facebook: data.facebook,
-            services: data.services,
+            services: combinedServices, // Use combined services, not just data.services
             uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
             targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
             additionalNotes: data.additionalNotes,
@@ -598,6 +608,10 @@ export async function POST(request: NextRequest) {
           targetCustomers: data.targetCustomers,
           uniqueSellingPoints: data.uniqueSellingPoints,
           additionalNotes: data.additionalNotes,
+          // CRITICAL: Store user preferences for regeneration and debugging
+          preferredColors: data.preferredColors,
+          preferredTone: data.preferredTone,
+          logoUrl: data.logoUrl,
         },
       })
       .select()
@@ -638,6 +652,12 @@ export async function POST(request: NextRequest) {
 
       // Generate actual HTML using the data-driven v3 generator (direct call, no HTTP)
       try {
+        // CRITICAL: Combine services AND customServices - both should be passed to generation
+        const combinedServicesForNew = [
+          ...data.services,
+          ...(data.customServices ? data.customServices.split('\n').filter(s => s.trim()) : [])
+        ]
+
         const genInput: GenerationInput = {
           businessName: data.businessName,
           businessType: data.businessType === 'other' ? data.customType : data.businessType,
@@ -645,7 +665,7 @@ export async function POST(request: NextRequest) {
           website: data.website,
           instagram: data.instagram,
           facebook: data.facebook,
-          services: data.services,
+          services: combinedServicesForNew, // Use combined services, not just data.services
           uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
           targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
           additionalNotes: data.additionalNotes,

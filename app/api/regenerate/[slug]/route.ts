@@ -47,6 +47,10 @@ export async function POST(
       targetCustomers: metadata.targetCustomers || '',
       uniqueSellingPoints: metadata.uniqueSellingPoints || '',
       additionalNotes: metadata.additionalNotes || '',
+      // User preferences - now stored in metadata
+      preferredColors: metadata.preferredColors,
+      preferredTone: metadata.preferredTone,
+      logoUrl: metadata.logoUrl,
     }
 
     // Call the enhanced preview API to regenerate with research
