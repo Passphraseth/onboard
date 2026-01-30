@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Onboard 🛫 - No Bullsh*t Websites',
-  description: 'Professional websites for service businesses. Updates by text message. Live in 24 hours. From $29/mo.',
+  title: 'Onboard — Professional websites for service businesses',
+  description: 'Get a stunning, conversion-focused website for your business in minutes. Built for tradies, cafes, photographers, and service businesses across Australia.',
 }
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-brand-blue text-white min-h-screen">
+      <body>
         {children}
       </body>
     </html>
