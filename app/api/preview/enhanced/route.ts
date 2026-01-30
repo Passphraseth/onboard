@@ -9,7 +9,8 @@ import {
 } from '@/lib/design-system'
 import { extractBrandProfile, BrandProfile } from '@/lib/extraction/brand-orchestrator'
 import { analyzeInstagram, InstagramAnalysis } from '@/lib/extraction/instagram-analyzer'
-import { generateAndSaveSite, GenerationInput } from '@/lib/generation/generate-site'
+// V4 Agentic Generator - multi-phase AI approach for unique sites
+import { generateAgenticSite, AgenticInput } from '@/lib/generation/agentic-generator'
 
 interface OnboardingData {
   businessName: string
@@ -539,38 +540,38 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', existingSite.id)
 
-        // Regenerate HTML using the data-driven v3 generator (direct call, no HTTP)
+        // V4 AGENTIC GENERATOR - Multi-phase AI approach for unique sites
         try {
-          // CRITICAL: Combine services AND customServices - both should be passed to generation
+          // Combine services AND customServices
           const combinedServices = [
             ...data.services,
             ...(data.customServices ? data.customServices.split('\n').filter(s => s.trim()) : [])
           ]
 
-          const genInput: GenerationInput = {
+          const agenticInput: AgenticInput = {
             businessName: data.businessName,
             businessType: data.businessType === 'other' ? data.customType : data.businessType,
             location: data.suburb,
-            website: data.website,
-            instagram: data.instagram,
-            facebook: data.facebook,
-            services: combinedServices, // Use combined services, not just data.services
-            uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
-            targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
-            additionalNotes: data.additionalNotes,
             phone: data.phone,
             email: data.email,
             address: data.address,
             hours: formatOperatingHours(data.operatingHours),
+            instagram: data.instagram,
+            facebook: data.facebook,
+            website: data.website,
+            services: combinedServices,
+            uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
+            targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
+            additionalNotes: data.additionalNotes,
             preferredColors: data.preferredColors,
             preferredTone: data.preferredTone,
             logoUrl: data.logoUrl,
           }
 
-          const genResult = await generateAndSaveSite(genInput)
-          console.log(`Generated HTML (v3 data-driven) for ${existingLead.slug} in ${genResult.generationTime}ms - Saved: ${genResult.saved}`)
+          const genResult = await generateAgenticSite(agenticInput)
+          console.log(`🚀 V4 Agentic Generator: ${existingLead.slug} in ${genResult.generationTime}ms - Saved: ${genResult.saved}`)
         } catch (genError) {
-          console.error('Error regenerating HTML:', genError)
+          console.error('Error in V4 generation:', genError)
         }
       }
 
@@ -650,38 +651,38 @@ export async function POST(request: NextRequest) {
         .update({ preview_site_id: site.id })
         .eq('id', lead.id)
 
-      // Generate actual HTML using the data-driven v3 generator (direct call, no HTTP)
+      // V4 AGENTIC GENERATOR - Multi-phase AI approach for unique sites
       try {
-        // CRITICAL: Combine services AND customServices - both should be passed to generation
+        // Combine services AND customServices
         const combinedServicesForNew = [
           ...data.services,
           ...(data.customServices ? data.customServices.split('\n').filter(s => s.trim()) : [])
         ]
 
-        const genInput: GenerationInput = {
+        const agenticInputForNew: AgenticInput = {
           businessName: data.businessName,
           businessType: data.businessType === 'other' ? data.customType : data.businessType,
           location: data.suburb,
-          website: data.website,
-          instagram: data.instagram,
-          facebook: data.facebook,
-          services: combinedServicesForNew, // Use combined services, not just data.services
-          uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
-          targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
-          additionalNotes: data.additionalNotes,
           phone: data.phone,
           email: data.email,
           address: data.address,
           hours: formatOperatingHours(data.operatingHours),
+          instagram: data.instagram,
+          facebook: data.facebook,
+          website: data.website,
+          services: combinedServicesForNew,
+          uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
+          targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
+          additionalNotes: data.additionalNotes,
           preferredColors: data.preferredColors,
           preferredTone: data.preferredTone,
           logoUrl: data.logoUrl,
         }
 
-        const genResult = await generateAndSaveSite(genInput)
-        console.log(`Generated HTML (v3 data-driven) for ${slug} in ${genResult.generationTime}ms - Saved: ${genResult.saved}`)
+        const genResult = await generateAgenticSite(agenticInputForNew)
+        console.log(`🚀 V4 Agentic Generator: ${slug} in ${genResult.generationTime}ms - Saved: ${genResult.saved}`)
       } catch (genError) {
-        console.error('Error generating HTML:', genError)
+        console.error('Error in V4 generation:', genError)
       }
     }
 
