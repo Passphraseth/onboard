@@ -4,7 +4,31 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-type Step = 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'services' | 'usp' | 'generating'
+type Step = 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'branding' | 'services' | 'usp' | 'generating'
+
+// Brand tone options
+const BRAND_TONES = [
+  { id: 'professional', name: 'Professional', icon: '💼', description: 'Clean, trustworthy, corporate' },
+  { id: 'casual', name: 'Casual', icon: '😊', description: 'Friendly, approachable, relaxed' },
+  { id: 'luxurious', name: 'Luxurious', icon: '✨', description: 'Premium, elegant, sophisticated' },
+  { id: 'fun', name: 'Fun', icon: '🎉', description: 'Playful, energetic, vibrant' },
+  { id: 'minimal', name: 'Minimal', icon: '◻️', description: 'Simple, clean, modern' },
+  { id: 'warm', name: 'Warm', icon: '🤝', description: 'Welcoming, caring, personal' },
+  { id: 'bold', name: 'Bold', icon: '💪', description: 'Strong, confident, impactful' },
+  { id: 'elegant', name: 'Elegant', icon: '🌸', description: 'Graceful, refined, tasteful' },
+]
+
+// Preset color palettes
+const COLOR_PALETTES = [
+  { id: 'navy-gold', name: 'Navy & Gold', colors: ['#1e3a5f', '#d4af37', '#f8fafc'], description: 'Professional & Premium' },
+  { id: 'charcoal-copper', name: 'Charcoal & Copper', colors: ['#2d2d2d', '#c5a572', '#ffffff'], description: 'Modern & Sophisticated' },
+  { id: 'forest-cream', name: 'Forest & Cream', colors: ['#2d5a3d', '#d4a574', '#faf8f5'], description: 'Natural & Organic' },
+  { id: 'slate-coral', name: 'Slate & Coral', colors: ['#3d4f5f', '#e8735f', '#ffffff'], description: 'Contemporary & Warm' },
+  { id: 'black-lime', name: 'Black & Lime', colors: ['#1a1a1a', '#c5f82a', '#ffffff'], description: 'Bold & Modern' },
+  { id: 'plum-blush', name: 'Plum & Blush', colors: ['#4a2c4a', '#e8b4b8', '#fdf6f6'], description: 'Elegant & Feminine' },
+  { id: 'ocean-sand', name: 'Ocean & Sand', colors: ['#1e6091', '#e8dcc4', '#ffffff'], description: 'Coastal & Relaxed' },
+  { id: 'custom', name: 'Custom', colors: ['#6366f1', '#8b5cf6', '#ffffff'], description: 'I have my own colors' },
+]
 
 interface OnboardingData {
   businessName: string
@@ -33,6 +57,11 @@ interface OnboardingData {
   targetCustomers: string
   uniqueSellingPoints: string
   additionalNotes: string
+  // NEW: Branding preferences
+  preferredTone: string
+  selectedPalette: string
+  customColors: string[]
+  logoUrl: string
 }
 
 const BUSINESS_TYPES = [
@@ -83,6 +112,11 @@ export default function OnboardingPage() {
     targetCustomers: '',
     uniqueSellingPoints: '',
     additionalNotes: '',
+    // NEW: Branding preferences
+    preferredTone: '',
+    selectedPalette: '',
+    customColors: [],
+    logoUrl: '',
   })
   const [loading, setLoading] = useState(false)
   const [generationStatus, setGenerationStatus] = useState('')
@@ -105,7 +139,7 @@ export default function OnboardingPage() {
   }
 
   const nextStep = () => {
-    const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'services', 'usp', 'generating']
+    const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp', 'generating']
     const currentIndex = steps.indexOf(currentStep)
     if (currentIndex < steps.length - 1) {
       const next = steps[currentIndex + 1]
@@ -117,7 +151,7 @@ export default function OnboardingPage() {
   }
 
   const prevStep = () => {
-    const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'services', 'usp']
+    const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp']
     const currentIndex = steps.indexOf(currentStep)
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1])
@@ -129,18 +163,39 @@ export default function OnboardingPage() {
     setGenerationStatus('Creating your business profile...')
 
     try {
-      // If Instagram is provided, fetch context
+      // Update status based on what data we have
       if (data.instagram) {
-        setGenerationStatus('Analyzing your Instagram for style and content...')
-        await new Promise(resolve => setTimeout(resolve, 1500))
+        setGenerationStatus('Analyzing your Instagram for branding and photos...')
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
+      if (data.website) {
+        setGenerationStatus('Extracting colors and style from your existing website...')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
+      setGenerationStatus('Researching competitors in your area...')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      setGenerationStatus('Building your unique brand profile...')
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       setGenerationStatus('Generating your personalized website...')
+
+      // Include branding preferences in the API call
+      const requestData = {
+        ...data,
+        preferredColors: data.selectedPalette === 'custom'
+          ? data.customColors.filter(c => c)
+          : data.selectedPalette
+            ? COLOR_PALETTES.find(p => p.id === data.selectedPalette)?.colors
+            : undefined,
+      }
 
       const res = await fetch('/api/preview/enhanced', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestData),
       })
 
       const result = await res.json()
@@ -187,13 +242,14 @@ export default function OnboardingPage() {
   }
 
   const progress = {
-    name: 12.5,
-    type: 25,
-    location: 37.5,
-    hours: 50,
-    contact: 62.5,
-    socials: 75,
-    services: 87.5,
+    name: 11,
+    type: 22,
+    location: 33,
+    hours: 44,
+    contact: 55,
+    socials: 66,
+    branding: 77,
+    services: 88,
     usp: 100,
     generating: 100,
   }
@@ -206,7 +262,7 @@ export default function OnboardingPage() {
           Onboard 🛫
         </Link>
         <div className="text-sm opacity-70">
-          {currentStep !== 'generating' && `Step ${Object.keys(progress).indexOf(currentStep) + 1} of 8`}
+          {currentStep !== 'generating' && `Step ${Object.keys(progress).indexOf(currentStep) + 1} of 9`}
         </div>
       </header>
 
@@ -502,6 +558,144 @@ export default function OnboardingPage() {
                   className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
                 />
               </div>
+              <div className="flex gap-3">
+                <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
+                  ← Back
+                </button>
+                <button onClick={nextStep} className="btn btn-lime flex-1 py-4">
+                  Continue →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step: Branding - Logo, Tone, Colors */}
+        {currentStep === 'branding' && (
+          <div className="animate-fadeIn">
+            <div className="text-center mb-8">
+              <div className="text-5xl mb-4">🎨</div>
+              <h1 className="text-3xl md:text-4xl font-black mb-3">Let's style your brand</h1>
+              <p className="opacity-80">These choices will make your website uniquely yours.</p>
+            </div>
+            <div className="space-y-6">
+              {/* Logo URL (optional) */}
+              <div>
+                <label className="block text-sm opacity-70 mb-2">Got a logo? (Optional)</label>
+                <input
+                  type="text"
+                  value={data.logoUrl}
+                  onChange={(e) => updateData({ logoUrl: e.target.value })}
+                  placeholder="Paste your logo URL (e.g., from Google Drive or Dropbox)"
+                  className="w-full px-5 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none"
+                />
+                <p className="text-xs opacity-50 mt-1">We'll use this instead of generating a text logo</p>
+              </div>
+
+              {/* Brand Tone Selection */}
+              <div>
+                <label className="block text-sm opacity-70 mb-3">How should your brand feel?</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {BRAND_TONES.map((tone) => (
+                    <button
+                      key={tone.id}
+                      onClick={() => updateData({ preferredTone: tone.id })}
+                      className={`p-3 rounded-xl text-left transition-all ${
+                        data.preferredTone === tone.id
+                          ? 'bg-brand-lime text-brand-black scale-105'
+                          : 'bg-white/10 hover:bg-white/20'
+                      }`}
+                    >
+                      <div className="text-xl mb-1">{tone.icon}</div>
+                      <div className="font-bold text-sm">{tone.name}</div>
+                      <div className="text-xs opacity-70">{tone.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Palette Selection */}
+              <div>
+                <label className="block text-sm opacity-70 mb-3">Pick a color palette</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {COLOR_PALETTES.map((palette) => (
+                    <button
+                      key={palette.id}
+                      onClick={() => updateData({ selectedPalette: palette.id, customColors: palette.colors })}
+                      className={`p-4 rounded-xl text-left transition-all ${
+                        data.selectedPalette === palette.id
+                          ? 'ring-2 ring-brand-lime scale-105'
+                          : 'hover:bg-white/10'
+                      }`}
+                      style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+                    >
+                      <div className="flex gap-1 mb-2">
+                        {palette.colors.map((color, i) => (
+                          <div
+                            key={i}
+                            className="w-8 h-8 rounded-lg border border-white/20"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                      <div className="font-bold text-sm">{palette.name}</div>
+                      <div className="text-xs opacity-70">{palette.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Colors (if selected) */}
+              {data.selectedPalette === 'custom' && (
+                <div>
+                  <label className="block text-sm opacity-70 mb-2">Enter your brand colors (hex codes)</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs opacity-50">Primary</label>
+                      <input
+                        type="text"
+                        value={data.customColors[0] || ''}
+                        onChange={(e) => {
+                          const newColors = [...data.customColors]
+                          newColors[0] = e.target.value
+                          updateData({ customColors: newColors })
+                        }}
+                        placeholder="#1a1a1a"
+                        className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs opacity-50">Accent</label>
+                      <input
+                        type="text"
+                        value={data.customColors[1] || ''}
+                        onChange={(e) => {
+                          const newColors = [...data.customColors]
+                          newColors[1] = e.target.value
+                          updateData({ customColors: newColors })
+                        }}
+                        placeholder="#c5f82a"
+                        className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs opacity-50">Background</label>
+                      <input
+                        type="text"
+                        value={data.customColors[2] || ''}
+                        onChange={(e) => {
+                          const newColors = [...data.customColors]
+                          newColors[2] = e.target.value
+                          updateData({ customColors: newColors })
+                        }}
+                        placeholder="#ffffff"
+                        className="w-full px-4 py-3 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:border-brand-lime outline-none text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button onClick={prevStep} className="btn btn-outline border-white/30 flex-1 py-4">
                   ← Back

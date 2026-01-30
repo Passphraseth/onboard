@@ -7,6 +7,8 @@ import {
   getLayoutVariation,
   StylePreset
 } from '@/lib/design-system'
+import { extractBrandProfile, BrandProfile } from '@/lib/extraction/brand-orchestrator'
+import { analyzeInstagram, InstagramAnalysis } from '@/lib/extraction/instagram-analyzer'
 
 interface OnboardingData {
   businessName: string
@@ -27,6 +29,10 @@ interface OnboardingData {
   targetCustomers: string
   uniqueSellingPoints: string
   additionalNotes: string
+  // NEW: Additional fields for more unique outputs
+  preferredColors?: string[]
+  preferredTone?: string
+  logoUrl?: string
 }
 
 interface InstagramData {
@@ -415,16 +421,33 @@ function formatDayGroup(days: string[], hours: string): string {
   }
 }
 
-// Fetch Instagram data (placeholder - would need actual Instagram API)
+// Fetch Instagram data using RapidAPI
 async function fetchInstagramData(username: string): Promise<InstagramData | null> {
   if (!username) return null
 
-  // In production, this would use Instagram's API or a service like RapidAPI
-  // For now, return mock data to demonstrate the concept
-  console.log(`Would fetch Instagram data for @${username}`)
+  try {
+    // Use the real Instagram analyzer
+    const analysis = await analyzeInstagram(username)
 
-  // Return null for now - this would be implemented with actual Instagram API
-  return null
+    if (!analysis) {
+      console.log(`No Instagram data found for @${username}`)
+      return null
+    }
+
+    // Convert to the expected format
+    return {
+      bio: analysis.profile.bio,
+      posts: analysis.images.recentPosts.map(p => ({
+        caption: p.caption,
+        imageUrl: p.url,
+      })),
+      profilePic: analysis.profile.profilePicUrl,
+      followerCount: analysis.profile.followerCount,
+    }
+  } catch (error) {
+    console.error(`Error fetching Instagram data for @${username}:`, error)
+    return null
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -503,15 +526,33 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', existingSite.id)
 
-        // Regenerate HTML for the updated site
+        // Regenerate HTML using the data-driven v3 generator
         try {
           const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-          await fetch(`${baseUrl}/api/generate-site-v2`, {
+          await fetch(`${baseUrl}/api/generate-site-v3`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slug: existingLead.slug }),
+            body: JSON.stringify({
+              businessName: data.businessName,
+              businessType: data.businessType === 'other' ? data.customType : data.businessType,
+              location: data.suburb,
+              website: data.website,
+              instagram: data.instagram,
+              facebook: data.facebook,
+              services: data.services,
+              uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
+              targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
+              additionalNotes: data.additionalNotes,
+              phone: data.phone,
+              email: data.email,
+              address: data.address,
+              hours: formatOperatingHours(data.operatingHours),
+              preferredColors: data.preferredColors,
+              preferredTone: data.preferredTone,
+              logoUrl: data.logoUrl,
+            }),
           })
-          console.log(`Regenerated HTML for ${existingLead.slug}`)
+          console.log(`Generated HTML (v3 data-driven) for ${existingLead.slug}`)
         } catch (genError) {
           console.error('Error regenerating HTML:', genError)
         }
@@ -589,15 +630,33 @@ export async function POST(request: NextRequest) {
         .update({ preview_site_id: site.id })
         .eq('id', lead.id)
 
-      // Generate actual HTML using the v2 generator
+      // Generate actual HTML using the data-driven v3 generator
       try {
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-        await fetch(`${baseUrl}/api/generate-site-v2`, {
+        await fetch(`${baseUrl}/api/generate-site-v3`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug }),
+          body: JSON.stringify({
+            businessName: data.businessName,
+            businessType: data.businessType === 'other' ? data.customType : data.businessType,
+            location: data.suburb,
+            website: data.website,
+            instagram: data.instagram,
+            facebook: data.facebook,
+            services: data.services,
+            uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
+            targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
+            additionalNotes: data.additionalNotes,
+            phone: data.phone,
+            email: data.email,
+            address: data.address,
+            hours: formatOperatingHours(data.operatingHours),
+            preferredColors: data.preferredColors,
+            preferredTone: data.preferredTone,
+            logoUrl: data.logoUrl,
+          }),
         })
-        console.log(`Generated HTML for ${slug}`)
+        console.log(`Generated HTML (v3 data-driven) for ${slug}`)
       } catch (genError) {
         console.error('Error generating HTML:', genError)
       }
