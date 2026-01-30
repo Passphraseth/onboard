@@ -86,16 +86,10 @@ export async function generateAgenticSite(input: AgenticInput): Promise<AgenticR
   const slug = slugify(input.businessName)
   const supabase = createAdminClient()
 
+  // Only update generated_html - metadata column doesn't exist on client_sites
   const { error: updateError } = await supabase
     .from('client_sites')
-    .update({
-      generated_html: html,
-      metadata: {
-        generatorVersion: 'v4-agentic',
-        designBrief: designBrief.substring(0, 5000), // Store truncated brief
-        generatedAt: new Date().toISOString(),
-      }
-    })
+    .update({ generated_html: html })
     .eq('slug', slug)
 
   const saved = !updateError
