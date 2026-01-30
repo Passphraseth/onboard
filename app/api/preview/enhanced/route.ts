@@ -9,6 +9,7 @@ import {
 } from '@/lib/design-system'
 import { extractBrandProfile, BrandProfile } from '@/lib/extraction/brand-orchestrator'
 import { analyzeInstagram, InstagramAnalysis } from '@/lib/extraction/instagram-analyzer'
+import { generateAndSaveSite, GenerationInput } from '@/lib/generation/generate-site'
 
 interface OnboardingData {
   businessName: string
@@ -526,40 +527,30 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', existingSite.id)
 
-        // Regenerate HTML using the data-driven v3 generator
+        // Regenerate HTML using the data-driven v3 generator (direct call, no HTTP)
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-          const genResponse = await fetch(`${baseUrl}/api/generate-site-v3`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              businessName: data.businessName,
-              businessType: data.businessType === 'other' ? data.customType : data.businessType,
-              location: data.suburb,
-              website: data.website,
-              instagram: data.instagram,
-              facebook: data.facebook,
-              services: data.services,
-              uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
-              targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
-              additionalNotes: data.additionalNotes,
-              phone: data.phone,
-              email: data.email,
-              address: data.address,
-              hours: formatOperatingHours(data.operatingHours),
-              preferredColors: data.preferredColors,
-              preferredTone: data.preferredTone,
-              logoUrl: data.logoUrl,
-            }),
-          })
-
-          if (genResponse.ok) {
-            const genResult = await genResponse.json()
-            console.log(`Generated HTML (v3 data-driven) for ${existingLead.slug} in ${genResult.generationTime}ms`)
-          } else {
-            const errorText = await genResponse.text()
-            console.error(`Error from v3 generator: ${genResponse.status} - ${errorText}`)
+          const genInput: GenerationInput = {
+            businessName: data.businessName,
+            businessType: data.businessType === 'other' ? data.customType : data.businessType,
+            location: data.suburb,
+            website: data.website,
+            instagram: data.instagram,
+            facebook: data.facebook,
+            services: data.services,
+            uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
+            targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
+            additionalNotes: data.additionalNotes,
+            phone: data.phone,
+            email: data.email,
+            address: data.address,
+            hours: formatOperatingHours(data.operatingHours),
+            preferredColors: data.preferredColors,
+            preferredTone: data.preferredTone,
+            logoUrl: data.logoUrl,
           }
+
+          const genResult = await generateAndSaveSite(genInput)
+          console.log(`Generated HTML (v3 data-driven) for ${existingLead.slug} in ${genResult.generationTime}ms - Saved: ${genResult.saved}`)
         } catch (genError) {
           console.error('Error regenerating HTML:', genError)
         }
@@ -637,40 +628,30 @@ export async function POST(request: NextRequest) {
         .update({ preview_site_id: site.id })
         .eq('id', lead.id)
 
-      // Generate actual HTML using the data-driven v3 generator
+      // Generate actual HTML using the data-driven v3 generator (direct call, no HTTP)
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-        const genResponse = await fetch(`${baseUrl}/api/generate-site-v3`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            businessName: data.businessName,
-            businessType: data.businessType === 'other' ? data.customType : data.businessType,
-            location: data.suburb,
-            website: data.website,
-            instagram: data.instagram,
-            facebook: data.facebook,
-            services: data.services,
-            uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
-            targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
-            additionalNotes: data.additionalNotes,
-            phone: data.phone,
-            email: data.email,
-            address: data.address,
-            hours: formatOperatingHours(data.operatingHours),
-            preferredColors: data.preferredColors,
-            preferredTone: data.preferredTone,
-            logoUrl: data.logoUrl,
-          }),
-        })
-
-        if (genResponse.ok) {
-          const genResult = await genResponse.json()
-          console.log(`Generated HTML (v3 data-driven) for ${slug} in ${genResult.generationTime}ms`)
-        } else {
-          const errorText = await genResponse.text()
-          console.error(`Error from v3 generator: ${genResponse.status} - ${errorText}`)
+        const genInput: GenerationInput = {
+          businessName: data.businessName,
+          businessType: data.businessType === 'other' ? data.customType : data.businessType,
+          location: data.suburb,
+          website: data.website,
+          instagram: data.instagram,
+          facebook: data.facebook,
+          services: data.services,
+          uniqueSellingPoints: data.uniqueSellingPoints ? data.uniqueSellingPoints.split(',').map(s => s.trim()) : [],
+          targetCustomers: data.targetCustomers ? data.targetCustomers.split(',').map(s => s.trim()) : [],
+          additionalNotes: data.additionalNotes,
+          phone: data.phone,
+          email: data.email,
+          address: data.address,
+          hours: formatOperatingHours(data.operatingHours),
+          preferredColors: data.preferredColors,
+          preferredTone: data.preferredTone,
+          logoUrl: data.logoUrl,
         }
+
+        const genResult = await generateAndSaveSite(genInput)
+        console.log(`Generated HTML (v3 data-driven) for ${slug} in ${genResult.generationTime}ms - Saved: ${genResult.saved}`)
       } catch (genError) {
         console.error('Error generating HTML:', genError)
       }
