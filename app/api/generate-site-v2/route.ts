@@ -57,33 +57,194 @@ function getBusinessType(data: BusinessData): string {
   const category = data.category?.toLowerCase() || ''
   const customServices = data.customServices?.toLowerCase() || ''
   const target = data.targetCustomers?.toLowerCase() || ''
+  const name = data.businessName?.toLowerCase() || ''
 
-  if (category.includes('fashion') || customServices.includes('fashion') || target.includes('fashion')) {
+  // Food & Beverage
+  if (category.includes('cafe') || category.includes('coffee') || category.includes('restaurant') ||
+      category.includes('food') || category.includes('bakery') || category.includes('bar') ||
+      name.includes('cafe') || name.includes('coffee') || name.includes('bean')) {
+    return 'cafe'
+  }
+  // Legal & Professional Services
+  if (category.includes('law') || category.includes('legal') || category.includes('attorney') ||
+      category.includes('solicitor') || category.includes('accountant') || category.includes('consulting')) {
+    return 'legal'
+  }
+  // Fitness & Health
+  if (category.includes('gym') || category.includes('fitness') || category.includes('yoga') ||
+      category.includes('pilates') || category.includes('personal train') || category.includes('health')) {
+    return 'fitness'
+  }
+  // Fashion & Retail
+  if (category.includes('fashion') || customServices.includes('fashion') || target.includes('fashion') ||
+      category.includes('clothing') || category.includes('boutique') || category.includes('retail')) {
     return 'fashion'
   }
-  if (category.includes('wedding') || customServices.includes('wedding')) {
+  // Wedding & Events
+  if (category.includes('wedding') || customServices.includes('wedding') || category.includes('event')) {
     return 'wedding'
   }
-  if (category.includes('beauty') || category.includes('salon')) {
+  // Beauty & Wellness
+  if (category.includes('beauty') || category.includes('salon') || category.includes('spa') ||
+      category.includes('hair') || category.includes('nail') || category.includes('massage')) {
     return 'beauty'
   }
-  if (category.includes('plumb') || category.includes('electric') || category.includes('trade')) {
+  // Trades & Construction
+  if (category.includes('plumb') || category.includes('electric') || category.includes('trade') ||
+      category.includes('construction') || category.includes('builder') || category.includes('roofing')) {
     return 'trades'
   }
-  if (category.includes('photo')) {
+  // Photography & Creative
+  if (category.includes('photo') || category.includes('video') || category.includes('creative') ||
+      category.includes('design') || category.includes('art')) {
     return 'photography'
+  }
+  // Real Estate
+  if (category.includes('real estate') || category.includes('property') || category.includes('realty')) {
+    return 'realestate'
+  }
+  // Medical & Healthcare
+  if (category.includes('medical') || category.includes('dental') || category.includes('clinic') ||
+      category.includes('doctor') || category.includes('physio') || category.includes('chiro')) {
+    return 'medical'
+  }
+  // Automotive
+  if (category.includes('auto') || category.includes('car') || category.includes('mechanic') ||
+      category.includes('detailing') || category.includes('motor')) {
+    return 'automotive'
   }
   return 'business'
 }
 
-async function generateWithClaude(data: BusinessData): Promise<string> {
+// Industry-specific image mapping for high-quality, relevant visuals
+function getIndustryImages(businessType: string): { hero: string; about: string; gallery?: string[] } {
+  const imageMap: Record<string, { hero: string; about: string; gallery?: string[] }> = {
+    cafe: {
+      hero: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1920&q=80', // Warm cafe interior
+      about: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80', // Coffee being made
+      gallery: [
+        'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80', // Coffee cup
+        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=80', // Cafe atmosphere
+      ]
+    },
+    legal: {
+      hero: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=80', // Law books/scales
+      about: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80', // Professional meeting
+      gallery: [
+        'https://images.unsplash.com/photo-1521791055366-0d553872125f?w=600&q=80', // Courthouse
+      ]
+    },
+    fitness: {
+      hero: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=80', // Modern gym
+      about: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80', // Training session
+      gallery: [
+        'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80', // Weights
+        'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80', // Group fitness
+      ]
+    },
+    fashion: {
+      hero: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1920&q=80', // Fashion store
+      about: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80', // Clothing rack
+    },
+    wedding: {
+      hero: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80', // Wedding venue
+      about: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80', // Wedding details
+    },
+    beauty: {
+      hero: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1920&q=80', // Salon interior
+      about: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80', // Beauty treatment
+    },
+    trades: {
+      hero: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80', // Construction/trade work
+      about: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&q=80', // Tradesperson working
+    },
+    photography: {
+      hero: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1920&q=80', // Camera/photography
+      about: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&q=80', // Photo studio
+    },
+    realestate: {
+      hero: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1920&q=80', // Luxury home
+      about: 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&q=80', // Property interior
+    },
+    medical: {
+      hero: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&q=80', // Medical facility
+      about: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&q=80', // Doctor consultation
+    },
+    automotive: {
+      hero: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1920&q=80', // Car/automotive
+      about: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=800&q=80', // Mechanic working
+    },
+    business: {
+      hero: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80', // Modern office
+      about: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80', // Team meeting
+    }
+  }
+
+  return imageMap[businessType] || imageMap.business
+}
+
+// Research insights type
+interface ResearchInsights {
+  commonServices: string[]
+  commonTrustSignals: string[]
+  suggestedColors: { primary: string; accent: string; background: string }
+  suggestedTone: string
+  layoutRecommendation: string
+  competitors?: Array<{ name: string; url: string; description?: string }>
+}
+
+// Fetch competitor research for informed site generation
+async function fetchResearchInsights(
+  businessType: string,
+  location: string,
+  services: string[]
+): Promise<ResearchInsights | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const response = await fetch(`${baseUrl}/api/research`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessType, location, services }),
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      console.log(`Research completed for ${businessType} in ${location}`)
+      return data.insights
+    }
+  } catch (error) {
+    console.error('Research fetch failed:', error)
+  }
+  return null
+}
+
+async function generateWithClaude(data: BusinessData, research?: ResearchInsights | null): Promise<string> {
   const client = new Anthropic()
 
   const services = getAllServices(data)
   const businessType = getBusinessType(data)
   const hours = formatHours(data.operatingHours)
+  const images = getIndustryImages(businessType)
 
-  const prompt = `Create a minimal, architectural-style landing page. Think luxury real estate or high-end design studio aesthetic.
+  // Build research context if available
+  const researchContext = research ? `
+=== COMPETITOR RESEARCH INSIGHTS ===
+Based on analysis of competitors in ${data.suburb}:
+
+**WHAT COMPETITORS EMPHASIZE:**
+- Common services: ${research.commonServices.slice(0, 6).join(', ')}
+- Trust signals that work: ${research.commonTrustSignals.slice(0, 5).join(', ')}
+
+**RECOMMENDED APPROACH:**
+- Tone: ${research.suggestedTone} (based on what resonates in this market)
+- Layout: ${research.layoutRecommendation}
+- Make sure to differentiate from competitors while matching professional standards
+
+USE THESE INSIGHTS to create a site that will compete effectively in this market.
+` : ''
+
+  const prompt = `Create a minimal, architectural-style landing page for a ${businessType.toUpperCase()} business. The design should feel authentic to the ${data.category} industry while maintaining a luxury aesthetic.
+${researchContext}
 
 BUSINESS:
 - Name: ${data.businessName}
@@ -133,7 +294,7 @@ SERVICES: ${services.join(', ')}
 - Full-bleed background image with subtle dark overlay (rgba(0,0,0,0.3))
 - Centered content: Logo large, tagline below, location below that
 - Two buttons: "EXPLORE SERVICES" (outline white) and "GET A QUOTE" (filled white, dark text)
-- Use this image: https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80
+- Use this image: ${images.hero}
 
 **SERVICES SECTION:**
 - White background, generous padding (120px vertical)
@@ -166,8 +327,9 @@ SERVICES: ${services.join(', ')}
 - Logo, nav links, copyright in one row
 
 **IMAGES:**
-- Hero: https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80
-- About: https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80
+- Hero: ${images.hero}
+- About: ${images.about}
+- IMPORTANT: These images are specifically selected for a ${businessType} business. Use them as provided.
 
 **TECHNICAL:**
 - Single HTML file with embedded CSS
@@ -198,6 +360,7 @@ function generateFallbackHTML(data: BusinessData): string {
   const services = getAllServices(data)
   const businessType = getBusinessType(data)
   const hours = formatHours(data.operatingHours)
+  const images = getIndustryImages(businessType)
 
   // Style based on business type
   const isFashion = businessType === 'fashion'
@@ -219,9 +382,14 @@ function generateFallbackHTML(data: BusinessData): string {
 
     /* Hero */
     .hero {
-      background: ${isFashion ? '#000' : `linear-gradient(135deg, ${primaryColor}, #0f172a)`};
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${images.hero}');
+      background-size: cover;
+      background-position: center;
       color: white;
       padding: 120px 24px;
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
       text-align: ${isFashion ? 'left' : 'center'};
     }
     .hero h1 {
@@ -409,10 +577,21 @@ export async function POST(request: NextRequest) {
 
     let generatedHtml: string
 
+    // Fetch competitor research to inform the site generation
+    const research = await fetchResearchInsights(
+      businessData.category,
+      businessData.suburb,
+      businessData.services || []
+    )
+
+    if (research) {
+      console.log(`Using research insights for ${slug}: tone=${research.suggestedTone}, layout=${research.layoutRecommendation}`)
+    }
+
     // Try Claude first, fall back to template
     try {
       if (process.env.ANTHROPIC_API_KEY) {
-        generatedHtml = await generateWithClaude(businessData)
+        generatedHtml = await generateWithClaude(businessData, research)
       } else {
         console.log('No ANTHROPIC_API_KEY, using fallback')
         generatedHtml = generateFallbackHTML(businessData)

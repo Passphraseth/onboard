@@ -74,16 +74,52 @@ async function searchCompetitors(
   businessType: string,
   location: string
 ): Promise<CompetitorData[]> {
-  // In production, this would:
-  // 1. Use Google Custom Search API or SerpAPI
-  // 2. Fetch each competitor's homepage
-  // 3. Extract colors using CSS analysis
-  // 4. Extract services from content
-  // 5. Identify trust signals
+  // Try to get real competitor data from Google
+  const serpApiKey = process.env.SERP_API_KEY
 
-  // For now, we'll use the business type to inform smart defaults
-  // This would be replaced with actual scraping
+  if (serpApiKey) {
+    try {
+      // Search Google for competitors in the area
+      const searchQuery = `${businessType} ${location} Australia`
+      const serpResponse = await fetch(
+        `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(searchQuery)}&location=Australia&api_key=${serpApiKey}&num=5`
+      )
 
+      if (serpResponse.ok) {
+        const serpData = await serpResponse.json()
+        const organicResults = serpData.organic_results || []
+
+        if (organicResults.length > 0) {
+          console.log(`Found ${organicResults.length} competitors for "${searchQuery}"`)
+
+          // Extract competitor data from search results
+          const competitors: CompetitorData[] = organicResults.slice(0, 5).map((result: any) => ({
+            name: result.title?.split('|')[0]?.split('-')[0]?.trim() || 'Competitor',
+            url: result.link,
+            description: result.snippet,
+            // We'll enrich these with defaults since we can't scrape full sites easily
+            services: extractServicesFromSnippet(result.snippet, businessType),
+            trustSignals: extractTrustSignalsFromSnippet(result.snippet),
+          }))
+
+          // Merge with industry defaults for missing data
+          const industryData = getIndustryDefaults(businessType.toLowerCase())
+          return competitors.map(comp => ({
+            ...comp,
+            colors: industryData.commonColors,
+            trustSignals: comp.trustSignals?.length ? comp.trustSignals : industryData.trustSignals,
+            tone: industryData.tone,
+            services: comp.services?.length ? comp.services : industryData.competitors[0]?.services,
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('SerpAPI search failed:', error)
+    }
+  }
+
+  // Fallback to industry defaults if no API key or search failed
+  console.log('Using industry defaults (no SERP_API_KEY or search failed)')
   const industryData = getIndustryDefaults(businessType.toLowerCase())
 
   return industryData.competitors.map(comp => ({
@@ -92,6 +128,60 @@ async function searchCompetitors(
     trustSignals: industryData.trustSignals,
     tone: industryData.tone,
   }))
+}
+
+// Extract services mentioned in search snippets
+function extractServicesFromSnippet(snippet: string, businessType: string): string[] {
+  if (!snippet) return []
+
+  const services: string[] = []
+  const lowerSnippet = snippet.toLowerCase()
+
+  // Common service patterns by industry
+  const servicePatterns: Record<string, string[]> = {
+    cafe: ['coffee', 'breakfast', 'lunch', 'brunch', 'catering', 'takeaway', 'dine in', 'pastries', 'cakes'],
+    legal: ['conveyancing', 'family law', 'wills', 'estates', 'property', 'commercial', 'litigation', 'immigration'],
+    fitness: ['personal training', 'group classes', 'yoga', 'pilates', 'weights', 'cardio', 'crossfit', 'boxing'],
+    plumber: ['emergency', 'blocked drains', 'hot water', 'gas fitting', 'leak detection', 'renovations', 'maintenance'],
+    beauty: ['facials', 'waxing', 'nails', 'lashes', 'brows', 'massage', 'skin', 'treatments'],
+    construction: ['fitouts', 'renovations', 'commercial', 'residential', 'project management', 'design'],
+  }
+
+  const patterns = servicePatterns[businessType.toLowerCase()] || []
+  patterns.forEach(pattern => {
+    if (lowerSnippet.includes(pattern)) {
+      services.push(pattern.charAt(0).toUpperCase() + pattern.slice(1))
+    }
+  })
+
+  return services
+}
+
+// Extract trust signals from search snippets
+function extractTrustSignalsFromSnippet(snippet: string): string[] {
+  if (!snippet) return []
+
+  const signals: string[] = []
+  const lowerSnippet = snippet.toLowerCase()
+
+  const trustPatterns = [
+    { pattern: /(\d+)\+?\s*years?/i, signal: 'Years Experience' },
+    { pattern: /licensed/i, signal: 'Licensed' },
+    { pattern: /insured/i, signal: 'Fully Insured' },
+    { pattern: /free quote/i, signal: 'Free Quotes' },
+    { pattern: /24.?7|emergency/i, signal: '24/7 Available' },
+    { pattern: /award/i, signal: 'Award Winning' },
+    { pattern: /family.?owned|local/i, signal: 'Locally Owned' },
+    { pattern: /satisfaction|guarantee/i, signal: 'Satisfaction Guaranteed' },
+  ]
+
+  trustPatterns.forEach(({ pattern, signal }) => {
+    if (pattern.test(lowerSnippet)) {
+      signals.push(signal)
+    }
+  })
+
+  return signals
 }
 
 function analyzeCompetitors(
