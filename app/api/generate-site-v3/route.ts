@@ -14,6 +14,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { extractBrandProfile, ExtractionInput, BrandProfile } from '@/lib/extraction/brand-orchestrator'
+import { createAdminClient } from '@/lib/supabase/server'
+import { slugify } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 180 // Allow up to 3 minutes for full extraction + generation
@@ -71,9 +73,27 @@ export async function POST(request: NextRequest) {
     const html = await generateDataDrivenSite(brandProfile)
     console.log(`✅ Site generated (${Date.now() - startTime}ms)`)
 
+    // STEP 3: Save HTML to database
+    console.log('💾 Step 3: Saving to database...')
+    const slug = slugify(body.businessName)
+    const supabase = createAdminClient()
+
+    const { error: updateError } = await supabase
+      .from('client_sites')
+      .update({ generated_html: html })
+      .eq('slug', slug)
+
+    if (updateError) {
+      console.error('Error saving HTML to database:', updateError)
+      // Still return success - the HTML was generated even if save failed
+    } else {
+      console.log(`✅ Saved HTML to client_sites for slug: ${slug}`)
+    }
+
     return NextResponse.json({
       success: true,
       html,
+      slug,
       brandProfile: {
         colors: brandProfile.colors,
         fonts: brandProfile.fonts,

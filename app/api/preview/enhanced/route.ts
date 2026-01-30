@@ -529,7 +529,7 @@ export async function POST(request: NextRequest) {
         // Regenerate HTML using the data-driven v3 generator
         try {
           const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-          await fetch(`${baseUrl}/api/generate-site-v3`, {
+          const genResponse = await fetch(`${baseUrl}/api/generate-site-v3`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -552,7 +552,14 @@ export async function POST(request: NextRequest) {
               logoUrl: data.logoUrl,
             }),
           })
-          console.log(`Generated HTML (v3 data-driven) for ${existingLead.slug}`)
+
+          if (genResponse.ok) {
+            const genResult = await genResponse.json()
+            console.log(`Generated HTML (v3 data-driven) for ${existingLead.slug} in ${genResult.generationTime}ms`)
+          } else {
+            const errorText = await genResponse.text()
+            console.error(`Error from v3 generator: ${genResponse.status} - ${errorText}`)
+          }
         } catch (genError) {
           console.error('Error regenerating HTML:', genError)
         }
@@ -633,7 +640,7 @@ export async function POST(request: NextRequest) {
       // Generate actual HTML using the data-driven v3 generator
       try {
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-        await fetch(`${baseUrl}/api/generate-site-v3`, {
+        const genResponse = await fetch(`${baseUrl}/api/generate-site-v3`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -656,7 +663,14 @@ export async function POST(request: NextRequest) {
             logoUrl: data.logoUrl,
           }),
         })
-        console.log(`Generated HTML (v3 data-driven) for ${slug}`)
+
+        if (genResponse.ok) {
+          const genResult = await genResponse.json()
+          console.log(`Generated HTML (v3 data-driven) for ${slug} in ${genResult.generationTime}ms`)
+        } else {
+          const errorText = await genResponse.text()
+          console.error(`Error from v3 generator: ${genResponse.status} - ${errorText}`)
+        }
       } catch (genError) {
         console.error('Error generating HTML:', genError)
       }

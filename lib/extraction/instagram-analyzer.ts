@@ -50,13 +50,13 @@ export async function analyzeInstagram(username: string): Promise<InstagramAnaly
     username = username.replace('@', '').trim()
     console.log(`Analyzing Instagram: @${username}`)
 
-    // Fetch profile data from RapidAPI
+    // Fetch profile data from RapidAPI - Instagram Scraper Stable API
     const profileResponse = await fetch(
-      `https://instagram-scraper-api2.p.rapidapi.com/v1/info?username_or_id_or_url=${username}`,
+      `https://instagram-scraper-stable-api.p.rapidapi.com/v1/info?username_or_id_or_url=${encodeURIComponent(username)}`,
       {
         headers: {
           'X-RapidAPI-Key': rapidApiKey,
-          'X-RapidAPI-Host': 'instagram-scraper-api2.p.rapidapi.com',
+          'X-RapidAPI-Host': 'instagram-scraper-stable-api.p.rapidapi.com',
         },
         signal: AbortSignal.timeout(15000),
       }
@@ -68,20 +68,23 @@ export async function analyzeInstagram(username: string): Promise<InstagramAnaly
     }
 
     const profileData = await profileResponse.json()
-    const data = profileData.data
+    // Handle different API response structures
+    const data = profileData.data || profileData.user || profileData
 
-    if (!data) {
+    console.log('Instagram API response keys:', Object.keys(profileData))
+
+    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
       console.error('No Instagram data returned')
       return null
     }
 
     // Fetch recent posts
     const postsResponse = await fetch(
-      `https://instagram-scraper-api2.p.rapidapi.com/v1.2/posts?username_or_id_or_url=${username}&count=12`,
+      `https://instagram-scraper-stable-api.p.rapidapi.com/v1/posts?username_or_id_or_url=${encodeURIComponent(username)}`,
       {
         headers: {
           'X-RapidAPI-Key': rapidApiKey,
-          'X-RapidAPI-Host': 'instagram-scraper-api2.p.rapidapi.com',
+          'X-RapidAPI-Host': 'instagram-scraper-stable-api.p.rapidapi.com',
         },
         signal: AbortSignal.timeout(15000),
       }
@@ -90,17 +93,20 @@ export async function analyzeInstagram(username: string): Promise<InstagramAnaly
     let posts: any[] = []
     if (postsResponse.ok) {
       const postsData = await postsResponse.json()
-      posts = postsData.data?.items || []
+      // Handle different response structures for posts
+      posts = postsData.data?.items || postsData.items || postsData.data || postsData.posts || []
+      if (!Array.isArray(posts)) posts = []
+      console.log(`Found ${posts.length} Instagram posts`)
     }
 
-    // Analyze the profile
+    // Analyze the profile - handle different field names
     const profile = {
-      name: data.full_name || username,
-      bio: data.biography || '',
-      website: data.external_url,
-      followerCount: data.follower_count || 0,
-      postCount: data.media_count || 0,
-      profilePicUrl: data.profile_pic_url_hd || data.profile_pic_url || '',
+      name: data.full_name || data.fullName || data.name || username,
+      bio: data.biography || data.bio || '',
+      website: data.external_url || data.externalUrl || data.website,
+      followerCount: data.follower_count || data.followerCount || data.followers || 0,
+      postCount: data.media_count || data.mediaCount || data.posts_count || 0,
+      profilePicUrl: data.profile_pic_url_hd || data.profile_pic_url || data.profilePicUrl || data.avatar || '',
     }
 
     // Analyze brand characteristics from bio and posts
@@ -109,13 +115,19 @@ export async function analyzeInstagram(username: string): Promise<InstagramAnaly
     // Extract content patterns
     const content = analyzeContentPatterns(posts)
 
-    // Get images
+    // Get images - handle different post structures
     const images = {
       profilePic: profile.profilePicUrl,
       recentPosts: posts.slice(0, 9).map((post: any) => ({
-        url: post.image_versions?.items?.[0]?.url || post.thumbnail_url || '',
-        caption: post.caption?.text || '',
-        likes: post.like_count || 0,
+        url: post.image_versions?.items?.[0]?.url ||
+             post.thumbnail_url ||
+             post.display_url ||
+             post.image_url ||
+             post.media_url ||
+             post.url ||
+             '',
+        caption: post.caption?.text || post.caption || post.text || '',
+        likes: post.like_count || post.likes || post.likeCount || 0,
       })),
     }
 
@@ -140,7 +152,13 @@ function analyzeBrandFromContent(
   posts: any[]
 ): InstagramAnalysis['brand'] {
   const lowerBio = bio.toLowerCase()
-  const allCaptions = posts.map((p: any) => p.caption?.text || '').join(' ').toLowerCase()
+  const allCaptions = posts.map((p: any) => {
+    // Handle different caption structures
+    if (typeof p.caption === 'string') return p.caption
+    if (p.caption?.text) return p.caption.text
+    if (p.text) return p.text
+    return ''
+  }).join(' ').toLowerCase()
   const combinedText = lowerBio + ' ' + allCaptions
 
   // Detect tone
@@ -219,10 +237,18 @@ function detectColorsFromText(text: string): string[] {
  * Analyze content posting patterns
  */
 function analyzeContentPatterns(posts: any[]): InstagramAnalysis['content'] {
+  // Helper to extract caption text from various structures
+  const getCaption = (post: any): string => {
+    if (typeof post.caption === 'string') return post.caption
+    if (post.caption?.text) return post.caption.text
+    if (post.text) return post.text
+    return ''
+  }
+
   // Extract hashtags
   const allHashtags: string[] = []
   posts.forEach((post: any) => {
-    const caption = post.caption?.text || ''
+    const caption = getCaption(post)
     const hashtags = caption.match(/#[\w]+/g) || []
     allHashtags.push(...hashtags.map((h: string) => h.toLowerCase()))
   })
@@ -240,7 +266,7 @@ function analyzeContentPatterns(posts: any[]): InstagramAnalysis['content'] {
 
   // Detect topic themes
   const topicThemes: string[] = []
-  const allCaptions = posts.map((p: any) => p.caption?.text || '').join(' ').toLowerCase()
+  const allCaptions = posts.map((p: any) => getCaption(p)).join(' ').toLowerCase()
 
   const themeKeywords: Record<string, string[]> = {
     'food': ['coffee', 'food', 'eat', 'taste', 'delicious', 'menu', 'dish'],
