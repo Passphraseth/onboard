@@ -49,7 +49,6 @@ export default function ElectricianWebsitesPage() {
         'tradie website',
         'emergency electrician website',
       ]}
-      screenshotImage="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&q=80"
       ctaText="Create my electrician website"
     />
   )

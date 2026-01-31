@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import Footer from '@/components/Footer'
 import { OrganizationSchema, SoftwareApplicationSchema } from '@/components/StructuredData'
+import { PhotographyMockup, ConstructionMockup, CafeMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Onboard — Professional websites for service businesses',
@@ -72,38 +73,15 @@ export default function HomePage() {
           </div>
 
           <div className="showcase-grid">
-            {[
-              {
-                name: 'Matthew Krueger',
-                type: 'Photography',
-                image: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&q=80',
-              },
-              {
-                name: 'Spacez',
-                type: 'Commercial Fitouts',
-                image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80',
-              },
-              {
-                name: 'Sunrise Coffee',
-                type: 'Cafe',
-                image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
-              },
-            ].map((site, index) => (
-              <div
-                key={index}
-                className="showcase-item group cursor-default"
-              >
-                <img
-                  src={site.image}
-                  alt={`${site.name} website example`}
-                  className="absolute inset-0 w-full h-full object-cover object-center"
-                />
-                <div className="showcase-overlay">
-                  <p className="font-medium">{site.name}</p>
-                  <p className="text-neutral-400 text-sm">{site.type}</p>
-                </div>
-              </div>
-            ))}
+            <div className="showcase-item">
+              <PhotographyMockup />
+            </div>
+            <div className="showcase-item">
+              <ConstructionMockup />
+            </div>
+            <div className="showcase-item">
+              <CafeMockup />
+            </div>
           </div>
 
           <div className="text-center mt-12">

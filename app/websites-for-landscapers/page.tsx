@@ -49,7 +49,6 @@ export default function LandscaperWebsitesPage() {
         'landscape design website',
         'landscaping portfolio',
       ]}
-      screenshotImage="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=1200&q=80"
       ctaText="Create my landscaping website"
     />
   )

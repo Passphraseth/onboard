@@ -49,7 +49,6 @@ export default function PhotographerWebsitesPage() {
         'portrait photographer website',
         'photography website builder',
       ]}
-      screenshotImage="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=1200&q=80"
       ctaText="Create my photography website"
     />
   )

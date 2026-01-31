@@ -49,7 +49,6 @@ export default function CafeWebsitesPage() {
         'bistro website',
         'hospitality website',
       ]}
-      screenshotImage="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80"
       ctaText="Create my cafe website"
     />
   )
