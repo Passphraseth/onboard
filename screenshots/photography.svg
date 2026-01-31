@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#0a0a0a"/>
+
+  <!-- Navigation -->
+  <rect x="0" y="0" width="1200" height="64" fill="#111111"/>
+  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="white">KRUEGER</text>
+  <text x="1000" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Portfolio</text>
+  <text x="1080" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Contact</text>
+
+  <!-- Hero Section -->
+  <text x="60" y="200" font-family="system-ui, sans-serif" font-size="56" font-weight="600" fill="white">Capturing</text>
+  <text x="60" y="260" font-family="system-ui, sans-serif" font-size="56" font-weight="600" fill="white">Your Story</text>
+  <text x="60" y="320" font-family="system-ui, sans-serif" font-size="18" fill="#666">Melbourne Wedding &amp; Portrait Photography</text>
+
+  <!-- CTA Button -->
+  <rect x="60" y="360" width="160" height="48" rx="6" fill="white"/>
+  <text x="100" y="390" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="black">View Portfolio</text>
+
+  <!-- Image Grid -->
+  <rect x="500" y="120" width="320" height="240" rx="8" fill="#1a1a1a"/>
+  <rect x="840" y="120" width="320" height="240" rx="8" fill="#1a1a1a"/>
+  <rect x="500" y="380" width="320" height="240" rx="8" fill="#1a1a1a"/>
+  <rect x="840" y="380" width="320" height="240" rx="8" fill="#1a1a1a"/>
+
+  <!-- Image placeholders with gradient -->
+  <defs>
+    <linearGradient id="imgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a2a2a"/>
+      <stop offset="100%" style="stop-color:#1a1a1a"/>
+    </linearGradient>
+  </defs>
+  <rect x="500" y="120" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
+  <rect x="840" y="120" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
+  <rect x="500" y="380" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
+  <rect x="840" y="380" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
+
+  <!-- Stats Section -->
+  <rect x="0" y="660" width="1200" height="140" fill="#111111"/>
+  <text x="150" y="720" font-family="system-ui, sans-serif" font-size="32" font-weight="600" fill="white">200+</text>
+  <text x="150" y="750" font-family="system-ui, sans-serif" font-size="14" fill="#666">Weddings Shot</text>
+  <text x="450" y="720" font-family="system-ui, sans-serif" font-size="32" font-weight="600" fill="white">10</text>
+  <text x="450" y="750" font-family="system-ui, sans-serif" font-size="14" fill="#666">Years Experience</text>
+  <text x="750" y="720" font-family="system-ui, sans-serif" font-size="32" font-weight="600" fill="white">5.0</text>
+  <text x="750" y="750" font-family="system-ui, sans-serif" font-size="14" fill="#666">Google Rating</text>
+</svg>

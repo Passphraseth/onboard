@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f8fafc"/>
+
+  <!-- Navigation -->
+  <rect x="0" y="0" width="1200" height="64" fill="white"/>
+  <rect x="0" y="64" width="1200" height="1" fill="#e2e8f0"/>
+  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#0d9488">SPARKLE CLEAN</text>
+  <text x="880" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#666">Services</text>
+  <text x="970" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#666">Pricing</text>
+  <rect x="1050" y="18" width="100" height="32" rx="4" fill="#0d9488"/>
+  <text x="1070" y="40" font-family="system-ui, sans-serif" font-size="14" fill="white">Quote</text>
+
+  <!-- Hero Section -->
+  <rect x="0" y="65" width="650" height="380" fill="#f8fafc"/>
+  <rect x="650" y="65" width="550" height="380" fill="#ccfbf1"/>
+
+  <text x="60" y="180" font-family="system-ui, sans-serif" font-size="14" fill="#0d9488" font-weight="500">PROFESSIONAL CLEANING</text>
+  <text x="60" y="240" font-family="system-ui, sans-serif" font-size="44" font-weight="600" fill="#1e293b">A Spotless Home</text>
+  <text x="60" y="295" font-family="system-ui, sans-serif" font-size="44" font-weight="600" fill="#1e293b">Every Time</text>
+  <text x="60" y="350" font-family="system-ui, sans-serif" font-size="16" fill="#64748b">Trusted cleaning services for homes &amp; offices</text>
+
+  <!-- CTA Buttons -->
+  <rect x="60" y="390" width="160" height="44" rx="4" fill="#0d9488"/>
+  <text x="95" y="418" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="white">Get Free Quote</text>
+
+  <!-- Trust Badges -->
+  <g transform="translate(60, 470)">
+    <rect width="140" height="60" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="30" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#1e293b">500+</text>
+    <text x="20" y="48" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Happy Clients</text>
+  </g>
+  <g transform="translate(220, 470)">
+    <rect width="140" height="60" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="30" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#1e293b">5.0</text>
+    <text x="20" y="48" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Google Rating</text>
+  </g>
+  <g transform="translate(380, 470)">
+    <rect width="140" height="60" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="30" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#1e293b">100%</text>
+    <text x="20" y="48" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Satisfaction</text>
+  </g>
+
+  <!-- Services Section -->
+  <rect x="0" y="560" width="1200" height="240" fill="white"/>
+  <text x="60" y="620" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#1e293b">Our Services</text>
+
+  <rect x="60" y="650" width="260" height="110" rx="8" fill="#f8fafc"/>
+  <text x="90" y="695" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#1e293b">Regular Cleaning</text>
+  <text x="90" y="720" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">Weekly &amp; fortnightly</text>
+
+  <rect x="340" y="650" width="260" height="110" rx="8" fill="#f8fafc"/>
+  <text x="370" y="695" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#1e293b">Deep Cleaning</text>
+  <text x="370" y="720" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">Top to bottom clean</text>
+
+  <rect x="620" y="650" width="260" height="110" rx="8" fill="#f8fafc"/>
+  <text x="650" y="695" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#1e293b">End of Lease</text>
+  <text x="650" y="720" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">Bond back guarantee</text>
+
+  <rect x="900" y="650" width="260" height="110" rx="8" fill="#f8fafc"/>
+  <text x="930" y="695" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#1e293b">Office Cleaning</text>
+  <text x="930" y="720" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">Commercial spaces</text>
+</svg>
