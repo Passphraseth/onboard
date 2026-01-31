@@ -1,55 +1,92 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#0a0a0a"/>
-
-  <!-- Navigation -->
-  <rect x="0" y="0" width="1200" height="64" fill="#111111"/>
-  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="white">CONSTRUCT CO</text>
-  <text x="900" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Services</text>
-  <text x="980" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Projects</text>
-  <text x="1060" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Contact</text>
-
-  <!-- Hero with overlay image -->
-  <rect x="0" y="64" width="1200" height="400" fill="#1a1a1a"/>
   <defs>
-    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="constGrad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#0a0a0a"/>
-      <stop offset="60%" style="stop-color:rgba(10,10,10,0.8)"/>
-      <stop offset="100%" style="stop-color:rgba(10,10,10,0)"/>
+      <stop offset="40%" style="stop-color:rgba(10,10,10,0.95)"/>
+      <stop offset="100%" style="stop-color:rgba(10,10,10,0.7)"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="64" width="1200" height="400" fill="url(#heroGrad)"/>
 
-  <!-- Hero Text -->
-  <text x="60" y="200" font-family="system-ui, sans-serif" font-size="14" fill="#f59e0b" font-weight="500">QUALITY BUILDS</text>
-  <text x="60" y="260" font-family="system-ui, sans-serif" font-size="48" font-weight="600" fill="white">Building Your</text>
-  <text x="60" y="320" font-family="system-ui, sans-serif" font-size="48" font-weight="600" fill="white">Vision</text>
-  <text x="60" y="370" font-family="system-ui, sans-serif" font-size="16" fill="#888">Residential &amp; commercial construction in Melbourne</text>
+  <!-- Dark industrial background -->
+  <rect width="1200" height="800" fill="#0a0a0a"/>
 
-  <!-- CTA Buttons -->
-  <rect x="60" y="400" width="140" height="44" rx="4" fill="#f59e0b"/>
-  <text x="90" y="428" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="black">Get Quote</text>
-  <rect x="220" y="400" width="140" height="44" rx="4" fill="transparent" stroke="#444" stroke-width="1"/>
-  <text x="250" y="428" font-family="system-ui, sans-serif" font-size="14" fill="white">Our Work</text>
+  <!-- Hero background texture -->
+  <rect x="0" y="0" width="1200" height="520" fill="#1a1a1a"/>
+  <rect x="0" y="0" width="1200" height="520" fill="url(#constGrad)"/>
+
+  <!-- Grid pattern overlay -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#222" stroke-width="0.5"/>
+  </pattern>
+  <rect x="500" y="0" width="700" height="520" fill="url(#grid)" fill-opacity="0.5"/>
+
+  <!-- Navigation -->
+  <rect x="0" y="0" width="1200" height="80" fill="transparent"/>
+  <text x="60" y="50" font-family="system-ui, sans-serif" font-size="24" fill="#fff" font-weight="700" letter-spacing="1">IRONCLAD</text>
+  <rect x="175" y="38" width="8" height="8" fill="#f59e0b"/>
+
+  <text x="700" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#888">SERVICES</text>
+  <text x="800" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#888">PROJECTS</text>
+  <text x="900" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#888">ABOUT</text>
+
+  <rect x="1020" y="26" width="130" height="44" rx="4" fill="#f59e0b"/>
+  <text x="1045" y="54" font-family="system-ui, sans-serif" font-size="13" fill="#0a0a0a" font-weight="600">GET QUOTE</text>
+
+  <!-- Hero Content -->
+  <rect x="60" y="120" width="4" height="60" fill="#f59e0b"/>
+  <text x="80" y="155" font-family="system-ui, sans-serif" font-size="11" fill="#f59e0b" letter-spacing="4">CONSTRUCTION EXCELLENCE</text>
+
+  <text x="60" y="240" font-family="system-ui, sans-serif" font-size="64" fill="#fff" font-weight="800">WE BUILD</text>
+  <text x="60" y="310" font-family="system-ui, sans-serif" font-size="64" fill="#fff" font-weight="800">WHAT</text>
+  <text x="60" y="380" font-family="system-ui, sans-serif" font-size="64" fill="#f59e0b" font-weight="800">LASTS.</text>
+
+  <text x="60" y="430" font-family="system-ui, sans-serif" font-size="16" fill="#888">Residential &amp; commercial construction across Melbourne.</text>
+  <text x="60" y="455" font-family="system-ui, sans-serif" font-size="16" fill="#888">Licensed builders. 25+ years experience.</text>
+
+  <!-- CTAs -->
+  <rect x="60" y="485" width="160" height="50" rx="4" fill="#f59e0b"/>
+  <text x="95" y="516" font-family="system-ui, sans-serif" font-size="14" fill="#0a0a0a" font-weight="600">Start Project</text>
+
+  <rect x="240" y="485" width="160" height="50" rx="4" fill="transparent" stroke="#444" stroke-width="1"/>
+  <text x="280" y="516" font-family="system-ui, sans-serif" font-size="14" fill="#fff">View Work</text>
+
+  <!-- Stats bar -->
+  <rect x="550" y="400" width="1" height="100" fill="#333"/>
+  <text x="590" y="430" font-family="system-ui, sans-serif" font-size="48" fill="#fff" font-weight="700">25+</text>
+  <text x="590" y="455" font-family="system-ui, sans-serif" font-size="12" fill="#666">YEARS</text>
+
+  <rect x="730" y="400" width="1" height="100" fill="#333"/>
+  <text x="770" y="430" font-family="system-ui, sans-serif" font-size="48" fill="#fff" font-weight="700">400+</text>
+  <text x="770" y="455" font-family="system-ui, sans-serif" font-size="12" fill="#666">PROJECTS</text>
+
+  <rect x="920" y="400" width="1" height="100" fill="#333"/>
+  <text x="960" y="430" font-family="system-ui, sans-serif" font-size="48" fill="#f59e0b" font-weight="700">$50M+</text>
+  <text x="960" y="455" font-family="system-ui, sans-serif" font-size="12" fill="#666">BUILT VALUE</text>
 
   <!-- Services Section -->
-  <rect x="0" y="484" width="1200" height="316" fill="#111111"/>
-  <text x="60" y="540" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">Our Services</text>
+  <rect x="0" y="520" width="1200" height="280" fill="#0f0f0f"/>
 
-  <!-- Service Cards -->
-  <rect x="60" y="570" width="260" height="120" rx="8" fill="#1a1a1a" stroke="#222" stroke-width="1"/>
-  <text x="80" y="610" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">New Builds</text>
-  <text x="80" y="635" font-family="system-ui, sans-serif" font-size="12" fill="#666">Custom homes built to spec</text>
+  <text x="60" y="580" font-family="system-ui, sans-serif" font-size="11" fill="#f59e0b" letter-spacing="3">WHAT WE DO</text>
+  <text x="60" y="620" font-family="system-ui, sans-serif" font-size="28" fill="#fff" font-weight="700">Our Services</text>
 
-  <rect x="340" y="570" width="260" height="120" rx="8" fill="#1a1a1a" stroke="#222" stroke-width="1"/>
-  <text x="360" y="610" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Renovations</text>
-  <text x="360" y="635" font-family="system-ui, sans-serif" font-size="12" fill="#666">Transform your existing space</text>
+  <!-- Service cards -->
+  <rect x="60" y="650" width="265" height="110" rx="4" fill="#1a1a1a" stroke="#252525" stroke-width="1"/>
+  <rect x="60" y="650" width="265" height="4" fill="#f59e0b"/>
+  <text x="85" y="700" font-family="system-ui, sans-serif" font-size="17" fill="#fff" font-weight="600">New Builds</text>
+  <text x="85" y="725" font-family="system-ui, sans-serif" font-size="12" fill="#666">Custom homes from foundation to finish</text>
 
-  <rect x="620" y="570" width="260" height="120" rx="8" fill="#1a1a1a" stroke="#222" stroke-width="1"/>
-  <text x="640" y="610" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Extensions</text>
-  <text x="640" y="635" font-family="system-ui, sans-serif" font-size="12" fill="#666">Add space to your home</text>
+  <rect x="345" y="650" width="265" height="110" rx="4" fill="#1a1a1a" stroke="#252525" stroke-width="1"/>
+  <rect x="345" y="650" width="265" height="4" fill="#f59e0b"/>
+  <text x="370" y="700" font-family="system-ui, sans-serif" font-size="17" fill="#fff" font-weight="600">Renovations</text>
+  <text x="370" y="725" font-family="system-ui, sans-serif" font-size="12" fill="#666">Transform your existing space</text>
 
-  <rect x="900" y="570" width="260" height="120" rx="8" fill="#1a1a1a" stroke="#222" stroke-width="1"/>
-  <text x="920" y="610" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Commercial</text>
-  <text x="920" y="635" font-family="system-ui, sans-serif" font-size="12" fill="#666">Office &amp; retail fitouts</text>
+  <rect x="630" y="650" width="265" height="110" rx="4" fill="#1a1a1a" stroke="#252525" stroke-width="1"/>
+  <rect x="630" y="650" width="265" height="4" fill="#f59e0b"/>
+  <text x="655" y="700" font-family="system-ui, sans-serif" font-size="17" fill="#fff" font-weight="600">Extensions</text>
+  <text x="655" y="725" font-family="system-ui, sans-serif" font-size="12" fill="#666">Add valuable space to your property</text>
+
+  <rect x="915" y="650" width="265" height="110" rx="4" fill="#1a1a1a" stroke="#252525" stroke-width="1"/>
+  <rect x="915" y="650" width="265" height="4" fill="#f59e0b"/>
+  <text x="940" y="700" font-family="system-ui, sans-serif" font-size="17" fill="#fff" font-weight="600">Commercial</text>
+  <text x="940" y="725" font-family="system-ui, sans-serif" font-size="12" fill="#666">Office, retail &amp; industrial projects</text>
 </svg>

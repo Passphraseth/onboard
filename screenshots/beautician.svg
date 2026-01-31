@@ -1,50 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#fdf6f6"/>
+  <!-- Background with subtle gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fefcfb"/>
+      <stop offset="100%" style="stop-color:#fdf2f4"/>
+    </linearGradient>
+    <linearGradient id="heroImg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f9a8c9"/>
+      <stop offset="50%" style="stop-color:#fecdd3"/>
+      <stop offset="100%" style="stop-color:#f5d0c5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bgGrad)"/>
 
-  <!-- Navigation -->
-  <rect x="0" y="0" width="1200" height="64" fill="white"/>
-  <text x="60" y="40" font-family="Georgia, serif" font-size="22" fill="#be185d">LUXE BEAUTY</text>
-  <text x="880" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#666">Services</text>
-  <text x="970" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#666">About</text>
-  <rect x="1050" y="18" width="100" height="32" rx="16" fill="#be185d"/>
-  <text x="1080" y="40" font-family="system-ui, sans-serif" font-size="14" fill="white">Book</text>
+  <!-- Navigation - elegant minimal -->
+  <rect x="0" y="0" width="1200" height="80" fill="white" fill-opacity="0.9"/>
+  <text x="60" y="48" font-family="Didot, Georgia, serif" font-size="26" font-weight="400" fill="#1a1a1a" letter-spacing="2">ROSÉ</text>
+  <text x="500" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666" letter-spacing="1">TREATMENTS</text>
+  <text x="620" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666" letter-spacing="1">ABOUT</text>
+  <text x="710" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666" letter-spacing="1">GALLERY</text>
+  <text x="800" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666" letter-spacing="1">CONTACT</text>
+  <rect x="1020" y="26" width="120" height="40" rx="20" fill="none" stroke="#c4697e" stroke-width="1.5"/>
+  <text x="1045" y="52" font-family="system-ui, sans-serif" font-size="13" fill="#c4697e" letter-spacing="1">BOOK NOW</text>
 
-  <!-- Hero Section -->
-  <rect x="0" y="64" width="600" height="400" fill="#fdf6f6"/>
-  <rect x="600" y="64" width="600" height="400" fill="#f9d5e5"/>
+  <!-- Hero Split Layout -->
+  <!-- Left side - Image area -->
+  <rect x="0" y="80" width="580" height="520" fill="url(#heroImg)"/>
+  <!-- Decorative circles -->
+  <circle cx="150" cy="280" r="120" fill="#fff" fill-opacity="0.15"/>
+  <circle cx="450" cy="450" r="80" fill="#fff" fill-opacity="0.1"/>
 
-  <text x="60" y="180" font-family="Georgia, serif" font-size="14" fill="#be185d" letter-spacing="3">SOUTH YARRA</text>
-  <text x="60" y="250" font-family="Georgia, serif" font-size="48" font-weight="400" fill="#1a1a1a">Reveal Your</text>
-  <text x="60" y="310" font-family="Georgia, serif" font-size="48" font-weight="400" fill="#1a1a1a">Natural Glow</text>
-  <text x="60" y="360" font-family="system-ui, sans-serif" font-size="16" fill="#666">Premium beauty treatments in a relaxing environment</text>
+  <!-- Right side - Content -->
+  <rect x="580" y="80" width="620" height="520" fill="white"/>
 
-  <!-- CTA -->
-  <rect x="60" y="400" width="160" height="48" rx="24" fill="#be185d"/>
-  <text x="100" y="430" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="white">Book Now</text>
+  <!-- Decorative line -->
+  <rect x="640" y="220" width="60" height="1" fill="#c4697e"/>
+
+  <text x="640" y="200" font-family="system-ui, sans-serif" font-size="11" fill="#c4697e" letter-spacing="3">TOORAK BEAUTY STUDIO</text>
+  <text x="640" y="290" font-family="Didot, Georgia, serif" font-size="52" fill="#1a1a1a">Elevate Your</text>
+  <text x="640" y="355" font-family="Didot, Georgia, serif" font-size="52" fill="#1a1a1a">Natural Beauty</text>
+  <text x="640" y="410" font-family="system-ui, sans-serif" font-size="15" fill="#888" line-height="1.8">Bespoke facials, lash artistry, and skincare</text>
+  <text x="640" y="435" font-family="system-ui, sans-serif" font-size="15" fill="#888">treatments in a serene sanctuary.</text>
+
+  <!-- CTA Buttons -->
+  <rect x="640" y="480" width="160" height="50" rx="25" fill="#c4697e"/>
+  <text x="680" y="512" font-family="system-ui, sans-serif" font-size="13" fill="white" letter-spacing="1">VIEW MENU</text>
+  <text x="830" y="512" font-family="system-ui, sans-serif" font-size="13" fill="#c4697e" letter-spacing="1">Our Story →</text>
+
+  <!-- Stats -->
+  <line x1="640" y1="550" x2="1100" y2="550" stroke="#f0e6e8" stroke-width="1"/>
+  <text x="640" y="585" font-family="Didot, Georgia, serif" font-size="32" fill="#1a1a1a">12+</text>
+  <text x="640" y="605" font-family="system-ui, sans-serif" font-size="11" fill="#888" letter-spacing="1">YEARS</text>
+  <text x="780" y="585" font-family="Didot, Georgia, serif" font-size="32" fill="#1a1a1a">5K+</text>
+  <text x="780" y="605" font-family="system-ui, sans-serif" font-size="11" fill="#888" letter-spacing="1">CLIENTS</text>
+  <text x="920" y="585" font-family="Didot, Georgia, serif" font-size="32" fill="#1a1a1a">4.9</text>
+  <text x="920" y="605" font-family="system-ui, sans-serif" font-size="11" fill="#888" letter-spacing="1">RATING</text>
 
   <!-- Services Section -->
-  <rect x="0" y="464" width="1200" height="336" fill="white"/>
-  <text x="60" y="530" font-family="Georgia, serif" font-size="28" fill="#1a1a1a">Treatments</text>
+  <rect x="0" y="600" width="1200" height="200" fill="#faf5f6"/>
+  <text x="60" y="660" font-family="system-ui, sans-serif" font-size="11" fill="#c4697e" letter-spacing="3">SIGNATURE TREATMENTS</text>
 
   <!-- Service Cards -->
-  <rect x="60" y="560" width="260" height="180" rx="12" fill="#fdf6f6"/>
-  <text x="90" y="620" font-family="Georgia, serif" font-size="18" fill="#1a1a1a">Facials</text>
-  <text x="90" y="650" font-family="system-ui, sans-serif" font-size="13" fill="#666">Hydrating &amp; anti-aging</text>
-  <text x="90" y="700" font-family="system-ui, sans-serif" font-size="14" fill="#be185d">From $89</text>
+  <rect x="60" y="680" width="250" height="100" rx="8" fill="white"/>
+  <text x="80" y="720" font-family="Didot, Georgia, serif" font-size="18" fill="#1a1a1a">Hydra Facial</text>
+  <text x="80" y="745" font-family="system-ui, sans-serif" font-size="12" fill="#888">Deep cleanse &amp; hydration</text>
+  <text x="80" y="765" font-family="system-ui, sans-serif" font-size="13" fill="#c4697e">From $189</text>
+  <text x="270" y="765" font-family="system-ui, sans-serif" font-size="11" fill="#c4697e">→</text>
 
-  <rect x="340" y="560" width="260" height="180" rx="12" fill="#fdf6f6"/>
-  <text x="370" y="620" font-family="Georgia, serif" font-size="18" fill="#1a1a1a">Lash Extensions</text>
-  <text x="370" y="650" font-family="system-ui, sans-serif" font-size="13" fill="#666">Classic &amp; volume sets</text>
-  <text x="370" y="700" font-family="system-ui, sans-serif" font-size="14" fill="#be185d">From $120</text>
+  <rect x="330" y="680" width="250" height="100" rx="8" fill="white"/>
+  <text x="350" y="720" font-family="Didot, Georgia, serif" font-size="18" fill="#1a1a1a">Lash Extensions</text>
+  <text x="350" y="745" font-family="system-ui, sans-serif" font-size="12" fill="#888">Classic &amp; Volume sets</text>
+  <text x="350" y="765" font-family="system-ui, sans-serif" font-size="13" fill="#c4697e">From $149</text>
+  <text x="540" y="765" font-family="system-ui, sans-serif" font-size="11" fill="#c4697e">→</text>
 
-  <rect x="620" y="560" width="260" height="180" rx="12" fill="#fdf6f6"/>
-  <text x="650" y="620" font-family="Georgia, serif" font-size="18" fill="#1a1a1a">Nails</text>
-  <text x="650" y="650" font-family="system-ui, sans-serif" font-size="13" fill="#666">Gel, SNS &amp; nail art</text>
-  <text x="650" y="700" font-family="system-ui, sans-serif" font-size="14" fill="#be185d">From $55</text>
+  <rect x="600" y="680" width="250" height="100" rx="8" fill="white"/>
+  <text x="620" y="720" font-family="Didot, Georgia, serif" font-size="18" fill="#1a1a1a">Brow Sculpting</text>
+  <text x="620" y="745" font-family="system-ui, sans-serif" font-size="12" fill="#888">Shape, tint &amp; lamination</text>
+  <text x="620" y="765" font-family="system-ui, sans-serif" font-size="13" fill="#c4697e">From $79</text>
+  <text x="810" y="765" font-family="system-ui, sans-serif" font-size="11" fill="#c4697e">→</text>
 
-  <rect x="900" y="560" width="260" height="180" rx="12" fill="#fdf6f6"/>
-  <text x="930" y="620" font-family="Georgia, serif" font-size="18" fill="#1a1a1a">Brows &amp; Wax</text>
-  <text x="930" y="650" font-family="system-ui, sans-serif" font-size="13" fill="#666">Shaping &amp; tinting</text>
-  <text x="930" y="700" font-family="system-ui, sans-serif" font-size="14" fill="#be185d">From $25</text>
+  <rect x="870" y="680" width="250" height="100" rx="8" fill="white"/>
+  <text x="890" y="720" font-family="Didot, Georgia, serif" font-size="18" fill="#1a1a1a">LED Therapy</text>
+  <text x="890" y="745" font-family="system-ui, sans-serif" font-size="12" fill="#888">Skin rejuvenation</text>
+  <text x="890" y="765" font-family="system-ui, sans-serif" font-size="13" fill="#c4697e">From $99</text>
+  <text x="1080" y="765" font-family="system-ui, sans-serif" font-size="11" fill="#c4697e">→</text>
 </svg>

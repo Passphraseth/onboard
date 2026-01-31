@@ -1,59 +1,92 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#0a0a0a"/>
+  <defs>
+    <linearGradient id="fitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#18181b"/>
+      <stop offset="100%" style="stop-color:#09090b"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="1200" height="800" fill="url(#fitGrad)"/>
+
+  <!-- Geometric accent shapes -->
+  <polygon points="1200,0 1200,400 800,0" fill="#22c55e" fill-opacity="0.05"/>
+  <polygon points="0,800 400,800 0,500" fill="#22c55e" fill-opacity="0.03"/>
 
   <!-- Navigation -->
-  <rect x="0" y="0" width="1200" height="64" fill="#111111"/>
-  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="white">JAKE FITNESS</text>
-  <text x="880" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Programs</text>
-  <text x="970" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">About</text>
-  <rect x="1050" y="18" width="100" height="32" rx="4" fill="#8b5cf6"/>
-  <text x="1070" y="40" font-family="system-ui, sans-serif" font-size="14" fill="white">Start</text>
+  <rect x="0" y="0" width="1200" height="80" fill="rgba(9, 9, 11, 0.9)"/>
+
+  <text x="60" y="48" font-family="system-ui, sans-serif" font-size="22" fill="#fff" font-weight="800" letter-spacing="2">PULSE</text>
+  <text x="155" y="48" font-family="system-ui, sans-serif" font-size="22" fill="#22c55e" font-weight="800" letter-spacing="2">FIT</text>
+
+  <text x="650" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#a1a1aa">PROGRAMS</text>
+  <text x="760" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#a1a1aa">TRAINERS</text>
+  <text x="860" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#a1a1aa">PRICING</text>
+
+  <rect x="1000" y="24" width="160" height="44" rx="22" fill="url(#accentGrad)"/>
+  <text x="1040" y="52" font-family="system-ui, sans-serif" font-size="13" fill="#000" font-weight="600">FREE TRIAL</text>
 
   <!-- Hero Section -->
-  <rect x="0" y="64" width="600" height="400" fill="#0a0a0a"/>
-  <rect x="600" y="64" width="600" height="400" fill="#1a1a1a"/>
+  <text x="60" y="180" font-family="system-ui, sans-serif" font-size="12" fill="#22c55e" font-weight="600" letter-spacing="4">PERSONAL TRAINING</text>
 
-  <text x="60" y="180" font-family="system-ui, sans-serif" font-size="14" fill="#8b5cf6" font-weight="600" letter-spacing="2">PERSONAL TRAINING</text>
-  <text x="60" y="250" font-family="system-ui, sans-serif" font-size="52" font-weight="700" fill="white">Transform</text>
-  <text x="60" y="310" font-family="system-ui, sans-serif" font-size="52" font-weight="700" fill="white">Your Body</text>
-  <text x="60" y="360" font-family="system-ui, sans-serif" font-size="16" fill="#888">1-on-1 personal training in Richmond</text>
+  <text x="60" y="280" font-family="system-ui, sans-serif" font-size="72" fill="#fff" font-weight="900">TRAIN</text>
+  <text x="60" y="365" font-family="system-ui, sans-serif" font-size="72" fill="#fff" font-weight="900">HARDER.</text>
+  <text x="60" y="450" font-family="system-ui, sans-serif" font-size="72" fill="#22c55e" font-weight="900">GET RESULTS.</text>
 
-  <!-- CTA -->
-  <rect x="60" y="400" width="180" height="52" rx="4" fill="#8b5cf6"/>
-  <text x="95" y="432" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="white">Free Consultation</text>
+  <text x="60" y="505" font-family="system-ui, sans-serif" font-size="17" fill="#a1a1aa">1-on-1 personal training in South Melbourne.</text>
+  <text x="60" y="530" font-family="system-ui, sans-serif" font-size="17" fill="#a1a1aa">Transform your body with expert guidance.</text>
+
+  <!-- CTAs -->
+  <rect x="60" y="565" width="200" height="56" rx="28" fill="url(#accentGrad)"/>
+  <text x="115" y="600" font-family="system-ui, sans-serif" font-size="14" fill="#000" font-weight="600">BOOK FREE SESSION</text>
+
+  <text x="290" y="600" font-family="system-ui, sans-serif" font-size="14" fill="#a1a1aa">View Programs →</text>
 
   <!-- Stats -->
-  <g transform="translate(60, 490)">
-    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">200+</text>
-    <text x="0" y="25" font-family="system-ui, sans-serif" font-size="13" fill="#666">Clients Transformed</text>
-  </g>
-  <g transform="translate(200, 490)">
-    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">8</text>
-    <text x="0" y="25" font-family="system-ui, sans-serif" font-size="13" fill="#666">Years Experience</text>
-  </g>
-  <g transform="translate(320, 490)">
-    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">5.0</text>
-    <text x="0" y="25" font-family="system-ui, sans-serif" font-size="13" fill="#666">Google Rating</text>
-  </g>
+  <rect x="700" y="250" width="450" height="320" rx="16" fill="rgba(39, 39, 42, 0.5)" stroke="#3f3f46" stroke-width="1"/>
+
+  <text x="750" y="310" font-family="system-ui, sans-serif" font-size="64" fill="#fff" font-weight="800">500+</text>
+  <text x="750" y="340" font-family="system-ui, sans-serif" font-size="14" fill="#a1a1aa">Clients Transformed</text>
+
+  <line x1="750" y1="370" x2="1100" y2="370" stroke="#3f3f46" stroke-width="1"/>
+
+  <text x="750" y="420" font-family="system-ui, sans-serif" font-size="13" fill="#22c55e" font-weight="600">★★★★★</text>
+  <text x="835" y="420" font-family="system-ui, sans-serif" font-size="13" fill="#a1a1aa">5.0 from 200+ reviews</text>
+
+  <line x1="750" y1="450" x2="1100" y2="450" stroke="#3f3f46" stroke-width="1"/>
+
+  <!-- Mini testimonial -->
+  <text x="750" y="490" font-family="system-ui, sans-serif" font-size="15" fill="#fff" font-style="italic">"Lost 15kg in 3 months. Best decision</text>
+  <text x="750" y="512" font-family="system-ui, sans-serif" font-size="15" fill="#fff" font-style="italic">I ever made."</text>
+  <text x="750" y="545" font-family="system-ui, sans-serif" font-size="13" fill="#a1a1aa">— Sarah M., Richmond</text>
 
   <!-- Programs Section -->
-  <rect x="0" y="560" width="1200" height="240" fill="#111111"/>
-  <text x="60" y="620" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">Training Programs</text>
+  <rect x="0" y="640" width="1200" height="160" fill="#09090b"/>
 
-  <rect x="60" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
-  <text x="90" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">1-on-1 PT</text>
-  <text x="90" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Personalised coaching</text>
+  <text x="60" y="695" font-family="system-ui, sans-serif" font-size="12" fill="#22c55e" letter-spacing="3">PROGRAMS</text>
 
-  <rect x="340" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
-  <text x="370" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Group Training</text>
-  <text x="370" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Small group sessions</text>
+  <!-- Program cards -->
+  <rect x="60" y="715" width="260" height="70" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <rect x="60" y="715" width="4" height="70" rx="2" fill="#22c55e"/>
+  <text x="85" y="750" font-family="system-ui, sans-serif" font-size="15" fill="#fff" font-weight="600">1-on-1 Training</text>
+  <text x="85" y="772" font-family="system-ui, sans-serif" font-size="12" fill="#a1a1aa">From $80/session</text>
 
-  <rect x="620" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
-  <text x="650" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Online Coaching</text>
-  <text x="650" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Train from anywhere</text>
+  <rect x="340" y="715" width="260" height="70" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <rect x="340" y="715" width="4" height="70" rx="2" fill="#22c55e"/>
+  <text x="365" y="750" font-family="system-ui, sans-serif" font-size="15" fill="#fff" font-weight="600">Group Classes</text>
+  <text x="365" y="772" font-family="system-ui, sans-serif" font-size="12" fill="#a1a1aa">From $25/class</text>
 
-  <rect x="900" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
-  <text x="930" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Nutrition Plans</text>
-  <text x="930" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Custom meal planning</text>
+  <rect x="620" y="715" width="260" height="70" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <rect x="620" y="715" width="4" height="70" rx="2" fill="#22c55e"/>
+  <text x="645" y="750" font-family="system-ui, sans-serif" font-size="15" fill="#fff" font-weight="600">12-Week Transform</text>
+  <text x="645" y="772" font-family="system-ui, sans-serif" font-size="12" fill="#a1a1aa">Complete program</text>
+
+  <rect x="900" y="715" width="260" height="70" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <rect x="900" y="715" width="4" height="70" rx="2" fill="#22c55e"/>
+  <text x="925" y="750" font-family="system-ui, sans-serif" font-size="15" fill="#fff" font-weight="600">Online Coaching</text>
+  <text x="925" y="772" font-family="system-ui, sans-serif" font-size="12" fill="#a1a1aa">Train anywhere</text>
 </svg>
