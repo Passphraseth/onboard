@@ -76,41 +76,40 @@ export default function HomePage() {
               {
                 name: 'Matthew Krueger',
                 type: 'Photography',
-                slug: 'matthew-krueger-photography-',
-                color: 'from-amber-900/30 to-stone-900/50',
+                image: '/screenshots/photography.svg',
               },
               {
                 name: 'Spacez',
                 type: 'Commercial Fitouts',
-                slug: 'spacez',
-                color: 'from-blue-900/30 to-slate-900/50',
+                image: '/screenshots/construction.svg',
               },
               {
                 name: 'Sunrise Coffee',
                 type: 'Cafe',
-                slug: 'sunrise-coffee-co',
-                color: 'from-orange-900/30 to-stone-900/50',
+                image: '/screenshots/cafe.svg',
               },
             ].map((site, index) => (
-              <a
+              <div
                 key={index}
-                href={`/site/${site.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="showcase-item group"
+                className="showcase-item group cursor-default"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${site.color}`} />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white/5 text-7xl font-semibold tracking-tight">
-                    {site.name.split(' ')[0]}
-                  </span>
-                </div>
+                <img
+                  src={site.image}
+                  alt={`${site.name} website example`}
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
                 <div className="showcase-overlay">
                   <p className="font-medium">{site.name}</p>
                   <p className="text-neutral-400 text-sm">{site.type}</p>
                 </div>
-              </a>
+              </div>
             ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link href="/onboard" className="btn btn-primary">
+              Create your site
+            </Link>
           </div>
         </div>
       </section>

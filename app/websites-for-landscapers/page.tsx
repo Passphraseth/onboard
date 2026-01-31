@@ -49,6 +49,7 @@ export default function LandscaperWebsitesPage() {
         'landscape design website',
         'landscaping portfolio',
       ]}
+      screenshotImage="/screenshots/landscaper.svg"
       ctaText="Create my landscaping website"
     />
   )

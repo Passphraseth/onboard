@@ -49,6 +49,7 @@ export default function BeauticianWebsitesPage() {
         'lash tech website',
         'spa website builder',
       ]}
+      screenshotImage="/screenshots/beautician.svg"
       ctaText="Create my beauty website"
     />
   )

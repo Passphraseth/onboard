@@ -49,9 +49,7 @@ export default function BuilderWebsitesPage() {
         'home builder website',
         'building company website',
       ]}
-      exampleSites={[
-        { name: 'Spacez', slug: 'spacez', type: 'Commercial Fitouts' },
-      ]}
+      screenshotImage="/screenshots/construction.svg"
       ctaText="Create my builder website"
     />
   )

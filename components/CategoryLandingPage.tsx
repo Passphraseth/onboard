@@ -37,12 +37,8 @@ interface CategoryLandingPageProps {
   // Keywords for SEO
   keywords: string[]
 
-  // Example sites (optional)
-  exampleSites?: {
-    name: string
-    slug: string
-    type: string
-  }[]
+  // Screenshot image path for this industry
+  screenshotImage?: string
 
   // Testimonial (optional)
   testimonial?: Testimonial
@@ -61,7 +57,7 @@ export default function CategoryLandingPage({
   features,
   painPoints,
   keywords,
-  exampleSites,
+  screenshotImage,
   testimonial,
   ctaText = 'Create your website free',
 }: CategoryLandingPageProps) {
@@ -272,38 +268,43 @@ export default function CategoryLandingPage({
         </section>
       )}
 
-      {/* Example Sites */}
-      {exampleSites && exampleSites.length > 0 && (
+      {/* Screenshot Showcase */}
+      {screenshotImage && (
         <section className="section">
           <div className="container">
-            <div className="mb-16">
-              <p className="text-neutral-500 text-sm mb-3 tracking-wide">Examples</p>
+            <div className="mb-12 text-center">
+              <p className="text-neutral-500 text-sm mb-3 tracking-wide">Example</p>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
                 See what's possible
               </h2>
             </div>
 
-            <div className="showcase-grid">
-              {exampleSites.map((site, index) => (
-                <a
-                  key={index}
-                  href={`/site/${site.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="showcase-item group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-neutral-800/30 to-neutral-900/50" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-white/5 text-5xl font-semibold tracking-tight">
-                      {site.name.split(' ')[0]}
-                    </span>
+            <div className="max-w-4xl mx-auto">
+              <div className="relative rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
+                {/* Browser chrome mockup */}
+                <div className="bg-neutral-900 px-4 py-3 flex items-center gap-2 border-b border-neutral-800">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-neutral-700" />
+                    <div className="w-3 h-3 rounded-full bg-neutral-700" />
+                    <div className="w-3 h-3 rounded-full bg-neutral-700" />
                   </div>
-                  <div className="showcase-overlay">
-                    <p className="font-medium">{site.name}</p>
-                    <p className="text-neutral-400 text-sm">{site.type}</p>
+                  <div className="flex-1 mx-4">
+                    <div className="bg-neutral-800 rounded-md h-6 max-w-md mx-auto" />
                   </div>
-                </a>
-              ))}
+                </div>
+                {/* Screenshot */}
+                <img
+                  src={screenshotImage}
+                  alt={`Example ${industry.toLowerCase()} website`}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <div className="text-center mt-10">
+              <Link href="/onboard" className="btn btn-primary">
+                Create yours now
+              </Link>
             </div>
           </div>
         </section>

@@ -49,6 +49,7 @@ export default function PersonalTrainerWebsitesPage() {
         'gym trainer website',
         'online trainer website',
       ]}
+      screenshotImage="/screenshots/fitness.svg"
       ctaText="Create my PT website"
     />
   )

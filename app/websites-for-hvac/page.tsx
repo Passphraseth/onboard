@@ -49,6 +49,7 @@ export default function HvacWebsitesPage() {
         'AC repair website',
         'refrigeration website',
       ]}
+      screenshotImage="/screenshots/hvac.svg"
       ctaText="Create my HVAC website"
     />
   )

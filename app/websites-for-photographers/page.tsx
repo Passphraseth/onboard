@@ -49,9 +49,7 @@ export default function PhotographerWebsitesPage() {
         'portrait photographer website',
         'photography website builder',
       ]}
-      exampleSites={[
-        { name: 'Matthew Krueger', slug: 'matthew-krueger-photography-', type: 'Photography' },
-      ]}
+      screenshotImage="/screenshots/photography.svg"
       ctaText="Create my photography website"
     />
   )

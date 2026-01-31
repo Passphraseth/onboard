@@ -49,6 +49,7 @@ export default function MechanicWebsitesPage() {
         'workshop website',
         'mobile mechanic website',
       ]}
+      screenshotImage="/screenshots/mechanic.svg"
       ctaText="Create my mechanic website"
     />
   )

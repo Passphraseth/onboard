@@ -49,6 +49,7 @@ export default function ElectricianWebsitesPage() {
         'tradie website',
         'emergency electrician website',
       ]}
+      screenshotImage="/screenshots/electrician.svg"
       ctaText="Create my electrician website"
     />
   )

@@ -49,9 +49,7 @@ export default function CafeWebsitesPage() {
         'bistro website',
         'hospitality website',
       ]}
-      exampleSites={[
-        { name: 'Sunrise Coffee Co', slug: 'sunrise-coffee-co', type: 'Cafe' },
-      ]}
+      screenshotImage="/screenshots/cafe.svg"
       ctaText="Create my cafe website"
     />
   )
