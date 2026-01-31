@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { PlumberMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Plumbers Australia | Professional Plumber Website Builder',
@@ -50,6 +51,7 @@ export default function PlumberWebsitesPage() {
         'emergency plumber website',
         'local plumber website',
       ]}
+      mockup={<PlumberMockup />}
       ctaText="Create my plumber website"
     />
   )

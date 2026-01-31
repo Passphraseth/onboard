@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { FitnessMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Personal Trainers Australia | Fitness Website Builder',
@@ -49,6 +50,7 @@ export default function PersonalTrainerWebsitesPage() {
         'gym trainer website',
         'online trainer website',
       ]}
+      mockup={<FitnessMockup />}
       ctaText="Create my PT website"
     />
   )

@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { CleanerMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Cleaners Australia | Cleaning Business Website Builder',
@@ -49,6 +50,7 @@ export default function CleanerWebsitesPage() {
         'end of lease cleaning website',
         'cleaning service website',
       ]}
+      mockup={<CleanerMockup />}
       ctaText="Create my cleaning website"
     />
   )

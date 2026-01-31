@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { HairdresserMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Hairdressers & Barbers Australia | Salon Website Builder',
@@ -49,6 +50,7 @@ export default function HairdresserWebsitesPage() {
         'hair salon website',
         'stylist portfolio website',
       ]}
+      mockup={<HairdresserMockup />}
       ctaText="Create my salon website"
     />
   )

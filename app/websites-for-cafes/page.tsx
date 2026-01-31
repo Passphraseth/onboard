@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { CafeMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Cafes & Restaurants Australia | Hospitality Website Builder',
@@ -49,6 +50,7 @@ export default function CafeWebsitesPage() {
         'bistro website',
         'hospitality website',
       ]}
+      mockup={<CafeMockup />}
       ctaText="Create my cafe website"
     />
   )

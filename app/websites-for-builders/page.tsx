@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { ConstructionMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Builders & Construction Australia | Builder Website Builder',
@@ -49,6 +50,7 @@ export default function BuilderWebsitesPage() {
         'home builder website',
         'building company website',
       ]}
+      mockup={<ConstructionMockup />}
       ctaText="Create my builder website"
     />
   )

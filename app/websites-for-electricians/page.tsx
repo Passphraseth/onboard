@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { ElectricianMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Electricians Australia | Professional Electrician Website Builder',
@@ -49,6 +50,7 @@ export default function ElectricianWebsitesPage() {
         'tradie website',
         'emergency electrician website',
       ]}
+      mockup={<ElectricianMockup />}
       ctaText="Create my electrician website"
     />
   )

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Footer from './Footer'
 import { ServiceSchema, BreadcrumbSchema } from './StructuredData'
+import { ReactNode } from 'react'
 
 interface Feature {
   title: string
@@ -37,8 +38,8 @@ interface CategoryLandingPageProps {
   // Keywords for SEO
   keywords: string[]
 
-  // Screenshot image path for this industry
-  screenshotImage?: string
+  // Website mockup component for this industry
+  mockup?: ReactNode
 
   // Testimonial (optional)
   testimonial?: Testimonial
@@ -57,7 +58,7 @@ export default function CategoryLandingPage({
   features,
   painPoints,
   keywords,
-  screenshotImage,
+  mockup,
   testimonial,
   ctaText = 'Create your website free',
 }: CategoryLandingPageProps) {
@@ -268,8 +269,8 @@ export default function CategoryLandingPage({
         </section>
       )}
 
-      {/* Screenshot Showcase */}
-      {screenshotImage && (
+      {/* Website Mockup Showcase */}
+      {mockup && (
         <section className="section">
           <div className="container">
             <div className="mb-12 text-center">
@@ -292,12 +293,10 @@ export default function CategoryLandingPage({
                     <div className="bg-neutral-800 rounded-md h-6 max-w-md mx-auto" />
                   </div>
                 </div>
-                {/* Screenshot */}
-                <img
-                  src={screenshotImage}
-                  alt={`Example ${industry.toLowerCase()} website`}
-                  className="w-full"
-                />
+                {/* Website Mockup */}
+                <div className="w-full">
+                  {mockup}
+                </div>
               </div>
             </div>
 

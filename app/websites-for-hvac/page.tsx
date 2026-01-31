@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { HvacMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for HVAC & Air Conditioning Australia | HVAC Website Builder',
@@ -49,6 +50,7 @@ export default function HvacWebsitesPage() {
         'AC repair website',
         'refrigeration website',
       ]}
+      mockup={<HvacMockup />}
       ctaText="Create my HVAC website"
     />
   )

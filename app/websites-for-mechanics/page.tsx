@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { MechanicMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Mechanics Australia | Auto Repair Website Builder',
@@ -49,6 +50,7 @@ export default function MechanicWebsitesPage() {
         'workshop website',
         'mobile mechanic website',
       ]}
+      mockup={<MechanicMockup />}
       ctaText="Create my mechanic website"
     />
   )

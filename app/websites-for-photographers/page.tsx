@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import CategoryLandingPage from '@/components/CategoryLandingPage'
+import { PhotographyMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
   title: 'Websites for Photographers Australia | Photography Portfolio Website Builder',
@@ -49,6 +50,7 @@ export default function PhotographerWebsitesPage() {
         'portrait photographer website',
         'photography website builder',
       ]}
+      mockup={<PhotographyMockup />}
       ctaText="Create my photography website"
     />
   )
