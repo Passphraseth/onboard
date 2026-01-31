@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#0a0a0a"/>
+
+  <!-- Navigation -->
+  <rect x="0" y="0" width="1200" height="64" fill="#111111"/>
+  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="white">JAKE FITNESS</text>
+  <text x="880" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Programs</text>
+  <text x="970" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">About</text>
+  <rect x="1050" y="18" width="100" height="32" rx="4" fill="#8b5cf6"/>
+  <text x="1070" y="40" font-family="system-ui, sans-serif" font-size="14" fill="white">Start</text>
+
+  <!-- Hero Section -->
+  <rect x="0" y="64" width="600" height="400" fill="#0a0a0a"/>
+  <rect x="600" y="64" width="600" height="400" fill="#1a1a1a"/>
+
+  <text x="60" y="180" font-family="system-ui, sans-serif" font-size="14" fill="#8b5cf6" font-weight="600" letter-spacing="2">PERSONAL TRAINING</text>
+  <text x="60" y="250" font-family="system-ui, sans-serif" font-size="52" font-weight="700" fill="white">Transform</text>
+  <text x="60" y="310" font-family="system-ui, sans-serif" font-size="52" font-weight="700" fill="white">Your Body</text>
+  <text x="60" y="360" font-family="system-ui, sans-serif" font-size="16" fill="#888">1-on-1 personal training in Richmond</text>
+
+  <!-- CTA -->
+  <rect x="60" y="400" width="180" height="52" rx="4" fill="#8b5cf6"/>
+  <text x="95" y="432" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="white">Free Consultation</text>
+
+  <!-- Stats -->
+  <g transform="translate(60, 490)">
+    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">200+</text>
+    <text x="0" y="25" font-family="system-ui, sans-serif" font-size="13" fill="#666">Clients Transformed</text>
+  </g>
+  <g transform="translate(200, 490)">
+    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">8</text>
+    <text x="0" y="25" font-family="system-ui, sans-serif" font-size="13" fill="#666">Years Experience</text>
+  </g>
+  <g transform="translate(320, 490)">
+    <text x="0" y="0" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">5.0</text>
+    <text x="0" y="25" font-family="system-ui, sans-serif" font-size="13" fill="#666">Google Rating</text>
+  </g>
+
+  <!-- Programs Section -->
+  <rect x="0" y="560" width="1200" height="240" fill="#111111"/>
+  <text x="60" y="620" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">Training Programs</text>
+
+  <rect x="60" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
+  <text x="90" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">1-on-1 PT</text>
+  <text x="90" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Personalised coaching</text>
+
+  <rect x="340" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
+  <text x="370" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Group Training</text>
+  <text x="370" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Small group sessions</text>
+
+  <rect x="620" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
+  <text x="650" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Online Coaching</text>
+  <text x="650" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Train from anywhere</text>
+
+  <rect x="900" y="650" width="260" height="120" rx="8" fill="#1a1a1a"/>
+  <text x="930" y="700" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Nutrition Plans</text>
+  <text x="930" y="725" font-family="system-ui, sans-serif" font-size="13" fill="#666">Custom meal planning</text>
+</svg>
