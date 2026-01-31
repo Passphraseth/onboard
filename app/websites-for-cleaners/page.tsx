@@ -49,7 +49,7 @@ export default function CleanerWebsitesPage() {
         'end of lease cleaning website',
         'cleaning service website',
       ]}
-      screenshotImage="/screenshots/cleaner.svg"
+      screenshotImage="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1200&q=80"
       ctaText="Create my cleaning website"
     />
   )

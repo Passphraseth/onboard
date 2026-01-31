@@ -50,7 +50,7 @@ export default function PlumberWebsitesPage() {
         'emergency plumber website',
         'local plumber website',
       ]}
-      screenshotImage="/screenshots/plumber.svg"
+      screenshotImage="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=1200&q=80"
       ctaText="Create my plumber website"
     />
   )

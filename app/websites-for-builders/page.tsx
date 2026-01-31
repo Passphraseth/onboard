@@ -49,7 +49,7 @@ export default function BuilderWebsitesPage() {
         'home builder website',
         'building company website',
       ]}
-      screenshotImage="/screenshots/construction.svg"
+      screenshotImage="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&q=80"
       ctaText="Create my builder website"
     />
   )

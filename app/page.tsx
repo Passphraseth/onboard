@@ -76,17 +76,17 @@ export default function HomePage() {
               {
                 name: 'Matthew Krueger',
                 type: 'Photography',
-                image: '/screenshots/photography.svg',
+                image: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&q=80',
               },
               {
                 name: 'Spacez',
                 type: 'Commercial Fitouts',
-                image: '/screenshots/construction.svg',
+                image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80',
               },
               {
                 name: 'Sunrise Coffee',
                 type: 'Cafe',
-                image: '/screenshots/cafe.svg',
+                image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
               },
             ].map((site, index) => (
               <div
@@ -96,7 +96,7 @@ export default function HomePage() {
                 <img
                   src={site.image}
                   alt={`${site.name} website example`}
-                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  className="absolute inset-0 w-full h-full object-cover object-center"
                 />
                 <div className="showcase-overlay">
                   <p className="font-medium">{site.name}</p>

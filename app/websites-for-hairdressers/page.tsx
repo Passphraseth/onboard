@@ -49,7 +49,7 @@ export default function HairdresserWebsitesPage() {
         'hair salon website',
         'stylist portfolio website',
       ]}
-      screenshotImage="/screenshots/hairdresser.svg"
+      screenshotImage="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&q=80"
       ctaText="Create my salon website"
     />
   )
