@@ -1,46 +1,79 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#1a1a1a"/>
+  <defs>
+    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#faf5f0"/>
+      <stop offset="100%" style="stop-color:#f5ebe0"/>
+    </linearGradient>
+  </defs>
 
-  <!-- Navigation -->
-  <rect x="0" y="0" width="1200" height="64" fill="#0a0a0a"/>
-  <text x="60" y="40" font-family="Georgia, serif" font-size="22" font-weight="400" fill="white">HAUS SALON</text>
-  <text x="880" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Services</text>
-  <text x="970" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Team</text>
-  <rect x="1050" y="18" width="100" height="32" rx="16" fill="white"/>
-  <text x="1080" y="40" font-family="system-ui, sans-serif" font-size="14" fill="black">Book</text>
+  <!-- Warm neutral background -->
+  <rect width="1200" height="800" fill="url(#hairGrad)"/>
 
-  <!-- Hero Section with image area -->
-  <rect x="0" y="64" width="600" height="440" fill="#0a0a0a"/>
-  <rect x="600" y="64" width="600" height="440" fill="#2a2a2a"/>
+  <!-- Navigation - editorial style -->
+  <rect x="0" y="0" width="1200" height="100" fill="#fff"/>
+  <line x1="0" y1="100" x2="1200" y2="100" stroke="#e5e0db" stroke-width="1"/>
 
-  <text x="60" y="200" font-family="Georgia, serif" font-size="14" fill="#a78bfa" letter-spacing="3">FITZROY</text>
-  <text x="60" y="270" font-family="Georgia, serif" font-size="52" font-weight="400" fill="white">Where Style</text>
-  <text x="60" y="340" font-family="Georgia, serif" font-size="52" font-weight="400" fill="white">Meets Soul</text>
-  <text x="60" y="400" font-family="system-ui, sans-serif" font-size="16" fill="#888">Expert cuts, colour &amp; styling in the heart of Fitzroy</text>
+  <text x="60" y="60" font-family="Didot, Georgia, serif" font-size="32" fill="#1a1a1a" font-weight="400" letter-spacing="4">MAISON</text>
+  <text x="60" y="80" font-family="system-ui, sans-serif" font-size="10" fill="#999" letter-spacing="3">HAIR STUDIO</text>
 
-  <!-- CTA -->
-  <rect x="60" y="440" width="160" height="48" rx="24" fill="white"/>
-  <text x="100" y="470" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="black">Book Online</text>
+  <text x="650" y="58" font-family="system-ui, sans-serif" font-size="12" fill="#666" letter-spacing="1">SERVICES</text>
+  <text x="760" y="58" font-family="system-ui, sans-serif" font-size="12" fill="#666" letter-spacing="1">PORTFOLIO</text>
+  <text x="870" y="58" font-family="system-ui, sans-serif" font-size="12" fill="#666" letter-spacing="1">TEAM</text>
 
-  <!-- Services Section -->
-  <rect x="0" y="504" width="1200" height="296" fill="#111111"/>
-  <text x="60" y="570" font-family="Georgia, serif" font-size="28" fill="white">Our Services</text>
+  <rect x="1020" y="35" width="120" height="40" rx="0" fill="#1a1a1a"/>
+  <text x="1048" y="60" font-family="system-ui, sans-serif" font-size="11" fill="#fff" letter-spacing="1">BOOK</text>
 
-  <!-- Service Cards -->
-  <rect x="60" y="600" width="260" height="160" rx="8" fill="#1a1a1a"/>
-  <text x="90" y="650" font-family="Georgia, serif" font-size="18" fill="white">Cuts &amp; Styling</text>
-  <text x="90" y="680" font-family="system-ui, sans-serif" font-size="13" fill="#666">From $65</text>
+  <!-- Hero - Magazine editorial layout -->
+  <rect x="0" y="100" width="500" height="500" fill="#d4c4b0"/>
 
-  <rect x="340" y="600" width="260" height="160" rx="8" fill="#1a1a1a"/>
-  <text x="370" y="650" font-family="Georgia, serif" font-size="18" fill="white">Colour</text>
-  <text x="370" y="680" font-family="system-ui, sans-serif" font-size="13" fill="#666">From $120</text>
+  <!-- Right side content -->
+  <rect x="500" y="100" width="700" height="500" fill="#fff"/>
 
-  <rect x="620" y="600" width="260" height="160" rx="8" fill="#1a1a1a"/>
-  <text x="650" y="650" font-family="Georgia, serif" font-size="18" fill="white">Balayage</text>
-  <text x="650" y="680" font-family="system-ui, sans-serif" font-size="13" fill="#666">From $280</text>
+  <!-- Decorative number -->
+  <text x="520" y="250" font-family="Didot, Georgia, serif" font-size="200" fill="#f5ebe0" font-weight="400">01</text>
 
-  <rect x="900" y="600" width="260" height="160" rx="8" fill="#1a1a1a"/>
-  <text x="930" y="650" font-family="Georgia, serif" font-size="18" fill="white">Treatments</text>
-  <text x="930" y="680" font-family="system-ui, sans-serif" font-size="13" fill="#666">From $45</text>
+  <text x="560" y="300" font-family="system-ui, sans-serif" font-size="11" fill="#999" letter-spacing="3">PRAHRAN'S FINEST</text>
+
+  <text x="560" y="380" font-family="Didot, Georgia, serif" font-size="56" fill="#1a1a1a" font-weight="400">Where Art</text>
+  <text x="560" y="450" font-family="Didot, Georgia, serif" font-size="56" fill="#1a1a1a" font-weight="400">Meets Hair</text>
+
+  <text x="560" y="500" font-family="system-ui, sans-serif" font-size="15" fill="#666" line-height="1.8">Award-winning colour specialists and precision</text>
+  <text x="560" y="522" font-family="system-ui, sans-serif" font-size="15" fill="#666">cutting in Melbourne's most stylish salon.</text>
+
+  <!-- Minimal CTA -->
+  <text x="560" y="575" font-family="system-ui, sans-serif" font-size="13" fill="#1a1a1a" font-weight="500" letter-spacing="1">BOOK APPOINTMENT →</text>
+
+  <!-- Services Section - Clean grid -->
+  <rect x="0" y="600" width="1200" height="200" fill="#1a1a1a"/>
+
+  <!-- Services grid -->
+  <line x1="300" y1="620" x2="300" y2="780" stroke="#333" stroke-width="1"/>
+  <line x1="600" y1="620" x2="600" y2="780" stroke="#333" stroke-width="1"/>
+  <line x1="900" y1="620" x2="900" y2="780" stroke="#333" stroke-width="1"/>
+
+  <!-- Service 1 -->
+  <text x="60" y="680" font-family="Didot, Georgia, serif" font-size="24" fill="#fff">Cut &amp; Style</text>
+  <text x="60" y="710" font-family="system-ui, sans-serif" font-size="12" fill="#888">Precision cuts by senior stylists</text>
+  <text x="60" y="760" font-family="system-ui, sans-serif" font-size="14" fill="#d4c4b0">From $95</text>
+
+  <!-- Service 2 -->
+  <text x="340" y="680" font-family="Didot, Georgia, serif" font-size="24" fill="#fff">Colour</text>
+  <text x="340" y="710" font-family="system-ui, sans-serif" font-size="12" fill="#888">Balayage, highlights, full colour</text>
+  <text x="340" y="760" font-family="system-ui, sans-serif" font-size="14" fill="#d4c4b0">From $180</text>
+
+  <!-- Service 3 -->
+  <text x="640" y="680" font-family="Didot, Georgia, serif" font-size="24" fill="#fff">Treatments</text>
+  <text x="640" y="710" font-family="system-ui, sans-serif" font-size="12" fill="#888">Keratin, Olaplex, deep conditioning</text>
+  <text x="640" y="760" font-family="system-ui, sans-serif" font-size="14" fill="#d4c4b0">From $120</text>
+
+  <!-- Service 4 -->
+  <text x="940" y="680" font-family="Didot, Georgia, serif" font-size="24" fill="#fff">Styling</text>
+  <text x="940" y="710" font-family="system-ui, sans-serif" font-size="12" fill="#888">Blowouts, event, bridal</text>
+  <text x="940" y="760" font-family="system-ui, sans-serif" font-size="14" fill="#d4c4b0">From $75</text>
+
+  <!-- Award badge -->
+  <rect x="80" y="200" width="180" height="120" rx="0" fill="#fff"/>
+  <text x="110" y="250" font-family="system-ui, sans-serif" font-size="10" fill="#999" letter-spacing="2">WINNER</text>
+  <text x="110" y="275" font-family="Didot, Georgia, serif" font-size="18" fill="#1a1a1a">Best Salon</text>
+  <text x="110" y="300" font-family="system-ui, sans-serif" font-size="11" fill="#999">Melbourne 2025</text>
 </svg>

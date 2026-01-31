@@ -1,46 +1,72 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#0a0a0a"/>
+  <!-- Stark white/minimal background -->
+  <rect width="1200" height="800" fill="#ffffff"/>
 
-  <!-- Navigation -->
-  <rect x="0" y="0" width="1200" height="64" fill="#111111"/>
-  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="white">KRUEGER</text>
-  <text x="1000" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Portfolio</text>
-  <text x="1080" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Contact</text>
+  <!-- Navigation - Ultra minimal -->
+  <rect x="0" y="0" width="1200" height="100" fill="#fff"/>
 
-  <!-- Hero Section -->
-  <text x="60" y="200" font-family="system-ui, sans-serif" font-size="56" font-weight="600" fill="white">Capturing</text>
-  <text x="60" y="260" font-family="system-ui, sans-serif" font-size="56" font-weight="600" fill="white">Your Story</text>
-  <text x="60" y="320" font-family="system-ui, sans-serif" font-size="18" fill="#666">Melbourne Wedding &amp; Portrait Photography</text>
+  <text x="60" y="58" font-family="system-ui, sans-serif" font-size="16" fill="#1a1a1a" font-weight="300" letter-spacing="6">JAMES WALKER</text>
+  <text x="60" y="78" font-family="system-ui, sans-serif" font-size="10" fill="#999" letter-spacing="4">PHOTOGRAPHER</text>
 
-  <!-- CTA Button -->
-  <rect x="60" y="360" width="160" height="48" rx="6" fill="white"/>
-  <text x="100" y="390" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="black">View Portfolio</text>
+  <text x="750" y="58" font-family="system-ui, sans-serif" font-size="12" fill="#666" letter-spacing="1">WORK</text>
+  <text x="840" y="58" font-family="system-ui, sans-serif" font-size="12" fill="#666" letter-spacing="1">ABOUT</text>
+  <text x="920" y="58" font-family="system-ui, sans-serif" font-size="12" fill="#666" letter-spacing="1">CONTACT</text>
 
-  <!-- Image Grid -->
-  <rect x="500" y="120" width="320" height="240" rx="8" fill="#1a1a1a"/>
-  <rect x="840" y="120" width="320" height="240" rx="8" fill="#1a1a1a"/>
-  <rect x="500" y="380" width="320" height="240" rx="8" fill="#1a1a1a"/>
-  <rect x="840" y="380" width="320" height="240" rx="8" fill="#1a1a1a"/>
+  <rect x="1040" y="40" width="100" height="36" rx="0" fill="#1a1a1a"/>
+  <text x="1062" y="64" font-family="system-ui, sans-serif" font-size="11" fill="#fff" letter-spacing="1">BOOK</text>
 
-  <!-- Image placeholders with gradient -->
-  <defs>
-    <linearGradient id="imgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2a2a2a"/>
-      <stop offset="100%" style="stop-color:#1a1a1a"/>
-    </linearGradient>
-  </defs>
-  <rect x="500" y="120" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
-  <rect x="840" y="120" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
-  <rect x="500" y="380" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
-  <rect x="840" y="380" width="320" height="240" rx="8" fill="url(#imgGrad1)"/>
+  <!-- Hero - Full bleed image approach -->
+  <rect x="0" y="100" width="800" height="500" fill="#f5f5f5"/>
+  <text x="380" y="360" font-family="system-ui, sans-serif" font-size="14" fill="#999" text-anchor="middle">[ Featured Photography ]</text>
 
-  <!-- Stats Section -->
-  <rect x="0" y="660" width="1200" height="140" fill="#111111"/>
-  <text x="150" y="720" font-family="system-ui, sans-serif" font-size="32" font-weight="600" fill="white">200+</text>
-  <text x="150" y="750" font-family="system-ui, sans-serif" font-size="14" fill="#666">Weddings Shot</text>
-  <text x="450" y="720" font-family="system-ui, sans-serif" font-size="32" font-weight="600" fill="white">10</text>
-  <text x="450" y="750" font-family="system-ui, sans-serif" font-size="14" fill="#666">Years Experience</text>
-  <text x="750" y="720" font-family="system-ui, sans-serif" font-size="32" font-weight="600" fill="white">5.0</text>
-  <text x="750" y="750" font-family="system-ui, sans-serif" font-size="14" fill="#666">Google Rating</text>
+  <!-- Side content -->
+  <rect x="800" y="100" width="400" height="500" fill="#fff"/>
+
+  <!-- Vertical text accent -->
+  <text x="830" y="380" font-family="system-ui, sans-serif" font-size="11" fill="#ddd" letter-spacing="4" transform="rotate(-90 830 380)">MELBOURNE BASED</text>
+
+  <!-- Main text -->
+  <text x="880" y="280" font-family="system-ui, sans-serif" font-size="11" fill="#999" letter-spacing="3">SPECIALIZING IN</text>
+
+  <text x="880" y="340" font-family="Georgia, serif" font-size="40" fill="#1a1a1a" font-weight="400">Portrait</text>
+  <text x="880" y="390" font-family="Georgia, serif" font-size="40" fill="#1a1a1a" font-weight="400">&amp; Editorial</text>
+
+  <text x="880" y="450" font-family="system-ui, sans-serif" font-size="14" fill="#666">Authentic storytelling through</text>
+  <text x="880" y="472" font-family="system-ui, sans-serif" font-size="14" fill="#666">timeless imagery.</text>
+
+  <text x="880" y="530" font-family="system-ui, sans-serif" font-size="12" fill="#1a1a1a" font-weight="500" letter-spacing="1">VIEW PORTFOLIO →</text>
+
+  <!-- Gallery Section - Grid -->
+  <rect x="0" y="600" width="1200" height="200" fill="#1a1a1a"/>
+
+  <!-- Gallery items -->
+  <rect x="0" y="600" width="300" height="200" fill="#2a2a2a"/>
+  <text x="150" y="705" font-family="system-ui, sans-serif" font-size="12" fill="#666" text-anchor="middle">Portrait</text>
+
+  <rect x="300" y="600" width="300" height="200" fill="#3a3a3a"/>
+  <text x="450" y="705" font-family="system-ui, sans-serif" font-size="12" fill="#666" text-anchor="middle">Editorial</text>
+
+  <rect x="600" y="600" width="300" height="200" fill="#2a2a2a"/>
+  <text x="750" y="705" font-family="system-ui, sans-serif" font-size="12" fill="#666" text-anchor="middle">Events</text>
+
+  <rect x="900" y="600" width="300" height="200" fill="#3a3a3a"/>
+  <text x="1050" y="705" font-family="system-ui, sans-serif" font-size="12" fill="#666" text-anchor="middle">Commercial</text>
+
+  <!-- Hover state indicator -->
+  <rect x="0" y="780" width="300" height="4" fill="#fff"/>
+
+  <!-- Stats overlay -->
+  <rect x="60" y="480" width="200" height="100" fill="#1a1a1a"/>
+  <text x="90" y="520" font-family="system-ui, sans-serif" font-size="11" fill="#666" letter-spacing="2">EXPERIENCE</text>
+  <text x="90" y="555" font-family="Georgia, serif" font-size="32" fill="#fff">10+ Years</text>
+
+  <rect x="280" y="480" width="200" height="100" fill="#fff" stroke="#eee" stroke-width="1"/>
+  <text x="310" y="520" font-family="system-ui, sans-serif" font-size="11" fill="#999" letter-spacing="2">CLIENTS</text>
+  <text x="310" y="555" font-family="Georgia, serif" font-size="32" fill="#1a1a1a">500+</text>
+
+  <!-- Available badge -->
+  <rect x="500" y="480" width="200" height="100" fill="#f5f5f5"/>
+  <circle cx="530" cy="530" r="6" fill="#22c55e"/>
+  <text x="550" y="535" font-family="system-ui, sans-serif" font-size="12" fill="#1a1a1a" font-weight="500">Available</text>
+  <text x="530" y="560" font-family="system-ui, sans-serif" font-size="12" fill="#666">Feb - Mar 2026</text>
 </svg>

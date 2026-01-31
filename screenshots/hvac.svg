@@ -1,54 +1,101 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#0a0a0a"/>
+  <defs>
+    <linearGradient id="hvacGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f9ff"/>
+      <stop offset="100%" style="stop-color:#e0f2fe"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Cool blue background -->
+  <rect width="1200" height="800" fill="url(#hvacGrad)"/>
 
   <!-- Navigation -->
-  <rect x="0" y="0" width="1200" height="64" fill="#111111"/>
-  <text x="60" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="white">COOL COMFORT</text>
-  <text x="860" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">Services</text>
-  <text x="950" y="40" font-family="system-ui, sans-serif" font-size="14" fill="#888">About</text>
-  <rect x="1030" y="18" width="120" height="32" rx="4" fill="#0ea5e9"/>
-  <text x="1060" y="40" font-family="system-ui, sans-serif" font-size="14" fill="white">Get Quote</text>
+  <rect x="0" y="0" width="1200" height="80" fill="#fff"/>
+  <line x1="0" y1="80" x2="1200" y2="80" stroke="#e0e0e0" stroke-width="1"/>
 
-  <!-- Emergency Banner -->
-  <rect x="0" y="64" width="1200" height="40" fill="#0ea5e9"/>
-  <text x="450" y="90" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="white">24/7 Emergency Air Con Service - Call 1300 XXX XXX</text>
+  <!-- Logo -->
+  <rect x="60" y="22" width="44" height="44" rx="8" fill="#0369a1"/>
+  <text x="73" y="52" font-family="system-ui, sans-serif" font-size="20" fill="#fff" font-weight="700">❄</text>
+  <text x="120" y="42" font-family="system-ui, sans-serif" font-size="18" fill="#1a1a1a" font-weight="600">CoolBreeze</text>
+  <text x="120" y="58" font-family="system-ui, sans-serif" font-size="10" fill="#666">HVAC SERVICES</text>
+
+  <text x="600" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666">Services</text>
+  <text x="690" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666">Brands</text>
+  <text x="770" y="48" font-family="system-ui, sans-serif" font-size="13" fill="#666">About</text>
+
+  <!-- Phone prominent -->
+  <text x="900" y="42" font-family="system-ui, sans-serif" font-size="11" fill="#666">Call Now</text>
+  <text x="900" y="60" font-family="system-ui, sans-serif" font-size="16" fill="#0369a1" font-weight="600">1300 COOL AIR</text>
+
+  <rect x="1050" y="24" width="110" height="40" rx="6" fill="#0369a1"/>
+  <text x="1070" y="50" font-family="system-ui, sans-serif" font-size="13" fill="#fff" font-weight="500">Get Quote</text>
 
   <!-- Hero Section -->
-  <text x="60" y="200" font-family="system-ui, sans-serif" font-size="14" fill="#0ea5e9" font-weight="500">HEATING &amp; COOLING SPECIALISTS</text>
-  <text x="60" y="260" font-family="system-ui, sans-serif" font-size="48" font-weight="600" fill="white">Stay Comfortable</text>
-  <text x="60" y="320" font-family="system-ui, sans-serif" font-size="48" font-weight="600" fill="white">All Year Round</text>
-  <text x="60" y="370" font-family="system-ui, sans-serif" font-size="16" fill="#888">Installation, repairs &amp; maintenance for all brands</text>
+  <rect x="0" y="80" width="650" height="450" fill="#fff"/>
+  <rect x="650" y="80" width="550" height="450" fill="#0369a1"/>
 
-  <!-- CTA Buttons -->
-  <rect x="60" y="410" width="160" height="48" rx="4" fill="#0ea5e9"/>
-  <text x="95" y="440" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="white">Free Quote</text>
-  <rect x="240" y="410" width="140" height="48" rx="4" fill="transparent" stroke="#333" stroke-width="1"/>
-  <text x="275" y="440" font-family="system-ui, sans-serif" font-size="14" fill="white">Services</text>
+  <!-- Hero Content -->
+  <text x="60" y="180" font-family="system-ui, sans-serif" font-size="12" fill="#0369a1" font-weight="600" letter-spacing="2">HEATING &amp; COOLING SPECIALISTS</text>
 
-  <!-- Brand Logos Area -->
-  <rect x="700" y="150" width="450" height="320" rx="12" fill="#111"/>
-  <text x="850" y="280" font-family="system-ui, sans-serif" font-size="14" fill="#666">We Service All Major Brands</text>
-  <text x="780" y="340" font-family="system-ui, sans-serif" font-size="20" fill="#444">Daikin • Fujitsu • Mitsubishi</text>
-  <text x="810" y="380" font-family="system-ui, sans-serif" font-size="20" fill="#444">Samsung • LG • Panasonic</text>
+  <text x="60" y="260" font-family="system-ui, sans-serif" font-size="48" fill="#1a1a1a" font-weight="700">Stay Comfortable</text>
+  <text x="60" y="320" font-family="system-ui, sans-serif" font-size="48" fill="#1a1a1a" font-weight="700">Year Round</text>
+
+  <text x="60" y="375" font-family="system-ui, sans-serif" font-size="16" fill="#666">Expert air conditioning installation, repairs &amp; servicing.</text>
+  <text x="60" y="400" font-family="system-ui, sans-serif" font-size="16" fill="#666">All major brands. Licensed technicians.</text>
+
+  <!-- CTAs -->
+  <rect x="60" y="440" width="160" height="50" rx="6" fill="#0369a1"/>
+  <text x="95" y="472" font-family="system-ui, sans-serif" font-size="14" fill="#fff" font-weight="500">Book Service</text>
+
+  <rect x="240" y="440" width="160" height="50" rx="6" fill="#fff" stroke="#0369a1" stroke-width="1"/>
+  <text x="280" y="472" font-family="system-ui, sans-serif" font-size="14" fill="#0369a1" font-weight="500">Get Quote</text>
+
+  <!-- Trust badges row -->
+  <rect x="60" y="510" width="140" height="45" rx="6" fill="#f0f9ff"/>
+  <text x="85" y="538" font-family="system-ui, sans-serif" font-size="11" fill="#0369a1" font-weight="500">✓ Licensed</text>
+
+  <rect x="210" y="510" width="140" height="45" rx="6" fill="#f0f9ff"/>
+  <text x="235" y="538" font-family="system-ui, sans-serif" font-size="11" fill="#0369a1" font-weight="500">✓ Insured</text>
+
+  <rect x="360" y="510" width="140" height="45" rx="6" fill="#f0f9ff"/>
+  <text x="380" y="538" font-family="system-ui, sans-serif" font-size="11" fill="#0369a1" font-weight="500">✓ Same Day</text>
+
+  <!-- Right side - image area with features -->
+  <circle cx="850" cy="300" r="120" fill="#0284c7" fill-opacity="0.3"/>
+  <text x="750" y="305" font-family="system-ui, sans-serif" font-size="14" fill="#bae6fd" text-anchor="middle">[ Service Image ]</text>
+
+  <rect x="700" y="420" width="180" height="80" rx="8" fill="#fff"/>
+  <text x="725" y="455" font-family="system-ui, sans-serif" font-size="24" fill="#1a1a1a" font-weight="700">20+</text>
+  <text x="725" y="480" font-family="system-ui, sans-serif" font-size="12" fill="#666">Years Experience</text>
+
+  <rect x="900" y="420" width="180" height="80" rx="8" fill="#fff"/>
+  <text x="925" y="455" font-family="system-ui, sans-serif" font-size="24" fill="#1a1a1a" font-weight="700">5,000+</text>
+  <text x="925" y="480" font-family="system-ui, sans-serif" font-size="12" fill="#666">Jobs Completed</text>
 
   <!-- Services Section -->
-  <rect x="0" y="500" width="1200" height="300" fill="#111111"/>
-  <text x="60" y="560" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">Our Services</text>
+  <rect x="0" y="530" width="1200" height="270" fill="#fff"/>
 
-  <rect x="60" y="590" width="260" height="140" rx="8" fill="#1a1a1a"/>
-  <text x="90" y="640" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Split System Install</text>
-  <text x="90" y="670" font-family="system-ui, sans-serif" font-size="13" fill="#666">Supply &amp; installation</text>
+  <text x="60" y="590" font-family="system-ui, sans-serif" font-size="12" fill="#0369a1" font-weight="600" letter-spacing="2">OUR SERVICES</text>
+  <text x="60" y="630" font-family="system-ui, sans-serif" font-size="28" fill="#1a1a1a" font-weight="700">What We Do</text>
 
-  <rect x="340" y="590" width="260" height="140" rx="8" fill="#1a1a1a"/>
-  <text x="370" y="640" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Ducted Systems</text>
-  <text x="370" y="670" font-family="system-ui, sans-serif" font-size="13" fill="#666">Whole home climate</text>
+  <!-- Service Cards -->
+  <rect x="60" y="660" width="260" height="110" rx="8" fill="#f0f9ff" stroke="#e0f2fe" stroke-width="1"/>
+  <text x="85" y="705" font-family="system-ui, sans-serif" font-size="16" fill="#1a1a1a" font-weight="600">Installation</text>
+  <text x="85" y="730" font-family="system-ui, sans-serif" font-size="12" fill="#666">Split systems, ducted, VRV</text>
+  <text x="85" y="755" font-family="system-ui, sans-serif" font-size="13" fill="#0369a1">Learn more →</text>
 
-  <rect x="620" y="590" width="260" height="140" rx="8" fill="#1a1a1a"/>
-  <text x="650" y="640" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Repairs</text>
-  <text x="650" y="670" font-family="system-ui, sans-serif" font-size="13" fill="#666">All brands serviced</text>
+  <rect x="340" y="660" width="260" height="110" rx="8" fill="#f0f9ff" stroke="#e0f2fe" stroke-width="1"/>
+  <text x="365" y="705" font-family="system-ui, sans-serif" font-size="16" fill="#1a1a1a" font-weight="600">Repairs</text>
+  <text x="365" y="730" font-family="system-ui, sans-serif" font-size="12" fill="#666">All brands, fast turnaround</text>
+  <text x="365" y="755" font-family="system-ui, sans-serif" font-size="13" fill="#0369a1">Learn more →</text>
 
-  <rect x="900" y="590" width="260" height="140" rx="8" fill="#1a1a1a"/>
-  <text x="930" y="640" font-family="system-ui, sans-serif" font-size="16" font-weight="500" fill="white">Maintenance</text>
-  <text x="930" y="670" font-family="system-ui, sans-serif" font-size="13" fill="#666">Keep it running smooth</text>
+  <rect x="620" y="660" width="260" height="110" rx="8" fill="#f0f9ff" stroke="#e0f2fe" stroke-width="1"/>
+  <text x="645" y="705" font-family="system-ui, sans-serif" font-size="16" fill="#1a1a1a" font-weight="600">Servicing</text>
+  <text x="645" y="730" font-family="system-ui, sans-serif" font-size="12" fill="#666">Maintenance &amp; tune-ups</text>
+  <text x="645" y="755" font-family="system-ui, sans-serif" font-size="13" fill="#0369a1">Learn more →</text>
+
+  <rect x="900" y="660" width="260" height="110" rx="8" fill="#f0f9ff" stroke="#e0f2fe" stroke-width="1"/>
+  <text x="925" y="705" font-family="system-ui, sans-serif" font-size="16" fill="#1a1a1a" font-weight="600">Commercial</text>
+  <text x="925" y="730" font-family="system-ui, sans-serif" font-size="12" fill="#666">Office &amp; retail solutions</text>
+  <text x="925" y="755" font-family="system-ui, sans-serif" font-size="13" fill="#0369a1">Learn more →</text>
 </svg>
