@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
+import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
   title: 'Onboard — Professional websites for service businesses',
@@ -257,26 +258,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-800 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between gap-8">
-            <div>
-              <p className="font-semibold mb-2">onboard</p>
-              <p className="text-neutral-600 text-sm">Websites for service businesses</p>
-            </div>
-            <div className="flex gap-8 text-sm text-neutral-500">
-              <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              <a href="mailto:hello@onboard.com.au" className="hover:text-white transition-colors">Contact</a>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-neutral-800 text-sm text-neutral-600">
-            © 2024 Onboard. Melbourne, Australia.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

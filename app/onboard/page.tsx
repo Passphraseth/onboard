@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { trackSignupStep, trackEvent } from '@/components/GoogleAnalytics'
 
 type Step = 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'branding' | 'services' | 'usp' | 'generating'
 
@@ -134,11 +135,35 @@ export default function OnboardingPage() {
     }))
   }
 
+  // Track when user starts onboarding
+  useEffect(() => {
+    trackSignupStep('START_ONBOARDING')
+  }, [])
+
   const nextStep = () => {
     const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp', 'generating']
     const currentIndex = steps.indexOf(currentStep)
     if (currentIndex < steps.length - 1) {
       const next = steps[currentIndex + 1]
+
+      // Track step completion
+      const stepTrackingMap: Record<Step, keyof typeof import('@/components/GoogleAnalytics').SignupFunnelEvents> = {
+        'name': 'COMPLETE_BUSINESS_NAME',
+        'type': 'COMPLETE_BUSINESS_TYPE',
+        'location': 'COMPLETE_LOCATION',
+        'hours': 'COMPLETE_HOURS',
+        'contact': 'COMPLETE_CONTACT',
+        'socials': 'COMPLETE_SOCIALS',
+        'branding': 'COMPLETE_BRANDING',
+        'services': 'COMPLETE_SERVICES',
+        'usp': 'COMPLETE_USP',
+        'generating': 'GENERATE_WEBSITE',
+      }
+
+      if (stepTrackingMap[currentStep]) {
+        trackSignupStep(stepTrackingMap[currentStep], data.businessType)
+      }
+
       setCurrentStep(next)
       if (next === 'generating') {
         handleGenerate()
@@ -191,6 +216,7 @@ export default function OnboardingPage() {
 
       if (result.slug) {
         setGenerationStatus('Your preview is ready!')
+        trackSignupStep('VIEW_PREVIEW', data.businessType)
         await new Promise(resolve => setTimeout(resolve, 800))
         router.push(`/claim/${result.slug}`)
       } else {
