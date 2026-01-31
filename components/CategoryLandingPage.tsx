@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import Footer from './Footer'
+import { ServiceSchema, BreadcrumbSchema } from './StructuredData'
 
 interface Feature {
   title: string
@@ -66,6 +67,19 @@ export default function CategoryLandingPage({
 }: CategoryLandingPageProps) {
   return (
     <div className="min-h-screen">
+      {/* Structured Data for SEO */}
+      <ServiceSchema
+        serviceName={`Website Builder for ${industryPlural}`}
+        serviceType="Website Design"
+        description={heroDescription}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://onboard.com.au' },
+          { name: `Websites for ${industryPlural}`, url: `https://onboard.com.au/websites-for-${industry.toLowerCase().replace(/\s+/g, '-')}` },
+        ]}
+      />
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

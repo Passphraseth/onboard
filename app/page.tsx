@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
 import Footer from '@/components/Footer'
+import { OrganizationSchema, SoftwareApplicationSchema } from '@/components/StructuredData'
 
 export const metadata: Metadata = {
   title: 'Onboard — Professional websites for service businesses',
@@ -17,6 +18,10 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="min-h-screen">
+      {/* Structured Data for SEO */}
+      <OrganizationSchema />
+      <SoftwareApplicationSchema />
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
