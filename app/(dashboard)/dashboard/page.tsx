@@ -14,6 +14,7 @@ interface CustomerData {
   status: string
   siteUrl: string
   slug: string
+  accessToken?: string
 }
 
 interface UpdateRequest {
@@ -199,7 +200,7 @@ function DashboardContent() {
           <NavItem href={`https://${customer.siteUrl}`} icon="🌐" external>
             View My Site
           </NavItem>
-          <NavItem href={`/claim/${customer.slug}`} icon="👀">
+          <NavItem href={customer.accessToken ? `/claim/${customer.slug}?token=${customer.accessToken}` : `/claim/${customer.slug}`} icon="👀">
             Preview Editor
           </NavItem>
           <NavItem href="mailto:hello@onboard.com.au" icon="💬">
@@ -239,7 +240,7 @@ function DashboardContent() {
               🌐 View Site
             </a>
             <Link
-              href={`/claim/${customer.slug}`}
+              href={customer.accessToken ? `/claim/${customer.slug}?token=${customer.accessToken}` : `/claim/${customer.slug}`}
               className="btn btn-lime text-sm py-2"
             >
               ✏️ Edit Preview
@@ -365,7 +366,7 @@ function DashboardContent() {
         {/* Mobile nav */}
         <nav className="fixed bottom-0 left-0 right-0 bg-brand-black border-t border-white/10 p-4 flex justify-around md:hidden">
           <MobileNavItem href={`/dashboard?id=${customer.id}`} icon="📊" label="Home" active />
-          <MobileNavItem href={`/claim/${customer.slug}`} icon="✏️" label="Edit" />
+          <MobileNavItem href={customer.accessToken ? `/claim/${customer.slug}?token=${customer.accessToken}` : `/claim/${customer.slug}`} icon="✏️" label="Edit" />
           <MobileNavItem href={`https://${customer.siteUrl}`} icon="🌐" label="Site" external />
           <MobileNavItem href="mailto:hello@onboard.com.au" icon="💬" label="Help" />
         </nav>

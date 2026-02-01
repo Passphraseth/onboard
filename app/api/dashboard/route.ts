@@ -89,6 +89,7 @@ export async function GET(request: NextRequest) {
         status: lead.status || 'active',
         siteUrl: `${lead.slug}.onboard.site`,
         slug: lead.slug,
+        accessToken: lead.access_token, // For secure claim page access
       },
       site: site?.content || null,
       updates: updates || [],

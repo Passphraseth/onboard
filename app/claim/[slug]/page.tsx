@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useEffect, useState, useRef, Suspense } from 'react'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Message {
@@ -17,10 +17,20 @@ interface SiteStatus {
   isGenerating: boolean
 }
 
-export default function ClaimPage() {
-  const params = useParams()
-  const slug = params.slug as string
+interface AuthState {
+  checking: boolean
+  authenticated: boolean
+  error?: string
+  leadId?: string
+}
 
+function ClaimPageContent() {
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const slug = params.slug as string
+  const token = searchParams.get('token')
+
+  const [authState, setAuthState] = useState<AuthState>({ checking: true, authenticated: false })
   const [loading, setLoading] = useState(true)
   const [businessName, setBusinessName] = useState('')
   const [siteStatus, setSiteStatus] = useState<SiteStatus>({ exists: false, hasGeneratedHtml: false, isGenerating: false })
@@ -31,6 +41,45 @@ export default function ClaimPage() {
   const [iframeKey, setIframeKey] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Check authentication first
+  useEffect(() => {
+    async function checkAuth() {
+      if (!token) {
+        setAuthState({ checking: false, authenticated: false, error: 'No access token provided' })
+        return
+      }
+
+      try {
+        const res = await fetch(`/api/auth/token?slug=${slug}&token=${token}`)
+        const data = await res.json()
+
+        if (data.valid) {
+          setAuthState({
+            checking: false,
+            authenticated: true,
+            leadId: data.lead?.id
+          })
+          setBusinessName(data.lead?.businessName || formatSlug(slug))
+        } else {
+          setAuthState({
+            checking: false,
+            authenticated: false,
+            error: data.error || 'Invalid or expired access token'
+          })
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        setAuthState({
+          checking: false,
+          authenticated: false,
+          error: 'Failed to verify access'
+        })
+      }
+    }
+
+    checkAuth()
+  }, [slug, token])
+
   // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -40,19 +89,12 @@ export default function ClaimPage() {
     scrollToBottom()
   }, [messages])
 
-  // Initial load - check site status and load data
+  // Initial load - check site status and load data (only if authenticated)
   useEffect(() => {
+    if (!authState.authenticated) return
+
     async function init() {
       try {
-        // Get business info
-        const previewRes = await fetch(`/api/preview/${slug}`)
-        if (previewRes.ok) {
-          const data = await previewRes.json()
-          setBusinessName(data.businessName || formatSlug(slug))
-        } else {
-          setBusinessName(formatSlug(slug))
-        }
-
         // Check if site exists
         const statusRes = await fetch(`/api/admin/generate?slug=${slug}`)
         if (statusRes.ok) {
@@ -65,9 +107,9 @@ export default function ClaimPage() {
 
           // Set initial message based on site status
           if (status.hasGeneratedHtml) {
-            addSystemMessage(`Welcome! Your site preview is ready on the right. 👉\n\nI can help you customize:\n• Colors & branding\n• Text & content\n• Layout & sections\n• Contact details\n\nWhat would you like to change?`)
+            addSystemMessage(`Welcome back! Your site preview is ready on the right. 👉\n\nI can help you customize:\n• Colors & branding\n• Text & content\n• Layout & sections\n• Contact details\n\nWhat would you like to change?`)
           } else {
-            addSystemMessage(`Hi! I see your site hasn't been generated yet.\n\nWould you like me to create your website now? Just tell me a bit about your business and I'll build it for you.`)
+            addSystemMessage(`Hi! I see your site hasn't been generated yet.\n\nWould you like me to create your website now? Just say "Yes" or "Generate my site" to get started!`)
           }
         }
 
@@ -89,7 +131,6 @@ export default function ClaimPage() {
         }
       } catch (error) {
         console.error('Init error:', error)
-        setBusinessName(formatSlug(slug))
         addSystemMessage(`Welcome! Let me help you with your website. What would you like to do?`)
       } finally {
         setLoading(false)
@@ -97,7 +138,7 @@ export default function ClaimPage() {
     }
 
     init()
-  }, [slug])
+  }, [slug, authState.authenticated])
 
   function addSystemMessage(text: string) {
     setMessages(prev => [...prev, {
@@ -179,6 +220,48 @@ export default function ClaimPage() {
     }
   }
 
+  // Auth checking state
+  if (authState.checking) {
+    return (
+      <div className="min-h-screen bg-brand-black flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="text-6xl mb-4 animate-pulse">🔐</div>
+          <div className="text-xl font-bold">Verifying access...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Not authenticated
+  if (!authState.authenticated) {
+    return (
+      <div className="min-h-screen bg-brand-black flex items-center justify-center p-6">
+        <div className="max-w-md text-center text-white">
+          <div className="text-6xl mb-6">🔒</div>
+          <h1 className="text-2xl font-bold mb-4">Access Required</h1>
+          <p className="opacity-70 mb-6">
+            {authState.error || 'You need a valid access link to view and edit this site.'}
+          </p>
+          <p className="text-sm opacity-50 mb-8">
+            Check your email for the secure link we sent you, or contact support if you need help.
+          </p>
+          <div className="space-y-3">
+            <Link href="/dashboard" className="btn btn-lime w-full justify-center">
+              Go to Dashboard →
+            </Link>
+            <a
+              href="mailto:hello@onboard.com.au?subject=Access%20Request%20for%20Site"
+              className="btn btn-outline border-white/20 w-full justify-center"
+            >
+              Contact Support
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Loading site data
   if (loading) {
     return (
       <div className="min-h-screen bg-brand-black flex items-center justify-center">
@@ -408,5 +491,24 @@ function QuickAction({ icon, label, onClick }: { icon: string; label: string; on
       <span>{icon}</span>
       <span className="opacity-80">{label}</span>
     </button>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-brand-black flex items-center justify-center">
+      <div className="text-center text-white">
+        <div className="text-6xl mb-4 animate-pulse">✨</div>
+        <div className="text-xl font-bold">Loading...</div>
+      </div>
+    </div>
+  )
+}
+
+export default function ClaimPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ClaimPageContent />
+    </Suspense>
   )
 }
