@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
+
+// Generate a secure random token
+function generateToken(): string {
+  return crypto.randomBytes(32).toString('hex')
+}
 
 // Get dashboard data for a customer
 export async function GET(request: NextRequest) {
@@ -39,6 +45,21 @@ export async function GET(request: NextRequest) {
 
     if (!lead) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
+    }
+
+    // Auto-generate access token if missing
+    if (!lead.access_token) {
+      const newToken = generateToken()
+      try {
+        await supabase
+          .from('leads')
+          .update({ access_token: newToken })
+          .eq('id', lead.id)
+        lead.access_token = newToken
+      } catch (tokenError) {
+        // Column might not exist yet - continue without token
+        console.log('Could not set access_token - column may not exist yet')
+      }
     }
 
     // Get site content
