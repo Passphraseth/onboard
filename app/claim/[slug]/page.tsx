@@ -1,261 +1,412 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import Chat from '@/components/Chat'
+
+interface Message {
+  id: string
+  sender: 'user' | 'assistant' | 'system'
+  message: string
+  timestamp: Date
+}
+
+interface SiteStatus {
+  exists: boolean
+  hasGeneratedHtml: boolean
+  isGenerating: boolean
+}
 
 export default function ClaimPage() {
   const params = useParams()
   const slug = params.slug as string
+
   const [loading, setLoading] = useState(true)
   const [businessName, setBusinessName] = useState('')
-  const [activeTab, setActiveTab] = useState<'preview' | 'pricing'>('preview')
-  const [mobilePreview, setMobilePreview] = useState(false)
+  const [siteStatus, setSiteStatus] = useState<SiteStatus>({ exists: false, hasGeneratedHtml: false, isGenerating: false })
+  const [messages, setMessages] = useState<Message[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [sending, setSending] = useState(false)
+  const [mobileView, setMobileView] = useState<'chat' | 'preview'>('chat')
   const [iframeKey, setIframeKey] = useState(0)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
-    async function fetchPreview() {
+    scrollToBottom()
+  }, [messages])
+
+  // Initial load - check site status and load data
+  useEffect(() => {
+    async function init() {
       try {
-        const res = await fetch(`/api/preview/${slug}`)
-        if (res.ok) {
-          const data = await res.json()
-          setBusinessName(data.businessName || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
+        // Get business info
+        const previewRes = await fetch(`/api/preview/${slug}`)
+        if (previewRes.ok) {
+          const data = await previewRes.json()
+          setBusinessName(data.businessName || formatSlug(slug))
+        } else {
+          setBusinessName(formatSlug(slug))
+        }
+
+        // Check if site exists
+        const statusRes = await fetch(`/api/admin/generate?slug=${slug}`)
+        if (statusRes.ok) {
+          const status = await statusRes.json()
+          setSiteStatus({
+            exists: status.exists,
+            hasGeneratedHtml: status.hasGeneratedHtml,
+            isGenerating: false
+          })
+
+          // Set initial message based on site status
+          if (status.hasGeneratedHtml) {
+            addSystemMessage(`Welcome! Your site preview is ready on the right. 👉\n\nI can help you customize:\n• Colors & branding\n• Text & content\n• Layout & sections\n• Contact details\n\nWhat would you like to change?`)
+          } else {
+            addSystemMessage(`Hi! I see your site hasn't been generated yet.\n\nWould you like me to create your website now? Just tell me a bit about your business and I'll build it for you.`)
+          }
+        }
+
+        // Load existing chat messages
+        const chatRes = await fetch(`/api/chat?slug=${slug}`)
+        if (chatRes.ok) {
+          const chatData = await chatRes.json()
+          if (chatData.messages?.length > 0) {
+            setMessages(prev => [
+              ...prev,
+              ...chatData.messages.map((m: { id: string; sender: string; message: string; created_at: string }) => ({
+                id: m.id,
+                sender: m.sender as 'user' | 'assistant',
+                message: m.message,
+                timestamp: new Date(m.created_at)
+              }))
+            ])
+          }
         }
       } catch (error) {
-        console.error('Error fetching preview:', error)
-        setBusinessName(slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
+        console.error('Init error:', error)
+        setBusinessName(formatSlug(slug))
+        addSystemMessage(`Welcome! Let me help you with your website. What would you like to do?`)
       } finally {
         setLoading(false)
       }
     }
-    fetchPreview()
+
+    init()
   }, [slug])
+
+  function addSystemMessage(text: string) {
+    setMessages(prev => [...prev, {
+      id: `system-${Date.now()}`,
+      sender: 'assistant',
+      message: text,
+      timestamp: new Date()
+    }])
+  }
+
+  function formatSlug(s: string) {
+    return s.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+  }
+
+  async function handleSend() {
+    if (!inputValue.trim() || sending) return
+
+    const userMessage = inputValue.trim()
+    setInputValue('')
+    setSending(true)
+
+    // Add user message immediately
+    const userMsg: Message = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      message: userMessage,
+      timestamp: new Date()
+    }
+    setMessages(prev => [...prev, userMsg])
+
+    try {
+      // Check if user wants to generate site
+      if (!siteStatus.hasGeneratedHtml &&
+          userMessage.toLowerCase().match(/yes|generate|create|build|start|go ahead|do it|make/)) {
+        // Trigger site generation
+        setSiteStatus(prev => ({ ...prev, isGenerating: true }))
+        addSystemMessage(`Great! I'm generating your website now. This takes about 30-60 seconds...\n\n⏳ Researching your industry...\n⏳ Creating design brief...\n⏳ Building your site...`)
+
+        const genRes = await fetch('/api/admin/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug })
+        })
+
+        if (genRes.ok) {
+          const result = await genRes.json()
+          setSiteStatus({ exists: true, hasGeneratedHtml: true, isGenerating: false })
+          setIframeKey(k => k + 1)
+          addSystemMessage(`✅ Done! Your website for ${result.businessName} is ready!\n\nTake a look on the right and let me know what you'd like to change. I can update:\n• Colors & fonts\n• Headlines & text\n• Services listed\n• Contact info\n• Layout & sections`)
+        } else {
+          setSiteStatus(prev => ({ ...prev, isGenerating: false }))
+          addSystemMessage(`Sorry, there was an issue generating your site. Please try again or contact support.`)
+        }
+      } else {
+        // Normal chat - send to API
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, message: userMessage })
+        })
+
+        if (res.ok) {
+          const data = await res.json()
+          if (data.assistantMessage) {
+            setMessages(prev => [...prev, {
+              id: `assistant-${Date.now()}`,
+              sender: 'assistant',
+              message: data.assistantMessage.message,
+              timestamp: new Date()
+            }])
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Send error:', error)
+      addSystemMessage(`Sorry, something went wrong. Please try again.`)
+    } finally {
+      setSending(false)
+    }
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-brand-blue to-brand-black flex items-center justify-center">
+      <div className="min-h-screen bg-brand-black flex items-center justify-center">
         <div className="text-center text-white">
-          <div className="text-7xl mb-6 animate-bounce">✨</div>
-          <div className="text-2xl font-bold mb-2">Loading your preview...</div>
+          <div className="text-6xl mb-4 animate-pulse">✨</div>
+          <div className="text-xl font-bold">Loading your preview...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-brand-black text-white">
+    <div className="min-h-screen bg-brand-black text-white flex flex-col">
       {/* Header */}
-      <header className="px-6 py-4 flex justify-between items-center border-b border-white/10">
-        <Link href="/" className="text-xl font-black">
+      <header className="px-4 md:px-6 py-3 flex justify-between items-center border-b border-white/10 shrink-0">
+        <Link href="/" className="text-lg font-black">
           Onboard 🛫
         </Link>
-        <div className="flex items-center gap-4">
-          <span className="text-sm opacity-70 hidden sm:block">Preview for</span>
-          <span className="font-bold">{businessName}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm opacity-70 hidden sm:block">Customizing</span>
+          <span className="font-bold text-brand-lime">{businessName}</span>
         </div>
+        <Link href={`/claim/${slug}?tab=pricing`} className="btn btn-lime text-sm py-2 px-4 hidden md:flex">
+          Choose Plan →
+        </Link>
       </header>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex gap-8">
-            <button
-              onClick={() => setActiveTab('preview')}
-              className={`py-4 px-2 font-bold border-b-2 transition-colors ${
-                activeTab === 'preview'
-                  ? 'border-brand-lime text-brand-lime'
-                  : 'border-transparent opacity-70 hover:opacity-100'
-              }`}
-            >
-              👀 Preview Your Site
-            </button>
-            <button
-              onClick={() => setActiveTab('pricing')}
-              className={`py-4 px-2 font-bold border-b-2 transition-colors ${
-                activeTab === 'pricing'
-                  ? 'border-brand-lime text-brand-lime'
-                  : 'border-transparent opacity-70 hover:opacity-100'
-              }`}
-            >
-              💳 Choose a Plan
-            </button>
-          </div>
-        </div>
+      {/* Mobile Toggle */}
+      <div className="md:hidden flex border-b border-white/10">
+        <button
+          onClick={() => setMobileView('chat')}
+          className={`flex-1 py-3 text-sm font-bold ${mobileView === 'chat' ? 'text-brand-lime border-b-2 border-brand-lime' : 'opacity-60'}`}
+        >
+          💬 Customize
+        </button>
+        <button
+          onClick={() => setMobileView('preview')}
+          className={`flex-1 py-3 text-sm font-bold ${mobileView === 'preview' ? 'text-brand-lime border-b-2 border-brand-lime' : 'opacity-60'}`}
+        >
+          👀 Preview
+        </button>
       </div>
 
-      {activeTab === 'preview' ? (
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          {/* Device Toggle */}
-          <div className="flex justify-center mb-4 gap-2">
-            <button
-              onClick={() => setMobilePreview(false)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                !mobilePreview ? 'bg-white text-black' : 'bg-white/10 text-white'
-              }`}
-            >
-              🖥️ Desktop
-            </button>
-            <button
-              onClick={() => setMobilePreview(true)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                mobilePreview ? 'bg-white text-black' : 'bg-white/10 text-white'
-              }`}
-            >
-              📱 Mobile
-            </button>
-            <button
-              onClick={() => setIframeKey(k => k + 1)}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 text-white hover:bg-white/20 transition-all"
-            >
-              🔄 Refresh
-            </button>
+      {/* Main Content - Two Column */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Column - Chat */}
+        <div className={`w-full md:w-[400px] lg:w-[450px] flex flex-col border-r border-white/10 bg-[#0a0a0a] ${mobileView !== 'chat' ? 'hidden md:flex' : 'flex'}`}>
+          {/* Chat Header */}
+          <div className="p-4 border-b border-white/10">
+            <h2 className="font-bold text-lg">Customize Your Site ✨</h2>
+            <p className="text-sm opacity-60 mt-1">Tell me what you'd like to change</p>
           </div>
 
-          {/* Browser Preview Window */}
-          <div
-            className={`bg-white rounded-2xl overflow-hidden shadow-2xl mb-8 mx-auto transition-all duration-300 ${
-              mobilePreview ? 'max-w-[375px]' : 'w-full'
-            }`}
-          >
-            {/* Browser Bar */}
-            <div className="bg-gray-100 px-4 py-3 flex items-center gap-3">
-              <div className="flex gap-2">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                    msg.sender === 'user'
+                      ? 'bg-brand-blue text-white rounded-br-md'
+                      : 'bg-white/10 text-white rounded-bl-md'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                </div>
+              </div>
+            ))}
+            {(sending || siteStatus.isGenerating) && (
+              <div className="flex justify-start">
+                <div className="bg-white/10 rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-brand-lime rounded-full animate-pulse" />
+                    <div className="w-2 h-2 bg-brand-lime rounded-full animate-pulse delay-100" />
+                    <div className="w-2 h-2 bg-brand-lime rounded-full animate-pulse delay-200" />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="p-4 border-t border-white/10">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSend()
+              }}
+              className="flex gap-2"
+            >
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Type your request..."
+                disabled={sending || siteStatus.isGenerating}
+                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-brand-blue disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim() || sending || siteStatus.isGenerating}
+                className="bg-brand-lime text-black px-4 py-3 rounded-xl font-bold disabled:opacity-50 hover:bg-brand-lime/90 transition-colors"
+              >
+                ➤
+              </button>
+            </form>
+            <p className="text-xs opacity-40 mt-2 text-center">
+              Changes are noted and applied after you subscribe
+            </p>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="p-4 border-t border-white/10 grid grid-cols-2 gap-2">
+            <QuickAction
+              icon="🎨"
+              label="Change Colors"
+              onClick={() => setInputValue('I want to change the colors to ')}
+            />
+            <QuickAction
+              icon="✏️"
+              label="Edit Text"
+              onClick={() => setInputValue('Please update the headline to ')}
+            />
+            <QuickAction
+              icon="📞"
+              label="Update Contact"
+              onClick={() => setInputValue('Update my phone number to ')}
+            />
+            <QuickAction
+              icon="➕"
+              label="Add Service"
+              onClick={() => setInputValue('Add a new service called ')}
+            />
+          </div>
+        </div>
+
+        {/* Right Column - Preview */}
+        <div className={`flex-1 flex flex-col bg-[#111] ${mobileView !== 'preview' ? 'hidden md:flex' : 'flex'}`}>
+          {/* Preview Header */}
+          <div className="p-3 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-green-500" />
               </div>
-              <div className="flex-1 bg-white rounded-lg px-4 py-1.5 text-sm text-gray-600 flex items-center gap-2">
-                <span className="text-green-600">🔒</span>
-                {slug}.onboard.site
-              </div>
+              <span className="text-sm text-white/60 ml-2">{slug}.onboard.site</span>
             </div>
-
-            {/* AI-Generated Site Preview */}
-            <iframe
-              key={iframeKey}
-              src={`/site/${slug}`}
-              className={`w-full border-0 ${mobilePreview ? 'h-[600px]' : 'h-[700px]'}`}
-              title={`Preview of ${businessName}`}
-            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIframeKey(k => k + 1)}
+                className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                🔄 Refresh
+              </button>
+              <Link
+                href={`/site/${slug}`}
+                target="_blank"
+                className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                ↗ Open
+              </Link>
+            </div>
           </div>
 
-          {/* CTA to pricing */}
-          <div className="text-center">
-            <p className="text-lg opacity-80 mb-4">Like what you see? Let&apos;s make it live! 🚀</p>
-            <button
-              onClick={() => setActiveTab('pricing')}
-              className="btn btn-lime text-lg px-8 py-4"
-            >
-              Choose a Plan →
-            </button>
+          {/* Preview Frame */}
+          <div className="flex-1 bg-white overflow-hidden">
+            {siteStatus.hasGeneratedHtml ? (
+              <iframe
+                key={iframeKey}
+                src={`/site/${slug}`}
+                className="w-full h-full border-0"
+                title={`Preview of ${businessName}`}
+              />
+            ) : siteStatus.isGenerating ? (
+              <div className="h-full flex items-center justify-center bg-gradient-to-br from-brand-blue/20 to-brand-black">
+                <div className="text-center text-white">
+                  <div className="text-6xl mb-4 animate-spin">⚙️</div>
+                  <div className="text-xl font-bold mb-2">Generating your site...</div>
+                  <div className="text-sm opacity-60">This takes about 30-60 seconds</div>
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="text-center max-w-md p-8">
+                  <div className="text-6xl mb-4">🚀</div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to build your site?</h2>
+                  <p className="text-gray-600 mb-6">
+                    Use the chat on the left to tell me about your business, or just say "Generate my site" to get started!
+                  </p>
+                  <button
+                    onClick={() => {
+                      setInputValue('Yes, generate my site!')
+                      setMobileView('chat')
+                    }}
+                    className="bg-brand-blue text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-blue/90 transition-colors"
+                  >
+                    Generate My Site →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      ) : (
-        /* Pricing Tab */
-        <div className="max-w-5xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <div className="text-5xl mb-4">🎉</div>
-            <h2 className="text-3xl md:text-4xl font-black mb-3">
-              Your site for <span className="text-brand-lime">{businessName}</span> is ready!
-            </h2>
-            <p className="text-lg opacity-80">Pick a plan and we&apos;ll publish it within 24 hours.</p>
-          </div>
+      </div>
 
-          {/* Pricing cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Starter */}
-            <div className="bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10 hover:border-white/30 transition-colors">
-              <div className="font-bold text-lg mb-1">Starter 🌱</div>
-              <div className="text-4xl font-black mb-1">
-                $29<span className="text-base font-normal opacity-70">/mo</span>
-              </div>
-              <div className="text-sm opacity-60 mb-6">Perfect to get started</div>
-              <ul className="space-y-3 mb-6 text-sm">
-                <li className="flex items-center gap-2">✅ Single page website</li>
-                <li className="flex items-center gap-2">✅ Mobile responsive</li>
-                <li className="flex items-center gap-2">✅ Contact form</li>
-                <li className="flex items-center gap-2">✅ Google Maps</li>
-                <li className="flex items-center gap-2">✅ 2 updates/month</li>
-              </ul>
-              <Link
-                href={`/checkout?plan=starter&slug=${slug}`}
-                className="btn btn-outline border-white/30 w-full justify-center"
-              >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Growth - Popular */}
-            <div className="bg-white text-brand-black rounded-2xl p-6 relative scale-105 shadow-xl">
-              <div className="absolute -top-3 right-4 bg-brand-pink text-white text-xs font-bold px-3 py-1 rounded-full">
-                ⭐ Most Popular
-              </div>
-              <div className="font-bold text-lg mb-1">Growth 🚀</div>
-              <div className="text-4xl font-black mb-1">
-                $49<span className="text-base font-normal opacity-70">/mo</span>
-              </div>
-              <div className="text-sm opacity-60 mb-6">Best for growing businesses</div>
-              <ul className="space-y-3 mb-6 text-sm">
-                <li className="flex items-center gap-2">✅ Up to 5 pages</li>
-                <li className="flex items-center gap-2">✅ Custom domain included</li>
-                <li className="flex items-center gap-2">✅ 5 updates/month</li>
-                <li className="flex items-center gap-2">✅ Google Business sync</li>
-                <li className="flex items-center gap-2">✅ Booking widget</li>
-                <li className="flex items-center gap-2">✅ 24hr response time</li>
-              </ul>
-              <Link
-                href={`/checkout?plan=growth&slug=${slug}`}
-                className="btn btn-lime w-full justify-center"
-              >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Pro */}
-            <div className="bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10 hover:border-white/30 transition-colors">
-              <div className="font-bold text-lg mb-1">Pro 👑</div>
-              <div className="text-4xl font-black mb-1">
-                $79<span className="text-base font-normal opacity-70">/mo</span>
-              </div>
-              <div className="text-sm opacity-60 mb-6">For serious businesses</div>
-              <ul className="space-y-3 mb-6 text-sm">
-                <li className="flex items-center gap-2">✅ Unlimited pages</li>
-                <li className="flex items-center gap-2">✅ Unlimited updates</li>
-                <li className="flex items-center gap-2">✅ Same-day response</li>
-                <li className="flex items-center gap-2">✅ Advanced booking</li>
-                <li className="flex items-center gap-2">✅ Payment integration</li>
-                <li className="flex items-center gap-2">✅ Priority support</li>
-              </ul>
-              <Link
-                href={`/checkout?plan=pro&slug=${slug}`}
-                className="btn btn-outline border-white/30 w-full justify-center"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-
-          {/* Request changes */}
-          <div className="text-center border-t border-white/10 pt-8">
-            <p className="opacity-70 mb-4">Want changes to your preview first?</p>
-            <a
-              href={`mailto:hello@onboard.com.au?subject=Changes for ${businessName}&body=Hi! I'd like to request some changes to my preview at ${slug}.onboard.site`}
-              className="btn btn-outline border-white/30"
-            >
-              Request Changes First ✏️
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-8 px-6 text-center text-sm opacity-60">
-        <p>Questions? Email <a href="mailto:hello@onboard.com.au" className="underline">hello@onboard.com.au</a></p>
-      </footer>
-
-      {/* Chat Widget */}
-      <Chat slug={slug} businessName={businessName} primaryColor="#2563eb" />
+      {/* Mobile CTA */}
+      <div className="md:hidden p-4 border-t border-white/10">
+        <Link href={`/claim/${slug}?tab=pricing`} className="btn btn-lime w-full justify-center">
+          Choose Plan & Go Live →
+        </Link>
+      </div>
     </div>
+  )
+}
+
+function QuickAction({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-xs transition-colors"
+    >
+      <span>{icon}</span>
+      <span className="opacity-80">{label}</span>
+    </button>
   )
 }
