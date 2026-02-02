@@ -70,5 +70,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...industryPages, ...locationPages, ...blogPages]
+  // Lead magnet pages
+  const leadMagnetPages = [
+    'tradie-checklist',
+    'roi-calculator', 
+    'free-audit',
+  ].map((page) => ({
+    url: `${baseUrl}/${page}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...industryPages, ...locationPages, ...blogPages, ...leadMagnetPages]
 }
