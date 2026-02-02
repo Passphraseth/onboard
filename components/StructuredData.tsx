@@ -167,3 +167,35 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
     />
   )
 }
+
+interface LocalBusinessSchemaProps {
+  name: string
+  description: string
+  areaServed: string
+}
+
+export function LocalBusinessSchema({ name, description, areaServed }: LocalBusinessSchemaProps) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: name,
+    description: description,
+    url: 'https://onboard.com.au',
+    areaServed: {
+      '@type': 'City',
+      name: areaServed,
+    },
+    priceRange: '$$',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'AU',
+    },
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  )
+}
