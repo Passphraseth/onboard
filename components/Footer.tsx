@@ -1,8 +1,10 @@
 import Link from 'next/link'
 
 const INDUSTRY_LINKS = [
+  { name: 'Tradies', href: '/websites-for-tradies' },
   { name: 'Plumbers', href: '/websites-for-plumbers' },
   { name: 'Electricians', href: '/websites-for-electricians' },
+  { name: 'Builders', href: '/websites-for-builders' },
   { name: 'Hairdressers', href: '/websites-for-hairdressers' },
   { name: 'Beauty Salons', href: '/websites-for-beauticians' },
   { name: 'Cleaners', href: '/websites-for-cleaners' },
@@ -11,12 +13,18 @@ const INDUSTRY_LINKS = [
   { name: 'Cafes', href: '/websites-for-cafes' },
   { name: 'Personal Trainers', href: '/websites-for-personal-trainers' },
   { name: 'Photographers', href: '/websites-for-photographers' },
-  { name: 'Builders', href: '/websites-for-builders' },
   { name: 'HVAC', href: '/websites-for-hvac' },
+]
+
+const LOCATION_LINKS = [
+  { name: 'Melbourne', href: '/melbourne-website-design' },
+  { name: 'Sydney', href: '/sydney-website-design' },
+  { name: 'Brisbane', href: '/brisbane-website-design' },
 ]
 
 const COMPANY_LINKS = [
   { name: 'Pricing', href: '/pricing' },
+  { name: 'Blog', href: '/blog' },
   { name: 'About', href: '/about' },
   { name: 'Contact', href: 'mailto:hello@onboard.com.au' },
 ]
@@ -86,6 +94,19 @@ export default function Footer() {
             <h3 className="font-semibold text-sm mb-4">Company</h3>
             <ul className="space-y-2">
               {COMPANY_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-neutral-400 text-sm hover:text-white transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <h3 className="font-semibold text-sm mb-4 mt-8">Locations</h3>
+            <ul className="space-y-2">
+              {LOCATION_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
