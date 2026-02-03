@@ -355,13 +355,16 @@ Create a complete, production-ready HTML website that:
 
 ## CRITICAL REQUIREMENTS
 
+- **ONE-PAGE SITE** - This is a single-page website. All content lives on one page.
+- **ANCHOR LINKS ONLY** - All navigation links MUST be anchor links (e.g., href="#about", href="#services", href="#contact"). Do NOT link to separate pages like /about or /privacy.
 - **NO EMOJIS** - Use Font Awesome icons only
 - **NO PLACEHOLDER TEXT** - Use the actual business name, services, contact info provided
 - **REAL CONTENT** - Write compelling copy for this specific business
 - **UNIQUE DESIGN** - This should NOT look like a generic template
-- **WORKING LINKS** - Navigation should smooth-scroll to sections
-- **CONTACT FORM** - Include a functional-looking contact form
+- **SMOOTH SCROLLING** - Navigation should smooth-scroll to sections using anchor links
+- **CONTACT FORM** - Include a contact form that posts to "#" (we'll wire it up later)
 - **SOCIAL LINKS** - Include icons linking to their social profiles if provided
+- **FOOTER LINKS** - In the footer, do NOT include links to Privacy Policy, Terms, or other pages. Just include social links and contact info.
 
 ## SECTIONS TO INCLUDE
 Based on the design brief, include appropriate sections. Typical structure:

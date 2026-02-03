@@ -283,12 +283,15 @@ ${profile.industryContext.differentiators.length > 0 ? `Differentiators to highl
 
 ## DESIGN REQUIREMENTS
 
-1. **Unique Visual Identity**: Use the EXACT colors, fonts, and layout style from the brand profile
-2. **Responsive Design**: Must work on all devices
-3. **Professional Quality**: Clean, modern, polished appearance
-4. **Brand-Aligned Content**: All copy should match the tone (${profile.tone.overall}, ${profile.tone.copyStyle})
-5. **Performance**: Keep file size reasonable, optimize images
-6. **CRITICAL - NO EMOJIS**: Do NOT use any emoji characters anywhere in the design. Use Font Awesome icons (via CDN) or simple SVG icons instead. This is a B2B professional website - emojis are not appropriate.
+1. **ONE-PAGE SITE**: This is a single-page website. All content lives on one page.
+2. **ANCHOR LINKS ONLY**: All navigation links MUST be anchor links (e.g., href="#about", href="#services", href="#contact"). Do NOT link to separate pages like /about or /privacy.
+3. **Unique Visual Identity**: Use the EXACT colors, fonts, and layout style from the brand profile
+4. **Responsive Design**: Must work on all devices
+5. **Professional Quality**: Clean, modern, polished appearance
+6. **Brand-Aligned Content**: All copy should match the tone (${profile.tone.overall}, ${profile.tone.copyStyle})
+7. **Performance**: Keep file size reasonable, optimize images
+8. **CRITICAL - NO EMOJIS**: Do NOT use any emoji characters anywhere in the design. Use Font Awesome icons (via CDN) or simple SVG icons instead. This is a B2B professional website - emojis are not appropriate.
+9. **FOOTER LINKS**: In the footer, do NOT include links to Privacy Policy, Terms, or other pages. Just include social links and contact info.
 
 ## SECTIONS TO INCLUDE
 
