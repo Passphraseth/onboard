@@ -2,26 +2,13 @@
 
 import Link from 'next/link'
 import { PLANS } from '@/lib/stripe/plans'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 
 export default function PricingPage() {
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            onboard
-          </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/pricing" className="text-sm text-white">
-              Pricing
-            </Link>
-            <Link href="/onboard" className="btn btn-primary text-sm">
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero */}
       <section className="pt-32 pb-16 px-6">
@@ -177,26 +164,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-800 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between gap-8">
-            <div>
-              <p className="font-semibold mb-2">onboard</p>
-              <p className="text-neutral-600 text-sm">Websites for service businesses</p>
-            </div>
-            <div className="flex gap-8 text-sm text-neutral-500">
-              <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              <a href="mailto:hello@onboard.com.au" className="hover:text-white transition-colors">Contact</a>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-neutral-800 text-sm text-neutral-600">
-            © 2024 Onboard. Melbourne, Australia.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

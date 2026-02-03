@@ -37,68 +37,72 @@ export default function Navbar() {
         </Link>
         <div className="flex items-center gap-8">
           {/* Services Dropdown */}
-          <div 
-            className="relative"
+          <div
+            className="relative group"
             onMouseEnter={() => setServicesOpen(true)}
             onMouseLeave={() => setServicesOpen(false)}
           >
-            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1">
+            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1 py-2">
               Services
-              <svg 
-                className={`w-4 h-4 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className={`w-4 h-4 transition-transform ${servicesOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            
+
             {servicesOpen && (
-              <div className="absolute top-full left-0 mt-2 w-56 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
-                {SERVICES.map((service) => (
-                  <Link
-                    key={service.href}
-                    href={service.href}
-                    className="block px-4 py-2 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-                  >
-                    {service.name}
-                  </Link>
-                ))}
+              <div className="absolute top-full left-0 pt-2">
+                <div className="w-56 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
+                  {SERVICES.map((service) => (
+                    <Link
+                      key={service.href}
+                      href={service.href}
+                      className="block px-4 py-2 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+                    >
+                      {service.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
           {/* Resources Dropdown */}
-          <div 
-            className="relative"
+          <div
+            className="relative group"
             onMouseEnter={() => setResourcesOpen(true)}
             onMouseLeave={() => setResourcesOpen(false)}
           >
-            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1">
+            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1 py-2">
               Resources
-              <svg 
-                className={`w-4 h-4 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`} 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className={`w-4 h-4 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            
+
             {resourcesOpen && (
-              <div className="absolute top-full left-0 mt-2 w-64 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
-                {RESOURCES.map((resource) => (
-                  <Link
-                    key={resource.href}
-                    href={resource.href}
-                    className="block px-4 py-3 text-sm hover:bg-neutral-800 transition-colors"
-                  >
-                    <div className="text-neutral-200">{resource.name}</div>
-                    <div className="text-xs text-neutral-500">{resource.description}</div>
-                  </Link>
-                ))}
+              <div className="absolute top-full left-0 pt-2">
+                <div className="w-64 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
+                  {RESOURCES.map((resource) => (
+                    <Link
+                      key={resource.href}
+                      href={resource.href}
+                      className="block px-4 py-3 text-sm hover:bg-neutral-800 transition-colors"
+                    >
+                      <div className="text-neutral-200">{resource.name}</div>
+                      <div className="text-xs text-neutral-500">{resource.description}</div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
           </div>
