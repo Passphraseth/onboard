@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { trackSignupStep, trackEvent } from '@/components/GoogleAnalytics'
 
-type Step = 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'branding' | 'services' | 'usp' | 'generating'
+type Step = 'start' | 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'branding' | 'services' | 'usp' | 'generating'
 
 const BRAND_TONES = [
   { id: 'professional', name: 'Professional', description: 'Clean, trustworthy' },
@@ -88,9 +88,20 @@ const DEFAULT_HOURS = {
   sunday: { open: '', close: '', closed: true },
 }
 
+interface CheckUserResponse {
+  status: 'new' | 'lead' | 'customer'
+  redirect: string | null
+  businessName?: string
+  slug?: string
+  leadId?: string
+  leadStatus?: string
+}
+
 export default function OnboardingPage() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState<Step>('name')
+  const [currentStep, setCurrentStep] = useState<Step>('start')
+  const [checkingUser, setCheckingUser] = useState(false)
+  const [welcomeBack, setWelcomeBack] = useState<CheckUserResponse | null>(null)
   const [data, setData] = useState<OnboardingData>({
     businessName: '',
     businessType: '',
@@ -135,19 +146,19 @@ export default function OnboardingPage() {
     }))
   }
 
-  // Track when user starts onboarding
+  // Track page view on mount
   useEffect(() => {
-    trackSignupStep('START_ONBOARDING')
+    trackEvent('page_view', { page: 'onboarding' })
   }, [])
 
   const nextStep = () => {
-    const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp', 'generating']
+    const steps: Step[] = ['start', 'name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp', 'generating']
     const currentIndex = steps.indexOf(currentStep)
     if (currentIndex < steps.length - 1) {
       const next = steps[currentIndex + 1]
 
       // Track step completion
-      const stepTrackingMap: Record<Step, keyof typeof import('@/components/GoogleAnalytics').SignupFunnelEvents> = {
+      const stepTrackingMap: Partial<Record<Step, keyof typeof import('@/components/GoogleAnalytics').SignupFunnelEvents>> = {
         'name': 'COMPLETE_BUSINESS_NAME',
         'type': 'COMPLETE_BUSINESS_TYPE',
         'location': 'COMPLETE_LOCATION',
@@ -161,7 +172,7 @@ export default function OnboardingPage() {
       }
 
       if (stepTrackingMap[currentStep]) {
-        trackSignupStep(stepTrackingMap[currentStep], data.businessType)
+        trackSignupStep(stepTrackingMap[currentStep]!, data.businessType)
       }
 
       setCurrentStep(next)
@@ -172,7 +183,7 @@ export default function OnboardingPage() {
   }
 
   const prevStep = () => {
-    const steps: Step[] = ['name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp']
+    const steps: Step[] = ['start', 'name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp']
     const currentIndex = steps.indexOf(currentStep)
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1])
@@ -256,7 +267,8 @@ export default function OnboardingPage() {
     return servicesByType[type] || []
   }
 
-  const progress = {
+  const progress: Record<Step, number> = {
+    start: 0,
     name: 11,
     type: 22,
     location: 33,
@@ -269,6 +281,52 @@ export default function OnboardingPage() {
     generating: 100,
   }
 
+  const handleCheckUser = async () => {
+    if (!data.email.trim()) return
+
+    setCheckingUser(true)
+    try {
+      const res = await fetch('/api/check-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, phone: data.phone }),
+      })
+
+      const result: CheckUserResponse = await res.json()
+
+      if (result.status === 'customer') {
+        // Paying customer - redirect to dashboard
+        setWelcomeBack(result)
+      } else if (result.status === 'lead') {
+        // Existing lead - offer to continue or redirect
+        setWelcomeBack(result)
+      } else {
+        // New user - continue with onboarding
+        setCurrentStep('name')
+        trackSignupStep('START_ONBOARDING')
+      }
+    } catch (error) {
+      console.error('Error checking user:', error)
+      // On error, just continue with onboarding
+      setCurrentStep('name')
+      trackSignupStep('START_ONBOARDING')
+    } finally {
+      setCheckingUser(false)
+    }
+  }
+
+  const handleContinueToExisting = () => {
+    if (welcomeBack?.redirect) {
+      router.push(welcomeBack.redirect)
+    }
+  }
+
+  const handleStartFresh = () => {
+    setWelcomeBack(null)
+    setCurrentStep('name')
+    trackSignupStep('START_ONBOARDING')
+  }
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -277,12 +335,12 @@ export default function OnboardingPage() {
           onboard
         </Link>
         <div className="text-sm text-neutral-500">
-          {currentStep !== 'generating' && `Step ${Object.keys(progress).indexOf(currentStep) + 1} of 9`}
+          {currentStep !== 'generating' && currentStep !== 'start' && `Step ${Object.keys(progress).indexOf(currentStep)} of 9`}
         </div>
       </header>
 
       {/* Progress Bar */}
-      {currentStep !== 'generating' && (
+      {currentStep !== 'generating' && currentStep !== 'start' && (
         <div className="max-w-4xl mx-auto px-6 mb-8">
           <div className="h-1 bg-neutral-800 rounded-full overflow-hidden">
             <div
@@ -294,6 +352,87 @@ export default function OnboardingPage() {
       )}
 
       <main className="max-w-xl mx-auto px-6 pb-12">
+        {/* Step: Start - Email/Phone Collection */}
+        {currentStep === 'start' && !welcomeBack && (
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Let's build your website</h1>
+              <p className="text-neutral-400">First, how can we reach you?</p>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={data.email}
+                  onChange={(e) => updateData({ email: e.target.value })}
+                  placeholder="hello@yourbusiness.com"
+                  className="input text-lg py-4"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">Phone (optional)</label>
+                <input
+                  type="tel"
+                  value={data.phone}
+                  onChange={(e) => updateData({ phone: e.target.value })}
+                  placeholder="0412 345 678"
+                  className="input text-lg py-4"
+                />
+              </div>
+              <button
+                onClick={handleCheckUser}
+                disabled={!data.email.trim() || checkingUser}
+                className="btn btn-primary w-full py-4 disabled:opacity-30"
+              >
+                {checkingUser ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    Checking...
+                  </span>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+              <p className="text-xs text-neutral-500 text-center">
+                We'll use this to save your progress and send your preview link.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Welcome Back Modal */}
+        {currentStep === 'start' && welcomeBack && (
+          <div className="animate-fade-in">
+            <div className="mb-8 text-center">
+              <div className="text-5xl mb-4">👋</div>
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Welcome back!</h1>
+              <p className="text-neutral-400">
+                {welcomeBack.status === 'customer' ? (
+                  <>Looks like you already have a site with us for <strong className="text-white">{welcomeBack.businessName}</strong>.</>
+                ) : (
+                  <>We found your preview for <strong className="text-white">{welcomeBack.businessName}</strong>.</>
+                )}
+              </p>
+            </div>
+            <div className="space-y-4">
+              <button
+                onClick={handleContinueToExisting}
+                className="btn btn-primary w-full py-4"
+              >
+                {welcomeBack.status === 'customer' ? 'Go to My Dashboard →' : 'Continue Where I Left Off →'}
+              </button>
+              <button
+                onClick={handleStartFresh}
+                className="btn btn-secondary w-full py-4"
+              >
+                Start a New Site Instead
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Step: Business Name */}
         {currentStep === 'name' && (
           <div className="animate-fade-in">

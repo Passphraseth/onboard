@@ -200,9 +200,6 @@ function DashboardContent() {
           <NavItem href={`https://${customer.siteUrl}`} icon="🌐" external>
             View My Site
           </NavItem>
-          <NavItem href={customer.accessToken ? `/claim/${customer.slug}?token=${customer.accessToken}` : `/claim/${customer.slug}`} icon="👀">
-            Preview Editor
-          </NavItem>
           <NavItem href="mailto:hello@onboard.com.au" icon="💬">
             Support
           </NavItem>
@@ -235,16 +232,10 @@ function DashboardContent() {
               href={`https://${customer.siteUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-outline border-white/20 text-sm py-2"
-            >
-              🌐 View Site
-            </a>
-            <Link
-              href={customer.accessToken ? `/claim/${customer.slug}?token=${customer.accessToken}` : `/claim/${customer.slug}`}
               className="btn btn-lime text-sm py-2"
             >
-              ✏️ Edit Preview
-            </Link>
+              🌐 View My Site
+            </a>
           </div>
         </div>
 
@@ -366,7 +357,6 @@ function DashboardContent() {
         {/* Mobile nav */}
         <nav className="fixed bottom-0 left-0 right-0 bg-brand-black border-t border-white/10 p-4 flex justify-around md:hidden">
           <MobileNavItem href={`/dashboard?id=${customer.id}`} icon="📊" label="Home" active />
-          <MobileNavItem href={customer.accessToken ? `/claim/${customer.slug}?token=${customer.accessToken}` : `/claim/${customer.slug}`} icon="✏️" label="Edit" />
           <MobileNavItem href={`https://${customer.siteUrl}`} icon="🌐" label="Site" external />
           <MobileNavItem href="mailto:hello@onboard.com.au" icon="💬" label="Help" />
         </nav>

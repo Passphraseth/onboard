@@ -4,6 +4,39 @@ import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
 
+const VERCEL_TOKEN = process.env.VERCEL_TOKEN
+const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID
+const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID
+const SITE_DOMAIN = 'onboard.site'
+
+async function provisionSubdomain(slug: string, leadId?: string): Promise<void> {
+  if (!VERCEL_TOKEN || !VERCEL_PROJECT_ID) {
+    console.log('Vercel not configured, skipping domain provisioning')
+    return
+  }
+
+  const subdomain = `${slug}.${SITE_DOMAIN}`
+
+  const vercelUrl = VERCEL_TEAM_ID
+    ? `https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains?teamId=${VERCEL_TEAM_ID}`
+    : `https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains`
+
+  const response = await fetch(vercelUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${VERCEL_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name: subdomain }),
+  })
+
+  const data = await response.json()
+
+  if (data.error && data.error.code !== 'domain_already_exists') {
+    throw new Error(data.error.message || 'Failed to provision subdomain')
+  }
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text()
   const signature = headers().get('stripe-signature')
@@ -121,22 +154,62 @@ async function handleCheckoutCompleted(
     cancel_at_period_end: false,
   })
 
-  // Create client site (placeholder for now)
-  const slug = metadata.business_name
+  // Check if we're converting an existing lead with a site
+  let slug = metadata.business_name
     ? metadata.business_name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
     : `site-${customer.id.slice(0, 8)}`
 
-  await supabase.from('client_sites').insert({
-    customer_id: customer.id,
-    slug,
-    status: 'preview',
-    template: 'service-v1',
-    content: {
-      businessName: metadata.business_name,
-      phone: metadata.phone,
-    },
-    settings: {},
-  })
+  let existingSite = null
+
+  // Check if lead already has a site (from preview)
+  if (metadata.lead_id) {
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('slug, preview_site_id')
+      .eq('id', metadata.lead_id)
+      .single()
+
+    if (lead?.slug) {
+      slug = lead.slug
+    }
+
+    if (lead?.preview_site_id) {
+      // Update existing site instead of creating new one
+      existingSite = lead.preview_site_id
+    }
+  }
+
+  if (existingSite) {
+    // Update existing preview site to live
+    await supabase.from('client_sites').update({
+      customer_id: customer.id,
+      status: 'live',
+      published_at: new Date().toISOString(),
+    }).eq('id', existingSite)
+  } else {
+    // Create client site
+    await supabase.from('client_sites').insert({
+      customer_id: customer.id,
+      slug,
+      status: 'live',
+      template: 'service-v1',
+      content: {
+        businessName: metadata.business_name,
+        phone: metadata.phone,
+      },
+      settings: {},
+      published_at: new Date().toISOString(),
+    })
+  }
+
+  // Provision subdomain
+  try {
+    await provisionSubdomain(slug, metadata.lead_id)
+    console.log(`🌐 Subdomain provisioned: ${slug}.onboard.site`)
+  } catch (domainError) {
+    console.error('Error provisioning subdomain:', domainError)
+    // Don't fail the webhook, domain can be provisioned later
+  }
 
   // Update lead status if exists
   if (metadata.lead_id) {
