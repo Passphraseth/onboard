@@ -105,17 +105,73 @@ export async function generateAndSaveSite(input: GenerationInput): Promise<Gener
   const slug = slugify(input.businessName)
   const supabase = createAdminClient()
 
-  const { error: updateError } = await supabase
+  // First check if site exists
+  const { data: existingSite } = await supabase
     .from('client_sites')
-    .update({ generated_html: html })
+    .select('id')
     .eq('slug', slug)
+    .maybeSingle()
 
   let saved = false
-  if (updateError) {
-    console.error('Error saving HTML to database:', updateError)
+
+  if (existingSite) {
+    // Update existing record
+    const { error: updateError } = await supabase
+      .from('client_sites')
+      .update({ generated_html: html, updated_at: new Date().toISOString() })
+      .eq('slug', slug)
+
+    if (updateError) {
+      console.error('Error updating site:', updateError)
+    } else {
+      console.log(`✅ Updated existing site for slug: ${slug}`)
+      saved = true
+    }
   } else {
-    console.log(`✅ Saved HTML to client_sites for slug: ${slug}`)
-    saved = true
+    // Create new record - find lead_id first
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    const { error: insertError } = await supabase
+      .from('client_sites')
+      .insert({
+        slug,
+        lead_id: lead?.id || null,
+        generated_html: html,
+        status: 'preview',
+        template: 'data-driven-v3',
+        content: {
+          businessName: input.businessName,
+          businessType: input.businessType,
+          location: input.location,
+        },
+      })
+
+    if (insertError) {
+      console.error('Error creating site:', insertError)
+    } else {
+      console.log(`✅ Created new site for slug: ${slug}`)
+      saved = true
+
+      // Link site back to lead
+      if (lead?.id) {
+        const { data: newSite } = await supabase
+          .from('client_sites')
+          .select('id')
+          .eq('slug', slug)
+          .single()
+
+        if (newSite) {
+          await supabase
+            .from('leads')
+            .update({ preview_site_id: newSite.id })
+            .eq('id', lead.id)
+        }
+      }
+    }
   }
 
   return {

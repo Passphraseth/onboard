@@ -86,17 +86,73 @@ export async function generateAgenticSite(input: AgenticInput): Promise<AgenticR
   const slug = slugify(input.businessName)
   const supabase = createAdminClient()
 
-  // Only update generated_html - metadata column doesn't exist on client_sites
-  const { error: updateError } = await supabase
+  // First check if site exists
+  const { data: existingSite } = await supabase
     .from('client_sites')
-    .update({ generated_html: html })
+    .select('id')
     .eq('slug', slug)
+    .maybeSingle()
 
-  const saved = !updateError
-  if (updateError) {
-    console.error('Error saving:', updateError)
+  let saved = false
+
+  if (existingSite) {
+    // Update existing record
+    const { error: updateError } = await supabase
+      .from('client_sites')
+      .update({ generated_html: html, updated_at: new Date().toISOString() })
+      .eq('slug', slug)
+
+    saved = !updateError
+    if (updateError) {
+      console.error('Error updating site:', updateError)
+    } else {
+      console.log(`✅ Updated existing site for slug: ${slug}`)
+    }
   } else {
-    console.log(`✅ Saved to database for slug: ${slug}`)
+    // Create new record - find lead_id first
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    const { error: insertError } = await supabase
+      .from('client_sites')
+      .insert({
+        slug,
+        lead_id: lead?.id || null,
+        generated_html: html,
+        status: 'preview',
+        template: 'agentic-v4',
+        content: {
+          businessName: input.businessName,
+          businessType: input.businessType,
+          location: input.location,
+        },
+      })
+
+    saved = !insertError
+    if (insertError) {
+      console.error('Error creating site:', insertError)
+    } else {
+      console.log(`✅ Created new site for slug: ${slug}`)
+
+      // Link site back to lead
+      if (lead?.id) {
+        const { data: newSite } = await supabase
+          .from('client_sites')
+          .select('id')
+          .eq('slug', slug)
+          .single()
+
+        if (newSite) {
+          await supabase
+            .from('leads')
+            .update({ preview_site_id: newSite.id })
+            .eq('id', lead.id)
+        }
+      }
+    }
   }
 
   const generationTime = Date.now() - startTime
