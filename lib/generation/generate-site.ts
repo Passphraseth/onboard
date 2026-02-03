@@ -147,7 +147,7 @@ async function generateDataDrivenSite(profile: BrandProfile): Promise<string> {
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 16000,
+    max_tokens: 32000,
     messages: [
       {
         role: 'user',
