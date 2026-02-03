@@ -27,7 +27,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Industry landing pages - high priority for SEO
   const industryPages = [
-    'tradies',
     'plumbers',
     'electricians',
     'hairdressers',
@@ -47,40 +46,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  // City/location pages for local SEO
-  const locationPages = [
-    'melbourne',
-    'sydney',
-    'brisbane',
-  ].map((city) => ({
-    url: `${baseUrl}/${city}-website-design`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }))
-
-  // Blog posts
-  const blogPages = [
-    'do-tradies-need-a-website',
-    'best-website-builders-small-business-australia',
-  ].map((slug) => ({
-    url: `${baseUrl}/blog/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'yearly' as const,
-    priority: 0.6,
-  }))
-
-  // Lead magnet pages
-  const leadMagnetPages = [
-    'tradie-checklist',
-    'roi-calculator', 
-    'free-audit',
-  ].map((page) => ({
-    url: `${baseUrl}/${page}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }))
-
-  return [...staticPages, ...industryPages, ...locationPages, ...blogPages, ...leadMagnetPages]
+  return [...staticPages, ...industryPages]
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, Suspense } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Message {
@@ -17,20 +17,10 @@ interface SiteStatus {
   isGenerating: boolean
 }
 
-interface AuthState {
-  checking: boolean
-  authenticated: boolean
-  error?: string
-  leadId?: string
-}
-
 function ClaimPageContent() {
   const params = useParams()
-  const searchParams = useSearchParams()
   const slug = params.slug as string
-  const token = searchParams.get('token')
 
-  const [authState, setAuthState] = useState<AuthState>({ checking: true, authenticated: false })
   const [loading, setLoading] = useState(true)
   const [businessName, setBusinessName] = useState('')
   const [siteStatus, setSiteStatus] = useState<SiteStatus>({ exists: false, hasGeneratedHtml: false, isGenerating: false })
@@ -40,12 +30,6 @@ function ClaimPageContent() {
   const [mobileView, setMobileView] = useState<'chat' | 'preview'>('chat')
   const [iframeKey, setIframeKey] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  // Skip heavy auth - just mark as authenticated
-  // Security is handled by the fact that changes are requests, not direct modifications
-  useEffect(() => {
-    setAuthState({ checking: false, authenticated: true })
-  }, [slug])
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -193,47 +177,6 @@ function ClaimPageContent() {
     } finally {
       setSending(false)
     }
-  }
-
-  // Auth checking state
-  if (authState.checking) {
-    return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="text-6xl mb-4 animate-pulse">🔐</div>
-          <div className="text-xl font-bold">Verifying access...</div>
-        </div>
-      </div>
-    )
-  }
-
-  // Not authenticated
-  if (!authState.authenticated) {
-    return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center p-6">
-        <div className="max-w-md text-center text-white">
-          <div className="text-6xl mb-6">🔒</div>
-          <h1 className="text-2xl font-bold mb-4">Access Required</h1>
-          <p className="opacity-70 mb-6">
-            {authState.error || 'You need a valid access link to view and edit this site.'}
-          </p>
-          <p className="text-sm opacity-50 mb-8">
-            Check your email for the secure link we sent you, or contact support if you need help.
-          </p>
-          <div className="space-y-3">
-            <Link href="/dashboard" className="btn btn-lime w-full justify-center">
-              Go to Dashboard →
-            </Link>
-            <a
-              href="mailto:hello@onboard.com.au?subject=Access%20Request%20for%20Site"
-              className="btn btn-outline border-white/20 w-full justify-center"
-            >
-              Contact Support
-            </a>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   // Loading site data
