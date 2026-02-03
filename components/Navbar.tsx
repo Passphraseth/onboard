@@ -19,8 +19,15 @@ const SERVICES = [
   { name: 'HVAC', href: '/websites-for-hvac' },
 ]
 
+const RESOURCES = [
+  { name: 'Free Tradie Checklist', href: '/tradie-checklist', description: '15-point website audit' },
+  { name: 'ROI Calculator', href: '/roi-calculator', description: 'See your revenue potential' },
+  { name: 'Free Website Audit', href: '/free-audit', description: 'Personal review in 24h' },
+]
+
 export default function Navbar() {
   const [servicesOpen, setServicesOpen] = useState(false)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
@@ -56,6 +63,40 @@ export default function Navbar() {
                     className="block px-4 py-2 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
                   >
                     {service.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Resources Dropdown */}
+          <div 
+            className="relative"
+            onMouseEnter={() => setResourcesOpen(true)}
+            onMouseLeave={() => setResourcesOpen(false)}
+          >
+            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1">
+              Resources
+              <svg 
+                className={`w-4 h-4 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {resourcesOpen && (
+              <div className="absolute top-full left-0 mt-2 w-64 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
+                {RESOURCES.map((resource) => (
+                  <Link
+                    key={resource.href}
+                    href={resource.href}
+                    className="block px-4 py-3 text-sm hover:bg-neutral-800 transition-colors"
+                  >
+                    <div className="text-neutral-200">{resource.name}</div>
+                    <div className="text-xs text-neutral-500">{resource.description}</div>
                   </Link>
                 ))}
               </div>
