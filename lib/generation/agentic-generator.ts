@@ -214,34 +214,43 @@ Be brief but specific. Output should be under 500 words.`
 
 /**
  * PHASE 2: Create a unique design brief based on research
- * Uses Haiku for speed - brief doesn't need to be super detailed
+ * Uses Sonnet for quality - creative direction needs nuance
  */
 async function createDesignBrief(input: AgenticInput, competitorInsights: string): Promise<string> {
-  const briefPrompt = `Create a concise design brief for ${input.businessName} (${input.businessType} in ${input.location}).
+  // Create variation based on business name
+  const nameHash = input.businessName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const designStyles = ['bold-editorial', 'minimal-elegant', 'warm-approachable', 'modern-tech', 'classic-refined', 'creative-dynamic']
+  const selectedStyle = designStyles[nameHash % designStyles.length]
 
-BUSINESS INFO:
-- Phone: ${input.phone || 'N/A'} | Email: ${input.email || 'N/A'}
-- Address: ${input.address || 'N/A'} | Hours: ${input.hours || 'N/A'}
-- Instagram: ${input.instagram ? `@${input.instagram}` : 'N/A'}
-- Services: ${input.services?.join(', ') || 'General services'}
-- USPs: ${input.uniqueSellingPoints?.join(', ') || 'Quality service'}
-- Tone: ${input.preferredTone || 'Professional'}
-- Colors: ${input.preferredColors?.join(', ') || 'Choose based on industry'}
+  const briefPrompt = `You're a creative director developing a UNIQUE design concept for ${input.businessName}.
 
-RESEARCH INSIGHTS:
-${competitorInsights}
+BUSINESS: ${input.businessType} in ${input.location}
+SERVICES: ${input.services?.join(', ') || 'General services'}
+CLIENT VIBE: ${input.preferredTone || 'Professional'}
+${input.preferredColors?.length ? `MUST USE COLORS: ${input.preferredColors.join(', ')}` : 'COLOR FREEDOM: Choose distinctive palette'}
 
-OUTPUT A BRIEF DESIGN SPEC:
-1. COLORS: 5 hex codes (primary, secondary, accent, background, text)
-2. FONTS: Google Fonts (heading + body)
-3. HERO: Style (full-bleed/split/minimal) + headline suggestion
-4. SECTIONS: List in order with one-line purpose
-5. CTA: Primary call-to-action text
+DESIGN STYLE SEED: "${selectedStyle}" - use this as inspiration but interpret it uniquely.
 
-Keep response under 400 words. Be specific with hex codes and font names.`
+Create a design brief that would make this site STAND OUT from competitors. Include:
+
+1. **COLOR PALETTE** (5 hex codes)
+   ${input.preferredColors?.length ? `Use the client's colors: ${input.preferredColors.join(', ')}` : 'Be bold - avoid safe/boring choices'}
+
+2. **TYPOGRAPHY PAIRING** (Google Fonts)
+   - Heading font: something with personality
+   - Body font: highly readable complement
+
+3. **HERO CONCEPT** - One sentence describing a visually striking hero that's NOT generic
+
+4. **UNIQUE DESIGN ELEMENT** - One signature visual element that makes this site memorable
+   (e.g., diagonal lines, floating shapes, dramatic shadows, split-tone backgrounds, oversized numbers)
+
+5. **HEADLINE** - A punchy, memorable headline for ${input.businessName}
+
+Keep it under 300 words. Be specific and creative.`
 
   const response = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 1000,
     messages: [{ role: 'user', content: briefPrompt }]
   })
@@ -278,66 +287,108 @@ DO NOT use any other colors. The design brief colors are OVERRIDDEN by these use
     ? `\n## MANDATORY TONE: ${input.preferredTone}\nThe client specifically requested a "${input.preferredTone}" feel. The entire design must reflect this.\n`
     : ''
 
-  const generatePrompt = `You are an expert frontend developer creating a production-ready website.
+  // Generate a unique design seed based on business name for consistent variation
+  const designSeed = input.businessName.split('').reduce((a, b) => a + b.charCodeAt(0), 0) % 6
 
-## THE CLIENT
-${input.businessName} - a ${input.businessType} in ${input.location}
+  const heroVariations = [
+    'Full-screen dramatic hero with oversized typography and a single powerful image',
+    'Split-screen hero: bold text on left, striking image on right (or vice versa)',
+    'Minimal hero with elegant centered text, subtle background, and floating elements',
+    'Video-style hero with dark overlay and cinematic typography',
+    'Asymmetric hero with offset content, unique shapes, and dynamic composition',
+    'Editorial-style hero with magazine-like typography and sophisticated spacing'
+  ]
+
+  const layoutVariations = [
+    'Card-based layout with floating shadows and rounded corners',
+    'Full-width sections with alternating backgrounds and edge-to-edge imagery',
+    'Contained layout with generous whitespace and refined borders',
+    'Overlapping sections with creative z-index layering',
+    'Grid-based masonry-style layout with varied content blocks',
+    'Minimal layout with dramatic typography as the main visual element'
+  ]
+
+  const generatePrompt = `You are an award-winning web designer creating a COMPLETELY UNIQUE website.
+Your reputation depends on NEVER creating generic or template-like designs.
+
+## THIS PROJECT: ${input.businessName}
+Industry: ${input.businessType} | Location: ${input.location}
 ${colorInstruction}${toneInstruction}
-## CONTACT INFORMATION
-- Phone: ${input.phone || 'Not provided'}
-- Email: ${input.email || 'Not provided'}
-- Address: ${input.address || 'Not provided'}
-- Hours: ${input.hours || 'Not provided'}
-- Instagram: ${input.instagram ? `https://instagram.com/${input.instagram}` : ''}
-- Facebook: ${input.facebook || ''}
 
-## SERVICES
-${input.services?.map(s => `- ${s}`).join('\n') || '- Professional services'}
+## CONTACT & BUSINESS DETAILS
+Phone: ${input.phone || 'Not provided'} | Email: ${input.email || 'Not provided'}
+Address: ${input.address || 'Not provided'} | Hours: ${input.hours || 'Not provided'}
+${input.instagram ? `Instagram: https://instagram.com/${input.instagram}` : ''}
+${input.facebook ? `Facebook: ${input.facebook}` : ''}
 
-## DESIGN BRIEF (use for layout/structure, but USER COLORS above take priority)
+## THEIR SERVICES
+${input.services?.map(s => `• ${s}`).join('\n') || '• Professional services'}
+
+## DESIGN DIRECTION FROM BRIEF
 ${designBrief}
 
 ---
 
-## YOUR TASK
+## YOUR CREATIVE DIRECTION
 
-Create a complete, production-ready HTML website that:
+**HERO STYLE**: ${heroVariations[designSeed]}
+**LAYOUT APPROACH**: ${layoutVariations[(designSeed + 3) % 6]}
 
-1. **Follows the design brief EXACTLY** - Use the exact colors, fonts, and layout specified
-2. **Is fully responsive** - Works perfectly on mobile, tablet, and desktop
-3. **Looks professional** - This should look like it was built by a premium agency
-4. **Has smooth interactions** - Include subtle hover effects, smooth scrolling
-5. **Is self-contained** - All CSS in a <style> tag, no external dependencies except:
-   - Google Fonts (import the fonts specified in the brief)
-   - Font Awesome 6 for icons (https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)
+## WHAT MAKES THIS DESIGN UNIQUE
 
-## CRITICAL REQUIREMENTS
+Create something that would win a design award. Consider:
 
-- **ONE-PAGE SITE** - This is a single-page website. All content lives on one page.
-- **ANCHOR LINKS ONLY** - All navigation links MUST be anchor links (e.g., href="#about", href="#services", href="#contact"). Do NOT link to separate pages like /about or /privacy.
-- **NO EMOJIS** - Use Font Awesome icons only
-- **NO PLACEHOLDER TEXT** - Use the actual business name, services, contact info provided
-- **REAL CONTENT** - Write compelling copy for this specific business
-- **UNIQUE DESIGN** - This should NOT look like a generic template
-- **SMOOTH SCROLLING** - Navigation should smooth-scroll to sections using anchor links
-- **CONTACT FORM** - Include a contact form that posts to "#" (we'll wire it up later)
-- **SOCIAL LINKS** - Include icons linking to their social profiles if provided
-- **FOOTER LINKS** - In the footer, do NOT include links to Privacy Policy, Terms, or other pages. Just include social links and contact info.
+1. **TYPOGRAPHY AS ART** - Use type size, weight, and spacing dramatically. Consider:
+   - Oversized headlines (80px-150px on desktop)
+   - Interesting font pairings from Google Fonts
+   - Creative letter-spacing and line-heights
+   - Text that breaks conventional boundaries
 
-## SECTIONS TO INCLUDE
-Based on the design brief, include appropriate sections. Typical structure:
-1. Navigation (fixed/sticky)
-2. Hero section
-3. About/Introduction
-4. Services
-5. Why Choose Us / Features
-6. Testimonials or Social Proof
-7. Contact section with form
-8. Footer
+2. **UNCONVENTIONAL LAYOUTS** - Break the mold:
+   - Asymmetric compositions
+   - Overlapping elements
+   - Unusual grid structures
+   - Creative use of negative space
+   - Elements that bleed to edges
 
-## OUTPUT FORMAT
-Return ONLY the complete HTML document. Start with <!DOCTYPE html> and end with </html>.
-No explanations, no markdown code blocks - just the raw HTML.`
+3. **SOPHISTICATED COLOR USE** - Beyond basic:
+   - Subtle gradients or textures
+   - Strategic use of color blocking
+   - Interesting hover state colors
+   - Consider dark mode aesthetic if appropriate
+
+4. **MICRO-INTERACTIONS** - CSS-only polish:
+   - Creative hover transforms
+   - Smooth transitions (0.3-0.5s)
+   - Subtle scale/translate effects
+   - Border and shadow animations
+
+5. **VISUAL HIERARCHY** - Guide the eye:
+   - Clear focal points per section
+   - Breathing room between elements
+   - Strategic contrast
+
+## TECHNICAL REQUIREMENTS
+- Single-page site with anchor navigation (href="#section")
+- Fully responsive (mobile-first)
+- Self-contained HTML with <style> tag
+- Google Fonts + Font Awesome 6 CDN only
+- No emojis - use Font Awesome icons
+- Real content - no lorem ipsum
+- Contact form (action="#")
+- Smooth scroll behavior
+
+## ANTI-PATTERNS TO AVOID
+❌ Generic hero with centered text and stock photo
+❌ Three-column service cards that look like every other site
+❌ Basic Bootstrap-style layouts
+❌ Predictable section ordering
+❌ Safe, boring color choices
+❌ Template-feeling anything
+
+## OUTPUT
+Return ONLY the complete HTML. Start with <!DOCTYPE html>, end with </html>.
+No markdown, no explanations - just exceptional HTML/CSS.`
 
   // Use streaming for the HTML generation (main quality phase)
   const stream = await anthropic.messages.stream({
