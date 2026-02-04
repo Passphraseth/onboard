@@ -60,26 +60,37 @@ export async function POST(request: NextRequest) {
     console.log(`Slug: ${lead.slug}`)
     console.log(`${'='.repeat(60)}\n`)
 
+    // Get metadata (preferences are stored here)
+    const metadata = lead.metadata || {}
+
     // Build input from lead data
+    // Note: Colors/tone are stored in metadata from onboarding, not direct columns
     const input: AgenticInput = {
       businessName: lead.business_name,
-      businessType: lead.business_type || lead.industry || 'Service Business',
+      businessType: lead.business_type || lead.industry || metadata.businessType || 'Service Business',
       location: lead.suburb || lead.location || 'Melbourne',
-      phone: lead.phone,
+      phone: lead.phone || metadata.phone,
       email: lead.email,
-      address: lead.address,
-      hours: lead.hours,
-      instagram: lead.instagram,
-      facebook: lead.facebook,
-      website: lead.website,
-      services: parseServices(lead.services),
-      uniqueSellingPoints: parseArray(lead.unique_selling_points),
-      targetCustomers: parseArray(lead.target_customers),
-      additionalNotes: lead.additional_notes || lead.notes,
-      preferredColors: lead.preferred_colors,
-      preferredTone: lead.preferred_tone,
-      logoUrl: lead.logo_url,
+      address: lead.address || metadata.address,
+      hours: lead.hours || formatHoursFromMetadata(metadata.operatingHours),
+      instagram: lead.instagram || metadata.instagram,
+      facebook: lead.facebook || metadata.facebook,
+      website: lead.website || metadata.website,
+      services: parseServices(lead.services || metadata.services),
+      uniqueSellingPoints: parseArray(lead.unique_selling_points || metadata.uniqueSellingPoints),
+      targetCustomers: parseArray(lead.target_customers || metadata.targetCustomers),
+      additionalNotes: lead.additional_notes || lead.notes || metadata.additionalNotes,
+      // CRITICAL: Read from metadata where onboarding stores them
+      preferredColors: lead.preferred_colors || metadata.preferredColors,
+      preferredTone: lead.preferred_tone || metadata.preferredTone,
+      logoUrl: lead.logo_url || metadata.logoUrl,
     }
+
+    console.log('Generation input:', {
+      businessName: input.businessName,
+      preferredColors: input.preferredColors,
+      preferredTone: input.preferredTone,
+    })
 
     // Generate the site
     const result = await generateAgenticSite(input)
@@ -210,4 +221,21 @@ function parseArray(input: unknown): string[] {
     }
   }
   return []
+}
+
+function formatHoursFromMetadata(operatingHours: unknown): string | undefined {
+  if (!operatingHours || typeof operatingHours !== 'object') return undefined
+
+  const hours = operatingHours as Record<string, { open?: string; close?: string; closed?: boolean }>
+  const parts: string[] = []
+
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+  for (const day of days) {
+    const dayHours = hours[day]
+    if (dayHours && !dayHours.closed && dayHours.open && dayHours.close) {
+      parts.push(`${day.charAt(0).toUpperCase() + day.slice(1)}: ${dayHours.open}-${dayHours.close}`)
+    }
+  }
+
+  return parts.length > 0 ? parts.join(', ') : undefined
 }

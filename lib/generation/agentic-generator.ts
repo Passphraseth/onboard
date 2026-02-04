@@ -258,11 +258,31 @@ async function generateHTMLFromBrief(
   designBrief: string,
   competitorInsights: string
 ): Promise<string> {
+  // Build color instruction - USER PREFERENCES OVERRIDE EVERYTHING
+  const colorInstruction = input.preferredColors?.length
+    ? `
+## ⚠️ MANDATORY COLOR SCHEME (USER SPECIFIED - DO NOT IGNORE)
+The client has SPECIFICALLY REQUESTED these colors. You MUST use them:
+${input.preferredColors.map((c, i) => `- Color ${i + 1}: ${c}`).join('\n')}
+
+If the client specified "black and white" or similar, use:
+- Background: #ffffff or #000000
+- Text: #000000 or #ffffff (contrast with background)
+- Accents: Shades of gray (#333, #666, #999, #ccc)
+
+DO NOT use any other colors. The design brief colors are OVERRIDDEN by these user preferences.
+`
+    : ''
+
+  const toneInstruction = input.preferredTone
+    ? `\n## MANDATORY TONE: ${input.preferredTone}\nThe client specifically requested a "${input.preferredTone}" feel. The entire design must reflect this.\n`
+    : ''
+
   const generatePrompt = `You are an expert frontend developer creating a production-ready website.
 
 ## THE CLIENT
 ${input.businessName} - a ${input.businessType} in ${input.location}
-
+${colorInstruction}${toneInstruction}
 ## CONTACT INFORMATION
 - Phone: ${input.phone || 'Not provided'}
 - Email: ${input.email || 'Not provided'}
@@ -274,7 +294,7 @@ ${input.businessName} - a ${input.businessType} in ${input.location}
 ## SERVICES
 ${input.services?.map(s => `- ${s}`).join('\n') || '- Professional services'}
 
-## DESIGN BRIEF
+## DESIGN BRIEF (use for layout/structure, but USER COLORS above take priority)
 ${designBrief}
 
 ---
