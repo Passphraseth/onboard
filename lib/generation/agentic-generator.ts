@@ -381,11 +381,14 @@ Based on the design brief, include appropriate sections. Typical structure:
 Return ONLY the complete HTML document. Start with <!DOCTYPE html> and end with </html>.
 No explanations, no markdown code blocks - just the raw HTML.`
 
-  const response = await anthropic.messages.create({
+  // Use streaming for long requests (required by Anthropic SDK for >10min operations)
+  const stream = await anthropic.messages.stream({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 32000,
     messages: [{ role: 'user', content: generatePrompt }]
   })
+
+  const response = await stream.finalMessage()
 
   const textContent = response.content.find(c => c.type === 'text')
   if (!textContent || textContent.type !== 'text') {
