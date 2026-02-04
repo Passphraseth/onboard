@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { PLANS, type PlanKey } from '@/lib/stripe/plans'
@@ -9,9 +9,11 @@ function CheckoutForm() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fetchingLead, setFetchingLead] = useState(true)
 
   const planKey = (searchParams.get('plan') || 'growth') as PlanKey
   const leadId = searchParams.get('lead')
+  const slug = searchParams.get('slug')
   const plan = PLANS[planKey] || PLANS.growth
 
   const [formData, setFormData] = useState({
@@ -19,6 +21,34 @@ function CheckoutForm() {
     businessName: '',
     phone: '',
   })
+
+  // Fetch lead data to pre-fill form
+  useEffect(() => {
+    async function fetchLeadData() {
+      if (!slug) {
+        setFetchingLead(false)
+        return
+      }
+
+      try {
+        const res = await fetch(`/api/preview/${slug}`)
+        if (res.ok) {
+          const data = await res.json()
+          setFormData({
+            email: data.email || '',
+            businessName: data.businessName || '',
+            phone: data.phone || '',
+          })
+        }
+      } catch (err) {
+        console.error('Failed to fetch lead data:', err)
+      } finally {
+        setFetchingLead(false)
+      }
+    }
+
+    fetchLeadData()
+  }, [slug])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,6 +65,7 @@ function CheckoutForm() {
           businessName: formData.businessName,
           phone: formData.phone,
           leadId,
+          slug,
         }),
       })
 

@@ -397,6 +397,19 @@ Create something that would win a design award. Consider:
 ❌ Predictable section ordering
 ❌ Safe, boring color choices
 ❌ Template-feeling anything
+❌ Floating decorative elements that overlap text (no floating labels, badges, or indicators over headings)
+❌ Empty placeholder boxes or colored rectangles instead of real images
+❌ CSS-only image placeholders (background-color boxes pretending to be images)
+
+## CRITICAL: IMAGES
+You MUST use real images from Unsplash. For construction/fitout businesses, use these specific URLs:
+- Hero/About: https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=80
+- Office: https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80
+- Retail: https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80
+- Medical: https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80
+- Team/About: https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80
+
+NEVER use empty divs with background colors as image placeholders. Always use <img> tags with real Unsplash URLs.
 
 ## OUTPUT
 Return ONLY the complete HTML. Start with <!DOCTYPE html>, end with </html>.

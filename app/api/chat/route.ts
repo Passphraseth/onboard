@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import Anthropic from '@anthropic-ai/sdk'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60
-
-const anthropic = new Anthropic()
 
 // Detect if message is an update request vs a question
 function isUpdateRequest(message: string): boolean {
@@ -126,42 +122,25 @@ export async function POST(request: NextRequest) {
     }
 
     let response: string
-    let siteUpdated = false
+    const siteUpdated = false
 
-    // Check if this is an actual update request
+    // Check if this is an update request
     if (isUpdateRequest(message)) {
-      // Get the site HTML
-      const { data: site } = await supabase
-        .from('client_sites')
-        .select('id, generated_html')
-        .eq('slug', slug)
-        .maybeSingle()
+      // Store the update request for later (after subscription)
+      try {
+        await supabase
+          .from('update_requests')
+          .insert({
+            lead_id: lead.id,
+            message: message,
+            status: 'pending',
+          })
 
-      if (site?.generated_html) {
-        try {
-          // Apply the update using AI
-          response = "✨ Making that change now..."
-
-          const updatedHtml = await applyUpdate(site.generated_html, message, lead.business_name)
-
-          // Save the updated HTML
-          await supabase
-            .from('client_sites')
-            .update({
-              generated_html: updatedHtml,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', site.id)
-
-          response = `✅ Done! I've made that change. Refresh the preview to see the update.\n\nAnything else you'd like to adjust?`
-          siteUpdated = true
-
-        } catch (updateError) {
-          console.error('Update error:', updateError)
-          response = `I understood your request but had trouble applying it. Could you try rephrasing? For example:\n\n• "Change the headline to [your text]"\n• "Make the primary color #1a1a1a"\n• "Add a service called [name]"`
-        }
-      } else {
-        response = `Your site hasn't been generated yet. Type "generate my site" to create it first!`
+        response = `✅ Got it! I've noted your request:\n\n"${message}"\n\nThis change will be applied when your site goes live. Want to adjust anything else before choosing a plan?`
+      } catch (e) {
+        console.log('Could not save update request:', e)
+        // Still give a helpful response even if we couldn't save
+        response = `I've noted that you'd like to "${message}". This will be applied when your site goes live.\n\nAnything else you'd like to change?`
       }
     } else {
       // It's a question or conversation - use the rule-based responses
@@ -195,92 +174,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Apply an update to the site HTML using AI
-async function applyUpdate(currentHtml: string, updateRequest: string, businessName: string): Promise<string> {
-  // Detect vague design requests and provide guidance
-  const isVagueDesignRequest = /more\s*(clean|minimal|modern|professional|elegant|sleek|fineline|fine line|simple|sophisticated)/i.test(updateRequest)
-
-  const designGuidance = isVagueDesignRequest ? `
-## DESIGN DIRECTION: Clean, Minimal, Modern
-The user wants a cleaner/more refined aesthetic. Apply these specific changes:
-
-**Spacing & Layout:**
-- Increase section padding to 80-120px top/bottom
-- Add more breathing room between elements (24-32px gaps)
-- Use max-width containers (1200px) with generous margins
-
-**Typography:**
-- Increase body line-height to 1.7-1.8
-- Use lighter font weights (300-400) for body text
-- Make headings bolder but with more letter-spacing
-- Ensure strong hierarchy with clear size differences
-
-**Colors & Borders:**
-- Reduce color saturation - use muted, sophisticated tones
-- Replace heavy borders with subtle 1px lines or shadows
-- Use subtle background color shifts between sections instead of hard dividers
-- Ensure high contrast for readability
-
-**Visual Simplification:**
-- Remove gradients, replace with solid colors
-- Remove decorative icons/emojis
-- Simplify buttons - clean rectangles with subtle hover states
-- Use elegant transitions (0.3s ease)
-
-Make these changes comprehensively throughout the entire site.
-` : ''
-
-  // Use Sonnet for quality - design changes need nuance
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 16000,
-    messages: [
-      {
-        role: 'user',
-        content: `You are an expert web designer updating a website for ${businessName}.
-
-YOUR TASK: Apply the requested changes thoughtfully. Make the changes visible and impactful.
-${designGuidance}
-RULES:
-1. Make meaningful, visible changes - the user should immediately notice the difference
-2. Maintain professional quality throughout
-3. Keep all content, contact info, and functionality intact
-4. Return ONLY the complete HTML - no markdown code blocks, no explanations
-
-CURRENT WEBSITE HTML:
-${currentHtml}
-
-USER'S REQUESTED CHANGE:
-"${updateRequest}"
-
-Return the complete updated HTML starting with <!DOCTYPE html>:`
-      }
-    ]
-  })
-
-  const content = response.content[0]
-  if (content.type !== 'text') {
-    throw new Error('No response from AI')
-  }
-
-  let html = content.text.trim()
-
-  // Clean up any markdown if present
-  if (html.startsWith('```')) {
-    html = html.replace(/^```(?:html)?\n?/, '').replace(/\n?```$/, '')
-  }
-
-  // Validate it starts with doctype
-  if (!html.toLowerCase().startsWith('<!doctype')) {
-    const doctypeIndex = html.toLowerCase().indexOf('<!doctype')
-    if (doctypeIndex > -1) {
-      html = html.substring(doctypeIndex)
-    }
-  }
-
-  return html
 }
 
 function generateResponse(userMessage: string, businessName: string): string {

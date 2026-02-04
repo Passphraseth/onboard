@@ -36,6 +36,8 @@ export async function GET(
       leadId: lead.id,
       businessName: lead.business_name,
       slug: lead.slug,
+      email: lead.email,
+      phone: lead.phone,
       content: site?.content || {
         businessName: lead.business_name,
         tagline: `Professional services in ${lead.suburb || 'Melbourne'}`,

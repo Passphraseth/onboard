@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, Suspense } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Message {
@@ -17,18 +17,27 @@ interface SiteStatus {
   isGenerating: boolean
 }
 
+const PLANS = {
+  starter: { name: 'Starter', price: 29, features: ['Single page website', 'Mobile responsive', '2 updates/month', 'yourname.onboard.site domain'] },
+  growth: { name: 'Growth', price: 49, features: ['Up to 5 pages', 'Custom domain included', '5 updates/month', 'Booking widget', 'Instagram feed'] },
+  pro: { name: 'Pro', price: 79, features: ['Unlimited pages', 'Priority support', 'Unlimited updates', 'Payment integration', 'Advanced analytics'] },
+}
+
 function ClaimPageContent() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const slug = params.slug as string
 
   const [loading, setLoading] = useState(true)
   const [businessName, setBusinessName] = useState('')
+  const [leadId, setLeadId] = useState<string | null>(null)
   const [siteStatus, setSiteStatus] = useState<SiteStatus>({ exists: false, hasGeneratedHtml: false, isGenerating: false })
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [sending, setSending] = useState(false)
   const [mobileView, setMobileView] = useState<'chat' | 'preview'>('chat')
   const [iframeKey, setIframeKey] = useState(0)
+  const [showPricing, setShowPricing] = useState(searchParams.get('tab') === 'pricing')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Scroll to bottom of messages
@@ -44,11 +53,12 @@ function ClaimPageContent() {
   useEffect(() => {
     async function init() {
       try {
-        // Get business info
+        // Get business info and lead ID
         const previewRes = await fetch(`/api/preview/${slug}`)
         if (previewRes.ok) {
           const previewData = await previewRes.json()
           setBusinessName(previewData.businessName || formatSlug(slug))
+          if (previewData.leadId) setLeadId(previewData.leadId)
         } else {
           setBusinessName(formatSlug(slug))
         }
@@ -206,9 +216,9 @@ function ClaimPageContent() {
           <span className="text-sm opacity-70 hidden sm:block">Customizing</span>
           <span className="font-bold text-brand-lime">{businessName}</span>
         </div>
-        <Link href={`/claim/${slug}?tab=pricing`} className="btn btn-lime text-sm py-2 px-4 hidden md:flex">
+        <button onClick={() => setShowPricing(true)} className="btn btn-lime text-sm py-2 px-4 hidden md:flex">
           Choose Plan →
-        </Link>
+        </button>
       </header>
 
       {/* Mobile Toggle */}
@@ -396,10 +406,108 @@ function ClaimPageContent() {
 
       {/* Mobile CTA */}
       <div className="md:hidden p-4 border-t border-white/10">
-        <Link href={`/claim/${slug}?tab=pricing`} className="btn btn-lime w-full justify-center">
+        <button onClick={() => setShowPricing(true)} className="btn btn-lime w-full justify-center">
           Choose Plan & Go Live →
-        </Link>
+        </button>
       </div>
+
+      {/* Pricing Modal */}
+      {showPricing && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111] border border-white/10 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-white/10">
+              <div>
+                <h2 className="text-2xl font-bold">Choose Your Plan</h2>
+                <p className="text-neutral-400 text-sm mt-1">Go live with {businessName}</p>
+              </div>
+              <button
+                onClick={() => setShowPricing(false)}
+                className="text-neutral-400 hover:text-white text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Plans */}
+            <div className="p-6 grid md:grid-cols-3 gap-4">
+              {/* Starter */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <div className="text-neutral-400 text-sm mb-1">Starter</div>
+                <div className="text-3xl font-bold mb-1">
+                  $29<span className="text-lg text-neutral-500">/mo</span>
+                </div>
+                <div className="text-neutral-500 text-sm mb-6">Get online quickly</div>
+                <ul className="space-y-2 mb-6">
+                  {PLANS.starter.features.map((f) => (
+                    <li key={f} className="text-sm text-neutral-400 flex gap-2">
+                      <span className="text-brand-lime">✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/checkout?plan=starter&slug=${slug}${leadId ? `&lead=${leadId}` : ''}`}
+                  className="btn btn-secondary w-full justify-center"
+                >
+                  Get Started
+                </Link>
+              </div>
+
+              {/* Growth - Featured */}
+              <div className="bg-white/5 border-2 border-brand-lime rounded-xl p-6 relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-lime text-black px-3 py-1 rounded-full text-xs font-bold">
+                  Most Popular
+                </div>
+                <div className="text-neutral-400 text-sm mb-1">Growth</div>
+                <div className="text-3xl font-bold mb-1">
+                  $49<span className="text-lg text-neutral-500">/mo</span>
+                </div>
+                <div className="text-neutral-500 text-sm mb-6">Best for growing businesses</div>
+                <ul className="space-y-2 mb-6">
+                  {PLANS.growth.features.map((f) => (
+                    <li key={f} className="text-sm text-neutral-400 flex gap-2">
+                      <span className="text-brand-lime">✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/checkout?plan=growth&slug=${slug}${leadId ? `&lead=${leadId}` : ''}`}
+                  className="btn btn-lime w-full justify-center"
+                >
+                  Get Started
+                </Link>
+              </div>
+
+              {/* Pro */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <div className="text-neutral-400 text-sm mb-1">Pro</div>
+                <div className="text-3xl font-bold mb-1">
+                  $79<span className="text-lg text-neutral-500">/mo</span>
+                </div>
+                <div className="text-neutral-500 text-sm mb-6">For established businesses</div>
+                <ul className="space-y-2 mb-6">
+                  {PLANS.pro.features.map((f) => (
+                    <li key={f} className="text-sm text-neutral-400 flex gap-2">
+                      <span className="text-brand-lime">✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/checkout?plan=pro&slug=${slug}${leadId ? `&lead=${leadId}` : ''}`}
+                  className="btn btn-secondary w-full justify-center"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+
+            {/* Footer note */}
+            <div className="p-6 pt-0 text-center text-neutral-500 text-sm">
+              All plans include hosting, SSL, and 24/7 support. Cancel anytime.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
