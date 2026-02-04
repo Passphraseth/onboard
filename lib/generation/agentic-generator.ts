@@ -171,10 +171,9 @@ export async function generateAgenticSite(input: AgenticInput): Promise<AgenticR
 
 /**
  * PHASE 1: Research competitors using AI to understand the industry
+ * Uses Haiku for speed - this phase needs to be fast
  */
 async function researchCompetitorsWithAI(input: AgenticInput): Promise<string> {
-  const searchQuery = `${input.businessType} ${input.location} Australia`
-
   // Build context about what we know
   const businessContext = `
 Business: ${input.businessName}
@@ -188,43 +187,24 @@ User's preferred tone: ${input.preferredTone || 'Not specified'}
 User's preferred colors: ${input.preferredColors?.join(', ') || 'Not specified'}
   `.trim()
 
-  const researchPrompt = `You are a web design researcher analyzing the ${input.businessType} industry in ${input.location}, Australia.
+  const researchPrompt = `You are a web design researcher. Quickly analyze ${input.businessType} websites in ${input.location}, Australia.
 
-BUSINESS CONTEXT:
-${businessContext}
+BUSINESS: ${businessContext}
 
-YOUR TASK:
-Research and analyze what makes successful ${input.businessType} websites in Australia. Consider:
+Provide CONCISE recommendations for:
+1. Color palette (5 hex codes: primary, secondary, accent, background, text)
+2. Fonts (Google Fonts: heading + body)
+3. Key sections to include
+4. Unique angle for ${input.businessName}
 
-1. **Visual Design Trends**
-   - What color schemes work best for this industry? (Be specific with hex codes)
-   - What typography styles convey the right tone?
-   - What layout patterns are most effective?
+${input.preferredColors?.length ? `Use these colors: ${input.preferredColors.join(', ')}` : ''}
+${input.preferredTone ? `Tone: ${input.preferredTone}` : ''}
 
-2. **Content Strategy**
-   - What key sections do successful sites include?
-   - What trust signals matter most to customers?
-   - What calls-to-action convert best?
-
-3. **Brand Positioning**
-   - How do top competitors differentiate themselves?
-   - What tone of voice resonates with the target audience?
-   - What imagery style works best?
-
-4. **Unique Opportunities for ${input.businessName}**
-   - Based on their services (${input.services?.join(', ') || 'general services'}), what should they emphasize?
-   - How can they stand out from competitors?
-   - What's a unique angle for their website?
-
-${input.instagram ? `They have Instagram @${input.instagram} - consider how to incorporate that social presence.` : ''}
-${input.preferredTone ? `The client prefers a "${input.preferredTone}" tone - factor this into recommendations.` : ''}
-${input.preferredColors?.length ? `The client has color preferences: ${input.preferredColors.join(', ')} - incorporate these.` : ''}
-
-Provide detailed, actionable insights that will inform a unique website design. Be specific with colors (hex codes), font recommendations (Google Fonts), and layout suggestions.`
+Be brief but specific. Output should be under 500 words.`
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 2000,
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1000,
     messages: [{ role: 'user', content: researchPrompt }]
   })
 
@@ -234,77 +214,35 @@ Provide detailed, actionable insights that will inform a unique website design. 
 
 /**
  * PHASE 2: Create a unique design brief based on research
+ * Uses Haiku for speed - brief doesn't need to be super detailed
  */
 async function createDesignBrief(input: AgenticInput, competitorInsights: string): Promise<string> {
-  const briefPrompt = `You are a senior web designer creating a design brief for ${input.businessName}.
+  const briefPrompt = `Create a concise design brief for ${input.businessName} (${input.businessType} in ${input.location}).
 
-BUSINESS INFORMATION:
-- Name: ${input.businessName}
-- Type: ${input.businessType}
-- Location: ${input.location}
-- Phone: ${input.phone || 'Not provided'}
-- Email: ${input.email || 'Not provided'}
-- Address: ${input.address || 'Not provided'}
-- Hours: ${input.hours || 'Not provided'}
-- Instagram: ${input.instagram ? `@${input.instagram}` : 'Not provided'}
-- Facebook: ${input.facebook || 'Not provided'}
+BUSINESS INFO:
+- Phone: ${input.phone || 'N/A'} | Email: ${input.email || 'N/A'}
+- Address: ${input.address || 'N/A'} | Hours: ${input.hours || 'N/A'}
+- Instagram: ${input.instagram ? `@${input.instagram}` : 'N/A'}
+- Services: ${input.services?.join(', ') || 'General services'}
+- USPs: ${input.uniqueSellingPoints?.join(', ') || 'Quality service'}
+- Tone: ${input.preferredTone || 'Professional'}
+- Colors: ${input.preferredColors?.join(', ') || 'Choose based on industry'}
 
-SERVICES OFFERED:
-${input.services?.map(s => `- ${s}`).join('\n') || '- General services'}
-
-TARGET CUSTOMERS:
-${input.targetCustomers?.join(', ') || 'General public'}
-
-UNIQUE SELLING POINTS:
-${input.uniqueSellingPoints?.join(', ') || 'Quality service'}
-
-ADDITIONAL NOTES FROM CLIENT:
-${input.additionalNotes || 'None'}
-
-CLIENT PREFERENCES:
-- Preferred tone: ${input.preferredTone || 'Professional'}
-- Preferred colors: ${input.preferredColors?.join(', ') || 'No preference - choose based on industry'}
-${input.logoUrl ? `- Has logo: ${input.logoUrl}` : '- No logo provided'}
-
-COMPETITOR/INDUSTRY RESEARCH:
+RESEARCH INSIGHTS:
 ${competitorInsights}
 
----
+OUTPUT A BRIEF DESIGN SPEC:
+1. COLORS: 5 hex codes (primary, secondary, accent, background, text)
+2. FONTS: Google Fonts (heading + body)
+3. HERO: Style (full-bleed/split/minimal) + headline suggestion
+4. SECTIONS: List in order with one-line purpose
+5. CTA: Primary call-to-action text
 
-Create a detailed DESIGN BRIEF that includes:
-
-## 1. BRAND IDENTITY
-- Exact color palette (provide 5 hex codes: primary, secondary, accent, background, text)
-- Typography (heading font and body font from Google Fonts)
-- Overall visual style and mood
-
-## 2. LAYOUT ARCHITECTURE
-- Hero section design (be specific: full-bleed image? split layout? minimal text-focused?)
-- Navigation style
-- Section order and purpose
-- Footer design
-
-## 3. CONTENT STRATEGY
-- Headline and tagline suggestions (provide 2-3 options)
-- Key messages for each section
-- Call-to-action text and placement
-- Trust signals to include
-
-## 4. VISUAL ELEMENTS
-- Image style recommendations (what kind of photos?)
-- Icon style (outline, solid, custom illustrations?)
-- Spacing and whitespace approach
-- Any unique design elements that will make this site stand out
-
-## 5. DIFFERENTIATORS
-- What makes THIS design unique from typical ${input.businessType} websites?
-- Specific creative decisions that reflect ${input.businessName}'s brand
-
-Be extremely specific. This brief will be used to generate the actual HTML/CSS, so include exact values, fonts, colors, and detailed descriptions.`
+Keep response under 400 words. Be specific with hex codes and font names.`
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 3000,
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1000,
     messages: [{ role: 'user', content: briefPrompt }]
   })
 
@@ -381,10 +319,10 @@ Based on the design brief, include appropriate sections. Typical structure:
 Return ONLY the complete HTML document. Start with <!DOCTYPE html> and end with </html>.
 No explanations, no markdown code blocks - just the raw HTML.`
 
-  // Use streaming for long requests (required by Anthropic SDK for >10min operations)
+  // Use streaming for the HTML generation (main quality phase)
   const stream = await anthropic.messages.stream({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 32000,
+    max_tokens: 16000,
     messages: [{ role: 'user', content: generatePrompt }]
   })
 

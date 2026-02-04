@@ -201,10 +201,10 @@ export async function generateAndSaveSite(input: GenerationInput): Promise<Gener
 async function generateDataDrivenSite(profile: BrandProfile): Promise<string> {
   const prompt = buildDataDrivenPrompt(profile)
 
-  // Use streaming for long requests (required by Anthropic SDK for >10min operations)
+  // Use streaming for the HTML generation
   const stream = await anthropic.messages.stream({
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 32000,
+    max_tokens: 16000,
     messages: [
       {
         role: 'user',
