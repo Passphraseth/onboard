@@ -358,15 +358,27 @@ Create something that would win a design award. Consider:
    - Consider dark mode aesthetic if appropriate
 
 4. **MICRO-INTERACTIONS** - CSS-only polish:
-   - Creative hover transforms
-   - Smooth transitions (0.3-0.5s)
-   - Subtle scale/translate effects
+   - Creative hover transforms (scale, translateY, rotate)
+   - Smooth transitions (0.3-0.5s cubic-bezier)
+   - Subtle scale/translate effects on cards
    - Border and shadow animations
+   - Button hover states that feel premium
 
 5. **VISUAL HIERARCHY** - Guide the eye:
    - Clear focal points per section
-   - Breathing room between elements
+   - Breathing room between elements (80-120px section padding)
    - Strategic contrast
+
+6. **PREMIUM DETAILS** - The 30% that makes it exceptional:
+   - Sophisticated box-shadows (layered, not basic)
+   - Custom CSS properties for consistent theming
+   - Refined form inputs with focus states
+   - Elegant link underline animations
+   - Subtle background textures or patterns where appropriate
+   - Professional image treatments (object-fit, aspect ratios)
+   - Careful attention to mobile typography scaling
+   - Scroll-snap for sections if appropriate
+   - ::selection styling for brand colors
 
 ## TECHNICAL REQUIREMENTS
 - Single-page site with anchor navigation (href="#section")
@@ -390,10 +402,10 @@ Create something that would win a design award. Consider:
 Return ONLY the complete HTML. Start with <!DOCTYPE html>, end with </html>.
 No markdown, no explanations - just exceptional HTML/CSS.`
 
-  // Use streaming for the HTML generation (main quality phase)
+  // Use Opus for highest quality output - worth the extra cost/time for initial generation
   const stream = await anthropic.messages.stream({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 16000,
+    model: 'claude-opus-4-20250514',
+    max_tokens: 24000,
     messages: [{ role: 'user', content: generatePrompt }]
   })
 
