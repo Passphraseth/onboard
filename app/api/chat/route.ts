@@ -199,27 +199,63 @@ export async function POST(request: NextRequest) {
 
 // Apply an update to the site HTML using AI
 async function applyUpdate(currentHtml: string, updateRequest: string, businessName: string): Promise<string> {
+  // Detect vague design requests and provide guidance
+  const isVagueDesignRequest = /more\s*(clean|minimal|modern|professional|elegant|sleek|fineline|fine line|simple|sophisticated)/i.test(updateRequest)
+
+  const designGuidance = isVagueDesignRequest ? `
+## DESIGN DIRECTION: Clean, Minimal, Modern
+The user wants a cleaner/more refined aesthetic. Apply these specific changes:
+
+**Spacing & Layout:**
+- Increase section padding to 80-120px top/bottom
+- Add more breathing room between elements (24-32px gaps)
+- Use max-width containers (1200px) with generous margins
+
+**Typography:**
+- Increase body line-height to 1.7-1.8
+- Use lighter font weights (300-400) for body text
+- Make headings bolder but with more letter-spacing
+- Ensure strong hierarchy with clear size differences
+
+**Colors & Borders:**
+- Reduce color saturation - use muted, sophisticated tones
+- Replace heavy borders with subtle 1px lines or shadows
+- Use subtle background color shifts between sections instead of hard dividers
+- Ensure high contrast for readability
+
+**Visual Simplification:**
+- Remove gradients, replace with solid colors
+- Remove decorative icons/emojis
+- Simplify buttons - clean rectangles with subtle hover states
+- Use elegant transitions (0.3s ease)
+
+Make these changes comprehensively throughout the entire site.
+` : ''
+
+  // Use Sonnet for quality - design changes need nuance
   const response = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 16000,
     messages: [
       {
         role: 'user',
-        content: `You are updating a website for ${businessName}. Apply ONLY the requested change. Return the complete updated HTML.
+        content: `You are an expert web designer updating a website for ${businessName}.
 
+YOUR TASK: Apply the requested changes thoughtfully. Make the changes visible and impactful.
+${designGuidance}
 RULES:
-1. ONLY change what is specifically requested - nothing else
-2. Preserve all existing design, colors, fonts, and structure
-3. Keep the HTML valid and complete
-4. Return ONLY the HTML - no markdown, no explanations, no code blocks
+1. Make meaningful, visible changes - the user should immediately notice the difference
+2. Maintain professional quality throughout
+3. Keep all content, contact info, and functionality intact
+4. Return ONLY the complete HTML - no markdown code blocks, no explanations
 
-CURRENT HTML:
+CURRENT WEBSITE HTML:
 ${currentHtml}
 
-REQUESTED CHANGE:
-${updateRequest}
+USER'S REQUESTED CHANGE:
+"${updateRequest}"
 
-UPDATED HTML:`
+Return the complete updated HTML starting with <!DOCTYPE html>:`
       }
     ]
   })
