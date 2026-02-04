@@ -1,7 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import Anthropic from '@anthropic-ai/sdk'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+const anthropic = new Anthropic()
+
+// Detect if message is an update request vs a question
+function isUpdateRequest(message: string): boolean {
+  const msg = message.toLowerCase()
+
+  // Questions - not updates
+  if (msg.match(/^(what|how|why|when|where|who|can you|could you|would you|is it|are there|do you|does|will)\b/)) {
+    // But "can you change" IS an update
+    if (!msg.match(/change|update|make|add|remove|edit|fix|modify/)) {
+      return false
+    }
+  }
+
+  // Clear update indicators
+  const updatePatterns = [
+    /change\s+(the|my|this)/i,
+    /update\s+(the|my|this)/i,
+    /make\s+(the|it|this)/i,
+    /add\s+(a|an|the|my)/i,
+    /remove\s+(the|my|this)/i,
+    /delete\s+(the|my|this)/i,
+    /edit\s+(the|my|this)/i,
+    /fix\s+(the|my|this)/i,
+    /replace\s+(the|my|this)/i,
+    /set\s+(the|my|this)/i,
+    /use\s+(#|rgb|this color|these colors)/i,
+    /colou?r.*to\s+/i,
+    /font.*to\s+/i,
+    /text.*to\s+["']/i,
+  ]
+
+  return updatePatterns.some(p => p.test(msg))
+}
 
 // Get chat messages for a lead
 export async function GET(request: NextRequest) {
@@ -64,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Get lead by slug
+    // Get lead and site by slug
     const { data: lead } = await supabase
       .from('leads')
       .select('id, business_name')
@@ -75,7 +112,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    // Try to save the user's message (don't fail if table doesn't exist)
+    // Try to save the user's message
     try {
       await supabase
         .from('chat_messages')
@@ -88,10 +125,50 @@ export async function POST(request: NextRequest) {
       console.log('Could not save user message:', e)
     }
 
-    // Generate intelligent response
-    const response = generateResponse(message, lead.business_name)
+    let response: string
+    let siteUpdated = false
 
-    // Try to save the assistant's response
+    // Check if this is an actual update request
+    if (isUpdateRequest(message)) {
+      // Get the site HTML
+      const { data: site } = await supabase
+        .from('client_sites')
+        .select('id, generated_html')
+        .eq('slug', slug)
+        .maybeSingle()
+
+      if (site?.generated_html) {
+        try {
+          // Apply the update using AI
+          response = "✨ Making that change now..."
+
+          const updatedHtml = await applyUpdate(site.generated_html, message, lead.business_name)
+
+          // Save the updated HTML
+          await supabase
+            .from('client_sites')
+            .update({
+              generated_html: updatedHtml,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', site.id)
+
+          response = `✅ Done! I've made that change. Refresh the preview to see the update.\n\nAnything else you'd like to adjust?`
+          siteUpdated = true
+
+        } catch (updateError) {
+          console.error('Update error:', updateError)
+          response = `I understood your request but had trouble applying it. Could you try rephrasing? For example:\n\n• "Change the headline to [your text]"\n• "Make the primary color #1a1a1a"\n• "Add a service called [name]"`
+        }
+      } else {
+        response = `Your site hasn't been generated yet. Type "generate my site" to create it first!`
+      }
+    } else {
+      // It's a question or conversation - use the rule-based responses
+      response = generateResponse(message, lead.business_name)
+    }
+
+    // Save the assistant's response
     try {
       await supabase
         .from('chat_messages')
@@ -109,6 +186,7 @@ export async function POST(request: NextRequest) {
         sender: 'assistant',
         message: response,
       },
+      siteUpdated,
     })
   } catch (error) {
     console.error('Chat POST error:', error)
@@ -117,6 +195,56 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// Apply an update to the site HTML using AI
+async function applyUpdate(currentHtml: string, updateRequest: string, businessName: string): Promise<string> {
+  const response = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 16000,
+    messages: [
+      {
+        role: 'user',
+        content: `You are updating a website for ${businessName}. Apply ONLY the requested change. Return the complete updated HTML.
+
+RULES:
+1. ONLY change what is specifically requested - nothing else
+2. Preserve all existing design, colors, fonts, and structure
+3. Keep the HTML valid and complete
+4. Return ONLY the HTML - no markdown, no explanations, no code blocks
+
+CURRENT HTML:
+${currentHtml}
+
+REQUESTED CHANGE:
+${updateRequest}
+
+UPDATED HTML:`
+      }
+    ]
+  })
+
+  const content = response.content[0]
+  if (content.type !== 'text') {
+    throw new Error('No response from AI')
+  }
+
+  let html = content.text.trim()
+
+  // Clean up any markdown if present
+  if (html.startsWith('```')) {
+    html = html.replace(/^```(?:html)?\n?/, '').replace(/\n?```$/, '')
+  }
+
+  // Validate it starts with doctype
+  if (!html.toLowerCase().startsWith('<!doctype')) {
+    const doctypeIndex = html.toLowerCase().indexOf('<!doctype')
+    if (doctypeIndex > -1) {
+      html = html.substring(doctypeIndex)
+    }
+  }
+
+  return html
 }
 
 function generateResponse(userMessage: string, businessName: string): string {

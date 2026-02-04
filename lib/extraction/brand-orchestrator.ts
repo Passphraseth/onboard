@@ -148,7 +148,8 @@ export async function extractBrandProfile(input: ExtractionInput): Promise<Brand
     input.instagramUsername ? analyzeInstagram(input.instagramUsername) : Promise.resolve(null),
 
     // Analyze competitors (from search results or provided URLs)
-    extractCompetitorPatterns(input.businessType, input.location, input.competitorUrls),
+    // Pass services to make search more specific (e.g., "commercial fitouts" instead of just "construction")
+    extractCompetitorPatterns(input.businessType, input.location, input.competitorUrls, input.services),
   ])
 
   // Log what we found
@@ -177,7 +178,8 @@ export async function extractBrandProfile(input: ExtractionInput): Promise<Brand
 async function extractCompetitorPatterns(
   businessType: string,
   location: string,
-  providedUrls?: string[]
+  providedUrls?: string[],
+  services?: string[]
 ): Promise<CompetitorPatterns | null> {
   // If URLs provided directly, use those
   if (providedUrls && providedUrls.length > 0) {
@@ -193,7 +195,12 @@ async function extractCompetitorPatterns(
   }
 
   try {
-    const searchQuery = `${businessType} ${location} Australia`
+    // Build a more specific search query using services if available
+    // e.g., "commercial fitouts Melbourne Australia" instead of just "construction Melbourne Australia"
+    const primaryService = services && services.length > 0 ? services[0] : null
+    const searchQuery = primaryService
+      ? `${primaryService} ${businessType} ${location} Australia`
+      : `${businessType} ${location} Australia`
     console.log(`Searching for competitors: "${searchQuery}"`)
 
     const serpResponse = await fetch(

@@ -169,6 +169,10 @@ function ClaimPageContent() {
               timestamp: new Date()
             }])
           }
+          // Auto-refresh preview if site was updated
+          if (data.siteUpdated) {
+            setIframeKey(k => k + 1)
+          }
         }
       }
     } catch (error) {
@@ -224,9 +228,9 @@ function ClaimPageContent() {
       </div>
 
       {/* Main Content - Two Column */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Left Column - Chat */}
-        <div className={`w-full md:w-[400px] lg:w-[450px] flex flex-col border-r border-white/10 bg-[#0a0a0a] ${mobileView !== 'chat' ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-[400px] lg:w-[450px] flex flex-col border-r border-white/10 bg-[#0a0a0a] min-h-0 ${mobileView !== 'chat' ? 'hidden md:flex' : 'flex'}`}>
           {/* Chat Header */}
           <div className="p-4 border-b border-white/10">
             <h2 className="font-bold text-lg">Customize Your Site ✨</h2>
