@@ -30,11 +30,20 @@ export async function GET(request: NextRequest) {
     const leadId = metadata.lead_id
     const businessName = metadata.business_name || ''
     const plan = metadata.plan || 'starter'
+    const metadataSlug = metadata.slug || ''
+
+    // Extract Stripe IDs
+    const stripeCustomerId = typeof session.customer === 'string'
+      ? session.customer
+      : session.customer?.id || null
+    const stripeSubscriptionId = typeof session.subscription === 'string'
+      ? session.subscription
+      : (session.subscription as { id?: string })?.id || null
 
     const supabase = createAdminClient()
 
     // Get the lead and site info
-    let slug = ''
+    let slug = metadataSlug
     if (leadId) {
       // First get the lead to get the slug
       const { data: existingLead } = await supabase
@@ -45,29 +54,34 @@ export async function GET(request: NextRequest) {
 
       slug = existingLead?.slug || ''
 
-      // Try to update lead status - some columns may not exist
-      try {
-        await supabase
-          .from('leads')
-          .update({
-            status: 'subscribed'
-          })
-          .eq('id', leadId)
-      } catch (e) {
-        console.log('Could not update lead status:', e)
+      // Update lead with subscription info
+      const { error: leadError } = await supabase
+        .from('leads')
+        .update({
+          status: 'subscribed',
+          stripe_customer_id: stripeCustomerId,
+          stripe_subscription_id: stripeSubscriptionId,
+          plan
+        })
+        .eq('id', leadId)
+
+      if (leadError) {
+        console.error('Could not update lead:', leadError)
       }
 
       // Also update client_sites if it exists
       if (slug) {
-        try {
-          await supabase
-            .from('client_sites')
-            .update({
-              status: 'active'
-            })
-            .eq('slug', slug)
-        } catch (e) {
-          console.log('Could not update client_sites:', e)
+        const { error: siteError } = await supabase
+          .from('client_sites')
+          .update({
+            status: 'active',
+            stripe_customer_id: stripeCustomerId,
+            stripe_subscription_id: stripeSubscriptionId
+          })
+          .eq('slug', slug)
+
+        if (siteError) {
+          console.error('Could not update client_sites:', siteError)
         }
       }
     }

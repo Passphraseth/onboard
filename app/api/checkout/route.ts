@@ -8,6 +8,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { plan, email, businessName, phone, leadId } = body
 
+    // Get the app URL from environment or derive from request
+    const origin = request.headers.get('origin') || request.headers.get('referer')?.split('/').slice(0, 3).join('/') || ''
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin || 'https://www.onboard.com.au'
+
     // Validate plan
     if (!plan || !PLANS[plan as PlanKey]) {
       return NextResponse.json(
@@ -72,12 +76,13 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/welcome?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?plan=${plan}`,
+      success_url: `${appUrl}/welcome?session_id={CHECKOUT_SESSION_ID}&slug=${slug}`,
+      cancel_url: `${appUrl}/checkout?plan=${plan}&slug=${slug}`,
       subscription_data: {
         metadata: {
           lead_id: lead?.id || '',
           business_name: businessName,
+          slug,
           phone: phone || '',
           plan,
         },
@@ -85,6 +90,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         lead_id: lead?.id || '',
         business_name: businessName,
+        slug,
         phone: phone || '',
         plan,
       },

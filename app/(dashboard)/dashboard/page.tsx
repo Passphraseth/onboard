@@ -1,81 +1,88 @@
 'use client'
 
 import { Suspense, useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-interface CustomerData {
+interface UserData {
   id: string
-  firstName: string
-  businessName: string
   email: string
-  phone?: string
+  businessName: string
+  slug: string
   plan: string
   status: string
-  siteUrl: string
-  slug: string
-  accessToken?: string
+}
+
+interface SiteData {
+  id: string
+  status: string
+  hasContent: boolean
 }
 
 interface UpdateRequest {
   id: string
   message: string
-  type: string
   status: string
   created_at: string
-  completed_at?: string
 }
 
-interface DashboardData {
-  customer: CustomerData
-  updates: UpdateRequest[]
-  stats: {
-    updatesUsed: number
-    updatesLimit: number
-    status: string
-  }
+interface SessionData {
+  authenticated: boolean
+  user: UserData
+  site: SiteData | null
+  updateRequests: number
 }
 
 function DashboardContent() {
-  const searchParams = useSearchParams()
-  const leadId = searchParams.get('id')
-  const email = searchParams.get('email')
-
-  const [data, setData] = useState<DashboardData | null>(null)
+  const router = useRouter()
+  const [session, setSession] = useState<SessionData | null>(null)
+  const [updates, setUpdates] = useState<UpdateRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [updateMessage, setUpdateMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
 
   useEffect(() => {
-    async function fetchData() {
+    async function checkAuth() {
       try {
-        const params = new URLSearchParams()
-        if (leadId) params.set('leadId', leadId)
-        if (email) params.set('email', email)
-
-        const res = await fetch(`/api/dashboard?${params}`)
+        const res = await fetch('/api/auth/session')
         if (res.ok) {
-          const dashboardData = await res.json()
-          setData(dashboardData)
+          const data = await res.json()
+          if (data.authenticated) {
+            setSession(data)
+            // Fetch update requests
+            fetchUpdates(data.user.id)
+          } else {
+            router.push('/login')
+          }
+        } else {
+          router.push('/login')
         }
-      } catch (error) {
-        console.error('Error fetching dashboard:', error)
+      } catch {
+        router.push('/login')
       } finally {
         setLoading(false)
       }
     }
 
-    if (leadId || email) {
-      fetchData()
-    } else {
-      setLoading(false)
+    checkAuth()
+  }, [router])
+
+  async function fetchUpdates(leadId: string) {
+    try {
+      const res = await fetch(`/api/updates?leadId=${leadId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setUpdates(data.updates || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch updates:', error)
     }
-  }, [leadId, email])
+  }
 
   const handleSubmitUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!updateMessage.trim() || !data?.customer) return
+    if (!updateMessage.trim() || !session?.user) return
 
     setSending(true)
     setSubmitSuccess(false)
@@ -85,7 +92,7 @@ function DashboardContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          leadId: data.customer.id,
+          leadId: session.user.id,
           message: updateMessage,
         }),
       })
@@ -93,12 +100,7 @@ function DashboardContent() {
       if (res.ok) {
         setSubmitSuccess(true)
         setUpdateMessage('')
-        // Refresh data
-        const refreshRes = await fetch(`/api/dashboard?leadId=${data.customer.id}`)
-        if (refreshRes.ok) {
-          const newData = await refreshRes.json()
-          setData(newData)
-        }
+        fetchUpdates(session.user.id)
       }
     } catch (error) {
       console.error('Failed to send update:', error)
@@ -107,77 +109,35 @@ function DashboardContent() {
     }
   }
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/session', { method: 'DELETE' })
+    router.push('/login')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-4 animate-pulse">📊</div>
+          <div className="w-8 h-8 border-2 border-brand-lime border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <div className="text-lg opacity-70">Loading your dashboard...</div>
         </div>
       </div>
     )
   }
 
-  if (!leadId && !email) {
-    return (
-      <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <div className="text-6xl mb-6">🔐</div>
-          <h1 className="text-2xl font-bold mb-4">Access Your Dashboard</h1>
-          <p className="opacity-70 mb-8">
-            Enter your email address to access your dashboard. We'll send you a magic link.
-          </p>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault()
-              const formData = new FormData(e.currentTarget)
-              const email = formData.get('email') as string
-              window.location.href = `/dashboard?email=${encodeURIComponent(email)}`
-            }}
-            className="space-y-4"
-          >
-            <input
-              type="email"
-              name="email"
-              placeholder="your@email.com"
-              required
-              className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-brand-blue"
-            />
-            <button type="submit" className="btn btn-lime w-full justify-center">
-              Access Dashboard →
-            </button>
-          </form>
-          <p className="text-sm opacity-50 mt-6">
-            Don't have an account?{' '}
-            <Link href="/" className="text-brand-blue hover:underline">
-              Get started
-            </Link>
-          </p>
-        </div>
-      </div>
-    )
+  if (!session?.user) {
+    return null // Will redirect to login
   }
 
-  if (!data?.customer) {
-    return (
-      <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <div className="text-6xl mb-6">🤔</div>
-          <h1 className="text-2xl font-bold mb-4">Customer Not Found</h1>
-          <p className="opacity-70 mb-8">
-            We couldn't find a customer with that email. Please check your email or get started with a new site.
-          </p>
-          <Link href="/" className="btn btn-lime">
-            Get Started →
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  const user = session.user
+  const site = session.site
+  const siteUrl = `${user.slug}.onboard.site`
 
-  const customer = data.customer
-  const stats = data.stats
-  const updates = data.updates
+  const planLimits: Record<string, number> = {
+    starter: 2,
+    growth: 5,
+    pro: 999
+  }
 
   const planNames: Record<string, string> = {
     starter: 'Starter 🌱',
@@ -185,19 +145,25 @@ function DashboardContent() {
     pro: 'Pro 👑',
   }
 
+  const currentMonthUpdates = updates.filter(u => {
+    const date = new Date(u.created_at)
+    const now = new Date()
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+  }).length
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white flex">
       {/* Sidebar */}
-      <aside className="w-60 bg-brand-black border-r border-white/10 p-4 hidden md:block">
+      <aside className="w-60 bg-brand-black border-r border-white/10 p-4 hidden md:flex flex-col">
         <Link href="/" className="text-lg font-black block mb-8">
           Onboard 🛫
         </Link>
 
-        <nav className="space-y-1">
-          <NavItem href={`/dashboard?id=${customer.id}`} icon="📊" active>
+        <nav className="space-y-1 flex-1">
+          <NavItem href="/dashboard" icon="📊" active>
             Dashboard
           </NavItem>
-          <NavItem href={`https://${customer.siteUrl}`} icon="🌐" external>
+          <NavItem href={`/site/${user.slug}`} icon="🌐" external>
             View My Site
           </NavItem>
           <NavItem href="mailto:hello@onboard.com.au" icon="💬">
@@ -205,17 +171,23 @@ function DashboardContent() {
           </NavItem>
         </nav>
 
-        <div className="mt-8 p-4 bg-white/5 rounded-xl">
-          <div className="text-sm opacity-60 mb-1">Your Plan</div>
-          <div className="font-bold">{planNames[customer.plan] || customer.plan}</div>
-          {customer.plan !== 'pro' && (
-            <Link
-              href={`/pricing?upgrade=true&lead=${customer.id}`}
-              className="text-xs text-brand-lime hover:underline mt-2 block"
-            >
-              Upgrade →
-            </Link>
-          )}
+        <div className="mt-auto">
+          <div className="p-4 bg-white/5 rounded-xl mb-4">
+            <div className="text-sm opacity-60 mb-1">Your Plan</div>
+            <div className="font-bold">{planNames[user.plan] || user.plan}</div>
+            {user.plan !== 'pro' && (
+              <button className="text-xs text-brand-lime hover:underline mt-2 block">
+                Upgrade →
+              </button>
+            )}
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2 text-sm text-neutral-400 hover:text-white transition-colors"
+          >
+            Sign out
+          </button>
         </div>
       </aside>
 
@@ -224,18 +196,17 @@ function DashboardContent() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-black">Hey {customer.firstName}! 👋</h1>
-            <p className="text-sm opacity-60 mt-1">{customer.businessName}</p>
+            <h1 className="text-2xl font-black">Hey {user.businessName}! 👋</h1>
+            <p className="text-sm opacity-60 mt-1">{user.email}</p>
           </div>
           <div className="flex gap-3">
-            <a
-              href={`https://${customer.siteUrl}`}
+            <Link
+              href={`/site/${user.slug}`}
               target="_blank"
-              rel="noopener noreferrer"
               className="btn btn-lime text-sm py-2"
             >
               🌐 View My Site
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -244,12 +215,12 @@ function DashboardContent() {
           <StatCard
             label="Site Status"
             value={
-              stats.status === 'live' ? (
+              site?.status === 'active' ? (
                 <span className="text-emerald-400">● Live</span>
-              ) : stats.status === 'pending' ? (
-                <span className="text-yellow-400">● Pending</span>
+              ) : site?.hasContent ? (
+                <span className="text-yellow-400">● Ready</span>
               ) : (
-                <span className="text-white/60">● {stats.status}</span>
+                <span className="text-white/60">● Pending</span>
               )
             }
           />
@@ -257,11 +228,11 @@ function DashboardContent() {
             label="Updates This Month"
             value={
               <span className="text-brand-lime">
-                {stats.updatesUsed} / {stats.updatesLimit === 999 ? '∞' : stats.updatesLimit}
+                {currentMonthUpdates} / {planLimits[user.plan] === 999 ? '∞' : planLimits[user.plan]}
               </span>
             }
           />
-          <StatCard label="Your Plan" value={planNames[customer.plan] || customer.plan} />
+          <StatCard label="Your Plan" value={planNames[user.plan] || user.plan} />
         </div>
 
         {/* Quick Update */}
@@ -279,7 +250,7 @@ function DashboardContent() {
               value={updateMessage}
               onChange={(e) => setUpdateMessage(e.target.value)}
               placeholder="What do you need changed? e.g. 'Change hours to 8-5 weekdays' or 'Add a new service called Emergency Repairs'"
-              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white placeholder-white/40 outline-none focus:border-brand-blue min-h-[100px] resize-y"
+              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white placeholder-white/40 outline-none focus:border-brand-lime min-h-[100px] resize-y"
             />
             <div className="flex items-center gap-4 mt-4">
               <button
@@ -291,7 +262,7 @@ function DashboardContent() {
               </button>
               <span className="text-sm opacity-50">
                 Or email{' '}
-                <a href="mailto:hello@onboard.com.au" className="text-brand-blue hover:underline">
+                <a href="mailto:hello@onboard.com.au" className="text-brand-lime hover:underline">
                   hello@onboard.com.au
                 </a>
               </span>
@@ -356,8 +327,8 @@ function DashboardContent() {
 
         {/* Mobile nav */}
         <nav className="fixed bottom-0 left-0 right-0 bg-brand-black border-t border-white/10 p-4 flex justify-around md:hidden">
-          <MobileNavItem href={`/dashboard?id=${customer.id}`} icon="📊" label="Home" active />
-          <MobileNavItem href={`https://${customer.siteUrl}`} icon="🌐" label="Site" external />
+          <MobileNavItem href="/dashboard" icon="📊" label="Home" active />
+          <MobileNavItem href={`/site/${user.slug}`} icon="🌐" label="Site" external />
           <MobileNavItem href="mailto:hello@onboard.com.au" icon="💬" label="Help" />
         </nav>
       </main>
@@ -500,7 +471,7 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">
       <div className="text-center">
-        <div className="text-4xl mb-4 animate-pulse">📊</div>
+        <div className="w-8 h-8 border-2 border-brand-lime border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <div className="text-lg opacity-70">Loading dashboard...</div>
       </div>
     </div>
