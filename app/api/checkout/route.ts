@@ -9,9 +9,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, businessName, phone, leadId, slug: existingSlug } = body
 
-    // Get the app URL from environment or derive from request
-    const origin = request.headers.get('origin') || request.headers.get('referer')?.split('/').slice(0, 3).join('/') || ''
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin || 'https://www.onboard.com.au'
+    // Always use the canonical domain for Stripe redirect URLs
+    const appUrl = 'https://www.onboard.com.au'
 
     // Validate required fields
     if (!email || !businessName) {

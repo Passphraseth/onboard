@@ -204,7 +204,7 @@ export default function OnboardingPage() {
             : undefined,
       }
 
-      const res = await fetch('/api/preview/enhanced', {
+      const res = await fetch('/api/onboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
