@@ -168,7 +168,7 @@ export default function OnboardingPage() {
         'branding': 'COMPLETE_BRANDING',
         'services': 'COMPLETE_SERVICES',
         'usp': 'COMPLETE_USP',
-        'generating': 'SUBMIT_QUESTIONNAIRE',
+        'generating': 'COMPLETE_SIGNUP',
       }
 
       if (stepTrackingMap[currentStep]) {
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
       const result = await res.json()
 
       if (result.slug && result.leadId) {
-        trackSignupStep('SUBMIT_QUESTIONNAIRE', data.businessType)
+        trackSignupStep('COMPLETE_SIGNUP', data.businessType)
         await new Promise(resolve => setTimeout(resolve, 800))
         router.push(`/checkout?slug=${result.slug}&leadId=${result.leadId}`)
       } else {

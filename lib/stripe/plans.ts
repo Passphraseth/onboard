@@ -70,3 +70,4 @@ export const PLANS = {
 }
 
 export type AddonKey = keyof typeof ADDONS
+export type PlanKey = keyof typeof PLANS
