@@ -3,18 +3,17 @@
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { PLANS, type PlanKey } from '@/lib/stripe/plans'
+import { SETUP_FEE, MONTHLY_FEE, ADDONS, type AddonKey } from '@/lib/stripe/plans'
 
 function CheckoutForm() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fetchingLead, setFetchingLead] = useState(true)
+  const [selectedAddons, setSelectedAddons] = useState<AddonKey[]>([])
 
-  const planKey = (searchParams.get('plan') || 'growth') as PlanKey
-  const leadId = searchParams.get('lead')
+  const leadId = searchParams.get('leadId') || searchParams.get('lead')
   const slug = searchParams.get('slug')
-  const plan = PLANS[planKey] || PLANS.growth
 
   const [formData, setFormData] = useState({
     email: '',
@@ -50,6 +49,14 @@ function CheckoutForm() {
     fetchLeadData()
   }, [slug])
 
+  const toggleAddon = (key: AddonKey) => {
+    setSelectedAddons(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    )
+  }
+
+  const monthlyTotal = MONTHLY_FEE + selectedAddons.reduce((sum, key) => sum + ADDONS[key].price, 0)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -60,12 +67,13 @@ function CheckoutForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          plan: planKey,
+          plan: 'standard',
           email: formData.email,
           businessName: formData.businessName,
           phone: formData.phone,
           leadId,
           slug,
+          addons: selectedAddons,
         }),
       })
 
@@ -76,7 +84,7 @@ function CheckoutForm() {
       } else {
         setError(data.error || 'Something went wrong')
       }
-    } catch (err) {
+    } catch {
       setError('Failed to create checkout session')
     } finally {
       setLoading(false)
@@ -87,8 +95,8 @@ function CheckoutForm() {
     <div className="grid md:grid-cols-2 gap-12">
       {/* Form */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">Get started with {plan.name}</h1>
-        <p className="text-neutral-400 text-sm mb-8">Enter your details to continue.</p>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">Let's get you started</h1>
+        <p className="text-neutral-400 text-sm mb-8">Confirm your details and we'll begin building your website.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -116,7 +124,7 @@ function CheckoutForm() {
           </div>
 
           <div>
-            <label className="block text-sm text-neutral-400 mb-2">Phone (for updates)</label>
+            <label className="block text-sm text-neutral-400 mb-2">Phone</label>
             <input
               type="tel"
               value={formData.phone}
@@ -124,6 +132,33 @@ function CheckoutForm() {
               className="input"
               placeholder="0400 123 456"
             />
+          </div>
+
+          {/* Add-ons */}
+          <div className="pt-4">
+            <label className="block text-sm text-neutral-400 mb-3">Optional add-ons</label>
+            <div className="space-y-2">
+              {(Object.entries(ADDONS) as [AddonKey, typeof ADDONS[AddonKey]][]).map(([key, addon]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => toggleAddon(key)}
+                  className={`w-full p-3 rounded-lg text-left transition-all flex justify-between items-center ${
+                    selectedAddons.includes(key)
+                      ? 'bg-white/10 border border-white/20'
+                      : 'bg-neutral-900 border border-neutral-800 hover:border-neutral-700'
+                  }`}
+                >
+                  <div>
+                    <div className="text-sm font-medium">{addon.name}</div>
+                    <div className="text-xs text-neutral-500">{addon.description}</div>
+                  </div>
+                  <div className="text-sm font-medium shrink-0 ml-4">
+                    +${addon.price}/mo
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           {error && (
@@ -134,14 +169,14 @@ function CheckoutForm() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || fetchingLead}
             className="btn btn-primary w-full py-4 disabled:opacity-50"
           >
-            {loading ? 'Processing...' : 'Continue to payment'}
+            {loading ? 'Processing...' : `Continue to payment — $${SETUP_FEE} today`}
           </button>
 
           <p className="text-center text-xs text-neutral-500">
-            Secure payment via Stripe
+            Secure payment via Stripe. Cancel monthly anytime.
           </p>
         </form>
       </div>
@@ -151,35 +186,64 @@ function CheckoutForm() {
         <div className="card p-6 sticky top-6">
           <h2 className="font-medium mb-6">Order summary</h2>
 
+          {/* Setup Fee */}
           <div className="flex justify-between items-center pb-4 border-b border-neutral-800">
             <div>
-              <div className="font-medium">{plan.name}</div>
-              <div className="text-sm text-neutral-500">Monthly subscription</div>
+              <div className="font-medium">Website Setup</div>
+              <div className="text-sm text-neutral-500">One-time investment</div>
             </div>
-            <div className="text-2xl font-semibold">${plan.price}</div>
+            <div className="text-2xl font-semibold">${SETUP_FEE}</div>
           </div>
 
-          <ul className="py-4 space-y-2 border-b border-neutral-800">
-            {plan.features.slice(0, 5).map((feature) => (
-              <li key={feature} className="text-sm text-neutral-400 flex items-center gap-2">
-                <span className="text-neutral-600">·</span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-
-          <div className="pt-4 flex justify-between items-center">
+          {/* Monthly */}
+          <div className="flex justify-between items-center py-4 border-b border-neutral-800">
             <div>
-              <div className="font-medium">Total today</div>
-              <div className="text-xs text-neutral-500">Cancel anytime</div>
+              <div className="font-medium">Monthly Management</div>
+              <div className="text-sm text-neutral-500">Starts after site launch</div>
             </div>
-            <div className="text-2xl font-semibold">${plan.price}</div>
+            <div className="text-lg font-semibold">${MONTHLY_FEE}/mo</div>
           </div>
 
+          {/* Add-ons if selected */}
+          {selectedAddons.length > 0 && (
+            <div className="py-4 border-b border-neutral-800 space-y-2">
+              {selectedAddons.map(key => (
+                <div key={key} className="flex justify-between text-sm">
+                  <span className="text-neutral-400">{ADDONS[key].name}</span>
+                  <span>+${ADDONS[key].price}/mo</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Totals */}
+          <div className="pt-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <div className="font-medium">Due today</div>
+              <div className="text-2xl font-semibold">${SETUP_FEE}</div>
+            </div>
+            <div className="flex justify-between items-center text-sm text-neutral-400">
+              <div>Then monthly</div>
+              <div>${monthlyTotal}/mo</div>
+            </div>
+          </div>
+
+          {/* What's included */}
           <div className="mt-6 p-4 bg-neutral-900 rounded-lg border border-neutral-800">
-            <div className="font-medium text-sm mb-1">What happens next</div>
+            <div className="font-medium text-sm mb-2">What's included</div>
+            <ul className="text-sm text-neutral-400 space-y-1">
+              <li>· Custom design & professional copywriting</li>
+              <li>· Image sourcing & optimisation</li>
+              <li>· Mobile responsive, SEO ready</li>
+              <li>· Hosting, security & backups</li>
+              <li>· Unlimited content updates</li>
+            </ul>
+          </div>
+
+          <div className="mt-4 p-4 bg-neutral-900 rounded-lg border border-neutral-800">
+            <div className="font-medium text-sm mb-1">Timeline</div>
             <div className="text-sm text-neutral-400">
-              After payment, we'll build your site within 24 hours and notify you when it's ready.
+              Your website will be designed and live within 7 business days.
             </div>
           </div>
         </div>
@@ -209,7 +273,7 @@ export default function CheckoutPage() {
             onboard
           </Link>
           <Link href="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
-            Back to pricing
+            View pricing
           </Link>
         </div>
       </header>

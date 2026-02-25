@@ -2,54 +2,71 @@
 // This file can be imported by both client and server components
 
 export const PRICES = {
-  starter: 'price_1SuQ8FGgOB6KnWmR734ywMqg',
-  growth: 'price_1SuQ8gGgOB6KnWmRrPoiKPrW',
-  pro: 'price_1SuQ8uGgOB6KnWmRX83ShQyx',
+  setup: 'price_setup_495', // Will need to be updated with real Stripe price ID
+  monthly: 'price_1SuQ8uGgOB6KnWmRX83ShQyx', // Reuse the $79 pro price for now
+  booking: 'price_addon_booking',
+  ecommerce: 'price_addon_ecommerce', 
+  seo: 'price_addon_seo',
+  social: 'price_addon_social',
+  email: 'price_addon_email',
 }
 
-export const PLANS = {
-  starter: {
-    name: 'Starter 🌱',
-    price: 29,
-    priceId: PRICES.starter,
-    features: [
-      'Single page website',
-      'Mobile responsive',
-      'Contact form',
-      '2 text updates/month',
-      '48hr response time',
-      'Onboard subdomain',
-    ],
+export const SETUP_FEE = 495
+
+export const MONTHLY_FEE = 79
+
+export const ADDONS = {
+  booking: {
+    name: 'Online Booking',
+    price: 15,
+    description: 'Appointment scheduling, calendar integration, automated confirmations',
+    priceId: PRICES.booking,
   },
-  growth: {
-    name: 'Growth 🚀',
+  ecommerce: {
+    name: 'E-commerce',
     price: 49,
-    priceId: PRICES.growth,
-    popular: true,
-    features: [
-      'Up to 5 pages',
-      'Custom domain included',
-      '5 text updates/month',
-      '24hr response time',
-      'Google Business sync',
-      'Booking widget',
-      'SEO optimized',
-    ],
+    description: 'Product catalog, shopping cart, payment processing, inventory management',
+    priceId: PRICES.ecommerce,
   },
-  pro: {
-    name: 'Pro 👑',
-    price: 79,
-    priceId: PRICES.pro,
+  seo: {
+    name: 'SEO Booster',
+    price: 30,
+    description: 'Monthly keyword optimization, local SEO management, Google ranking focus',
+    priceId: PRICES.seo,
+  },
+  social: {
+    name: 'Social Media',
+    price: 10,
+    description: 'Instagram feed integration, Facebook integration',
+    priceId: PRICES.social,
+  },
+  email: {
+    name: 'Email Marketing',
+    price: 25,
+    description: 'Newsletter system, automated campaigns, customer retention sequences',
+    priceId: PRICES.email,
+  },
+}
+
+// Keep backward compat
+export const PLANS = {
+  standard: {
+    name: 'Done For You',
+    setupFee: SETUP_FEE,
+    monthlyFee: MONTHLY_FEE,
     features: [
-      'Unlimited pages',
-      'Unlimited updates',
-      'Same-day response',
-      'Advanced booking',
-      'Payment integration',
-      'Blog functionality',
-      'Priority support',
+      'Custom designed website',
+      'Professional copywriting',
+      'Image sourcing & optimization',
+      'Mobile optimised',
+      'SEO foundation',
+      'Contact forms & lead capture',
+      'Hosting & maintenance',
+      'Unlimited content updates',
+      'Security monitoring',
+      'Backup management',
     ],
   },
 }
 
-export type PlanKey = keyof typeof PLANS
+export type AddonKey = keyof typeof ADDONS

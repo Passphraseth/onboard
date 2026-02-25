@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
+import crypto from 'crypto'
 
 export async function GET(request: NextRequest) {
   const sessionId = request.nextUrl.searchParams.get('session_id')
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
   try {
     // Retrieve the Stripe checkout session
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['subscription', 'customer']
+      expand: ['customer']
     })
 
     if (session.payment_status !== 'paid') {
@@ -29,41 +30,77 @@ export async function GET(request: NextRequest) {
     const metadata = session.metadata || {}
     const leadId = metadata.lead_id
     const businessName = metadata.business_name || ''
-    const plan = metadata.plan || 'starter'
+    const plan = metadata.plan || 'standard'
     const metadataSlug = metadata.slug || ''
 
     // Extract Stripe IDs
     const stripeCustomerId = typeof session.customer === 'string'
       ? session.customer
       : session.customer?.id || null
-    const stripeSubscriptionId = typeof session.subscription === 'string'
-      ? session.subscription
-      : (session.subscription as { id?: string })?.id || null
+    // Payment mode may not have a subscription
+    const stripeSubscriptionId = session.subscription
+      ? (typeof session.subscription === 'string'
+        ? session.subscription
+        : (session.subscription as { id?: string })?.id || null)
+      : null
 
     const supabase = createAdminClient()
 
     // Get the lead and site info
     let slug = metadataSlug
-    if (leadId) {
-      // First get the lead to get the slug
+    let sessionToken: string | null = null
+    let sessionExpires: Date | null = null
+    let finalLeadId = leadId
+
+    // If no lead_id in metadata, try to find by email
+    if (!finalLeadId && session.customer_email) {
       const { data: existingLead } = await supabase
         .from('leads')
-        .select('slug')
-        .eq('id', leadId)
+        .select('id, slug')
+        .eq('email', session.customer_email.toLowerCase())
         .single()
 
-      slug = existingLead?.slug || ''
+      if (existingLead) {
+        finalLeadId = existingLead.id
+        slug = existingLead.slug || slug
+      }
+    }
 
-      // Update lead with subscription info
+    if (finalLeadId) {
+      // Get the lead slug if we don't have it yet
+      if (!slug) {
+        const { data: existingLead } = await supabase
+          .from('leads')
+          .select('slug')
+          .eq('id', finalLeadId)
+          .single()
+
+        slug = existingLead?.slug || ''
+      }
+
+      // Create a session token for auto-login (valid for 30 days)
+      sessionToken = crypto.randomBytes(32).toString('hex')
+      sessionExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+
+      // Update lead with subscription info AND session AND email from Stripe
+      const updateData: Record<string, unknown> = {
+        status: 'paid',
+        stripe_customer_id: stripeCustomerId,
+        stripe_subscription_id: stripeSubscriptionId,
+        plan,
+        session_token: sessionToken,
+        session_expires: sessionExpires.toISOString()
+      }
+
+      // Also update email from Stripe if provided (ensures email is synced)
+      if (session.customer_email) {
+        updateData.email = session.customer_email.toLowerCase()
+      }
+
       const { error: leadError } = await supabase
         .from('leads')
-        .update({
-          status: 'subscribed',
-          stripe_customer_id: stripeCustomerId,
-          stripe_subscription_id: stripeSubscriptionId,
-          plan
-        })
-        .eq('id', leadId)
+        .update(updateData)
+        .eq('id', finalLeadId)
 
       if (leadError) {
         console.error('Could not update lead:', leadError)
@@ -94,12 +131,38 @@ export async function GET(request: NextRequest) {
         .replace(/(^-|-$)/g, '')
     }
 
-    return NextResponse.json({
+    // Create response with subscription data
+    const response = NextResponse.json({
       businessName,
       slug,
       plan,
       email: session.customer_email || ''
     })
+
+    // Set session cookie if we created a session
+    if (sessionToken && sessionExpires) {
+      response.cookies.set('onboard_session', sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        expires: sessionExpires,
+        path: '/'
+      })
+
+      // Also set a non-httpOnly cookie for client-side awareness
+      response.cookies.set('onboard_user', JSON.stringify({
+        email: session.customer_email,
+        businessName,
+        slug
+      }), {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        expires: sessionExpires,
+        path: '/'
+      })
+    }
+
+    return response
   } catch (error) {
     console.error('Verify session error:', error)
     return NextResponse.json(

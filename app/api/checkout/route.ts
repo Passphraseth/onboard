@@ -1,24 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe, PLANS, type PlanKey } from '@/lib/stripe/client'
+import { stripe } from '@/lib/stripe/client'
+import { SETUP_FEE } from '@/lib/stripe/plans'
 import { createAdminClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { plan, email, businessName, phone, leadId } = body
+    const { email, businessName, phone, leadId, slug: existingSlug } = body
 
     // Get the app URL from environment or derive from request
     const origin = request.headers.get('origin') || request.headers.get('referer')?.split('/').slice(0, 3).join('/') || ''
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin || 'https://www.onboard.com.au'
-
-    // Validate plan
-    if (!plan || !PLANS[plan as PlanKey]) {
-      return NextResponse.json(
-        { error: 'Invalid plan selected' },
-        { status: 400 }
-      )
-    }
 
     // Validate required fields
     if (!email || !businessName) {
@@ -28,14 +21,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const selectedPlan = PLANS[plan as PlanKey]
-    const slug = slugify(businessName)
+    const slug = existingSlug || slugify(businessName)
     const supabase = createAdminClient()
 
     // Create or update lead in database
     let lead = null
     if (leadId) {
-      // Fetch existing lead
       const { data } = await supabase
         .from('leads')
         .select('*')
@@ -45,7 +36,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!lead) {
-      // Create new lead
       const { data, error } = await supabase
         .from('leads')
         .insert({
@@ -66,34 +56,35 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const metadata = {
+      lead_id: lead?.id || '',
+      business_name: businessName,
+      slug,
+      phone: phone || '',
+      plan: 'standard',
+    }
+
     // Create Stripe Checkout Session
+    // Charge setup fee now ($495). Monthly subscription ($79/mo) starts when site goes live.
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: 'payment',
       customer_email: email,
       line_items: [
         {
-          price: selectedPlan.priceId,
+          price_data: {
+            currency: 'aud',
+            unit_amount: SETUP_FEE * 100,
+            product_data: {
+              name: 'Website Setup — Done For You',
+              description: 'Custom design, professional copywriting, image sourcing, SEO foundation, mobile optimised. Ready in 7 business days.',
+            },
+          },
           quantity: 1,
         },
       ],
       success_url: `${appUrl}/welcome?session_id={CHECKOUT_SESSION_ID}&slug=${slug}`,
-      cancel_url: `${appUrl}/checkout?plan=${plan}&slug=${slug}`,
-      subscription_data: {
-        metadata: {
-          lead_id: lead?.id || '',
-          business_name: businessName,
-          slug,
-          phone: phone || '',
-          plan,
-        },
-      },
-      metadata: {
-        lead_id: lead?.id || '',
-        business_name: businessName,
-        slug,
-        phone: phone || '',
-        plan,
-      },
+      cancel_url: `${appUrl}/checkout?slug=${slug}`,
+      metadata,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
     })

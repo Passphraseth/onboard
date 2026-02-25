@@ -6,12 +6,12 @@ import { OrganizationSchema, SoftwareApplicationSchema } from '@/components/Stru
 import { PhotographyMockup, ConstructionMockup, CafeMockup } from '@/components/WebsiteMockups'
 
 export const metadata: Metadata = {
-  title: 'Onboard — Professional websites for service businesses',
-  description: 'Get a stunning, conversion-focused website for your business in minutes. Built for tradies, cafes, photographers, and service businesses across Australia.',
-  keywords: 'website builder, service business website, Australian website builder, tradie website, small business website',
+  title: 'onboard — Done-for-you websites for Australian service businesses',
+  description: 'Professional websites built for you, not by you. Ready in 1 week. From $495 setup + $79/month. No DIY stress, no templates. For tradies, cafes, beauty, and service businesses.',
+  keywords: 'done-for-you website, service business website, Australian website, tradie website, professional website, website management',
   openGraph: {
-    title: 'Onboard — Professional websites for service businesses',
-    description: 'Get a stunning, conversion-focused website in minutes.',
+    title: 'onboard — Done-for-you websites for Australian service businesses',
+    description: 'Professional websites built for you. Ready in 1 week. From $495 setup + $79/month.',
     type: 'website',
     locale: 'en_AU',
   },
@@ -31,19 +31,19 @@ export default function HomePage() {
       <section className="min-h-screen flex flex-col justify-center px-6 pt-16">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight mb-6 leading-[1.1]">
-            A website that<br />
-            actually looks like<br />
-            <span className="text-neutral-500">your business</span>
+            We build your<br />
+            website. You run<br />
+            <span className="text-neutral-500">your business.</span>
           </h1>
-          <p className="text-neutral-400 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
-            Professional websites for service businesses. Ready in minutes, not weeks. No templates, no cookie-cutter designs.
+          <p className="text-neutral-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+            Professional done-for-you websites for service businesses. Ready in 1 week, managed forever. From $495.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/onboard" className="btn btn-primary h-12 px-8 text-base">
-              Create your site
+              Get Started
             </Link>
             <Link href="#work" className="btn btn-secondary h-12 px-8 text-base">
-              See examples
+              See our work
             </Link>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function HomePage() {
 
           <div className="text-center mt-12">
             <Link href="/onboard" className="btn btn-primary">
-              Create your site
+              Get Started
             </Link>
           </div>
         </div>
@@ -85,23 +85,23 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-16 md:gap-12">
             <div>
               <p className="text-neutral-600 text-4xl font-light mb-4">01</p>
-              <h3 className="text-xl font-semibold mb-3">Ready in minutes</h3>
+              <h3 className="text-xl font-semibold mb-3">Done for you</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Your website is generated and ready to preview immediately. No waiting days for a designer.
+                No DIY, no templates, no stress. We handle everything from design to launch. You just tell us about your business.
               </p>
             </div>
             <div>
               <p className="text-neutral-600 text-4xl font-light mb-4">02</p>
-              <h3 className="text-xl font-semibold mb-3">Built to convert</h3>
+              <h3 className="text-xl font-semibold mb-3">Ready in 1 week</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Every site is optimised for leads. Clear calls to action, contact forms, and mobile-first design.
+                Not months. Your site is designed, written, and live within 7 business days. Professional website in 1 week, not 1 month.
               </p>
             </div>
             <div>
               <p className="text-neutral-600 text-4xl font-light mb-4">03</p>
-              <h3 className="text-xl font-semibold mb-3">Looks premium</h3>
+              <h3 className="text-xl font-semibold mb-3">Managed forever</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Professional design that matches your brand. Not a template that looks like everyone else.
+                Unlimited updates, hosting, and security included. Just tell us what you need and we'll handle it. Forever.
               </p>
             </div>
           </div>
@@ -120,12 +120,12 @@ export default function HomePage() {
 
           <div className="feature-grid">
             {[
-              { title: 'Custom design', desc: 'Unique to your business, not a template' },
-              { title: 'Mobile optimised', desc: 'Looks perfect on every device' },
-              { title: 'SEO ready', desc: 'Built to rank on Google' },
-              { title: 'Fast hosting', desc: 'Australian servers, instant load times' },
-              { title: 'Contact forms', desc: 'Capture leads directly to your inbox' },
-              { title: 'SSL included', desc: 'Secure site with https' },
+              { title: 'Professional copywriting', desc: 'We write your content. No staring at blank pages.' },
+              { title: 'Image sourcing', desc: 'We find or create the images your site needs.' },
+              { title: 'Custom design', desc: 'Unique to your business. No templates.' },
+              { title: 'Mobile optimised', desc: 'Perfect on every device, every time.' },
+              { title: 'SEO foundation', desc: 'Built to be found on Google from day one.' },
+              { title: 'Contact forms & lead capture', desc: 'Leads go straight to your inbox automatically.' },
             ].map((feature, index) => (
               <div key={index} className="feature-item">
                 <h3 className="font-medium mb-2">{feature.title}</h3>
@@ -149,12 +149,12 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               'Tradies',
-              'Photographers',
               'Cafes',
               'Hair & Beauty',
+              'Photographers',
               'Fitness',
-              'Construction',
               'Restaurants',
+              'Construction',
               'Creative Studios',
             ].map((industry, index) => (
               <p key={index} className="text-neutral-400">{industry}</p>
@@ -163,50 +163,48 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Preview */}
+      {/* Pricing */}
       <section className="section bg-neutral-950">
         <div className="container">
           <div className="max-w-3xl mx-auto">
             <div className="mb-16 text-center">
               <p className="text-neutral-500 text-sm mb-3 tracking-wide">Pricing</p>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4">
-                Simple, transparent
+                Simple, transparent pricing
               </h2>
               <p className="text-neutral-400">
-                Preview your site for free. Only pay when you're ready to launch.
+                One investment upfront, then ongoing support every month.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="card p-8">
-                <p className="text-neutral-500 text-sm mb-1">Preview</p>
-                <p className="text-4xl font-semibold mb-4">Free</p>
-                <p className="text-neutral-400 text-sm mb-6">See your site before you commit</p>
+                <p className="text-neutral-500 text-sm mb-1">Setup Investment</p>
+                <p className="text-4xl font-semibold mb-4">$495<span className="text-lg text-neutral-500"></span></p>
+                <p className="text-neutral-400 text-sm mb-6">One-time investment to build your site</p>
                 <ul className="space-y-3 text-sm text-neutral-400">
-                  <li>Generated website</li>
-                  <li>Shareable preview link</li>
-                  <li>Unlimited regenerations</li>
+                  <li>Custom design & copywriting</li>
+                  <li>Professional setup & launch</li>
+                  <li>All images sourced</li>
+                  <li>SEO foundation</li>
+                  <li>Mobile optimised</li>
+                  <li>Contact forms included</li>
                 </ul>
               </div>
 
               <div className="card p-8 border-white/20">
-                <p className="text-neutral-500 text-sm mb-1">Launch</p>
-                <p className="text-4xl font-semibold mb-4">$49<span className="text-lg text-neutral-500">/mo</span></p>
-                <p className="text-neutral-400 text-sm mb-6">Everything to go live</p>
+                <p className="text-neutral-500 text-sm mb-1">Monthly Management</p>
+                <p className="text-4xl font-semibold mb-4">$79<span className="text-lg text-neutral-500">/mo</span></p>
+                <p className="text-neutral-400 text-sm mb-6">Ongoing support and management</p>
                 <ul className="space-y-3 text-sm text-neutral-400">
-                  <li>Custom domain</li>
+                  <li>Unlimited updates & changes</li>
+                  <li>Hosting & security</li>
                   <li>SSL certificate</li>
-                  <li>Contact forms</li>
-                  <li>Analytics</li>
+                  <li>Backups & maintenance</li>
                   <li>Priority support</li>
+                  <li>Performance monitoring</li>
                 </ul>
               </div>
-            </div>
-
-            <div className="text-center mt-8">
-              <Link href="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
-                View full pricing details
-              </Link>
             </div>
           </div>
         </div>
@@ -216,13 +214,13 @@ export default function HomePage() {
       <section className="section">
         <div className="container text-center">
           <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
-            Ready?
+            Let's build your website
           </h2>
-          <p className="text-neutral-400 text-lg mb-10 max-w-md mx-auto">
-            See your website in under a minute.
+          <p className="text-neutral-400 text-lg mb-10 max-w-2xl mx-auto">
+            Fill out a quick questionnaire and we'll take it from there. Your professional website will be ready in 1 week.
           </p>
           <Link href="/onboard" className="btn btn-primary h-12 px-8 text-base">
-            Get started free
+            Get Started
           </Link>
         </div>
       </section>

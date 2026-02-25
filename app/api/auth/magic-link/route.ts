@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     const magicLink = `${origin}/api/auth/verify?token=${token}&email=${encodeURIComponent(email)}`
 
     // Send email
+    let emailSent = false
     if (resend) {
       try {
         await resend.emails.send({
@@ -74,17 +75,29 @@ export async function POST(request: NextRequest) {
             </div>
           `
         })
+        emailSent = true
+        console.log(`Magic link email sent to ${email}`)
       } catch (emailError) {
         console.error('Failed to send email:', emailError)
-        // Still log the link for development
         console.log('Magic link (email failed):', magicLink)
       }
     } else {
       // No email configured - log the link
-      console.log('Magic link (no email configured):', magicLink)
+      console.log('⚠️ RESEND_API_KEY not configured - email not sent')
+      console.log('Magic link for testing:', magicLink)
     }
 
-    return NextResponse.json({ success: true })
+    // If email wasn't sent (RESEND not configured), return the link for testing
+    // This allows testing when email isn't set up yet
+    if (!emailSent) {
+      return NextResponse.json({
+        success: true,
+        devMode: true,
+        magicLink // Show link when email isn't configured
+      })
+    }
+
+    return NextResponse.json({ success: true, emailSent })
   } catch (error) {
     console.error('Magic link error:', error)
     return NextResponse.json({ error: 'Failed to send login link' }, { status: 500 })

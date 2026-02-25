@@ -8,11 +8,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const [devLink, setDevLink] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setDevLink(null)
 
     try {
       const res = await fetch('/api/auth/magic-link', {
@@ -21,10 +23,15 @@ export default function LoginPage() {
         body: JSON.stringify({ email })
       })
 
+      const data = await res.json()
+
       if (res.ok) {
         setSent(true)
+        // If in dev mode, show the magic link directly
+        if (data.devMode && data.magicLink) {
+          setDevLink(data.magicLink)
+        }
       } else {
-        const data = await res.json()
         setError(data.error || 'Failed to send login link')
       }
     } catch {
@@ -50,8 +57,22 @@ export default function LoginPage() {
           <p className="text-sm text-neutral-500">
             Click the link in the email to access your dashboard. The link expires in 15 minutes.
           </p>
+
+          {/* Dev mode - show direct link */}
+          {devLink && (
+            <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+              <p className="text-yellow-400 text-sm mb-2">⚠️ Dev Mode - Email not configured</p>
+              <a
+                href={devLink}
+                className="text-brand-lime hover:underline text-sm break-all"
+              >
+                Click here to login →
+              </a>
+            </div>
+          )}
+
           <button
-            onClick={() => { setSent(false); setEmail('') }}
+            onClick={() => { setSent(false); setEmail(''); setDevLink(null) }}
             className="mt-8 text-brand-lime hover:underline text-sm"
           >
             Use a different email

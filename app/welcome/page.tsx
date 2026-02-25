@@ -114,10 +114,10 @@ function WelcomeContent() {
                 View Site →
               </Link>
               <Link
-                href={`/dashboard?site=${data.slug}`}
+                href="/dashboard"
                 className="btn btn-secondary flex-1 justify-center text-sm"
               >
-                Manage Site
+                Go to Dashboard
               </Link>
             </div>
           </div>

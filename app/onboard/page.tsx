@@ -168,7 +168,7 @@ export default function OnboardingPage() {
         'branding': 'COMPLETE_BRANDING',
         'services': 'COMPLETE_SERVICES',
         'usp': 'COMPLETE_USP',
-        'generating': 'GENERATE_WEBSITE',
+        'generating': 'SUBMIT_QUESTIONNAIRE',
       }
 
       if (stepTrackingMap[currentStep]) {
@@ -177,7 +177,7 @@ export default function OnboardingPage() {
 
       setCurrentStep(next)
       if (next === 'generating') {
-        handleGenerate()
+        handleSubmit()
       }
     }
   }
@@ -190,24 +190,11 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleGenerate = async () => {
+  const handleSubmit = async () => {
     setLoading(true)
-    setGenerationStatus('Creating your business profile...')
+    setGenerationStatus('Submitting your details...')
 
     try {
-      if (data.instagram) {
-        setGenerationStatus('Analyzing your brand...')
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-
-      setGenerationStatus('Designing your website...')
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      setGenerationStatus('Generating content...')
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      setGenerationStatus('Almost there...')
-
       const requestData = {
         ...data,
         preferredColors: data.selectedPalette === 'custom'
@@ -225,13 +212,12 @@ export default function OnboardingPage() {
 
       const result = await res.json()
 
-      if (result.slug) {
-        setGenerationStatus('Your preview is ready!')
-        trackSignupStep('VIEW_PREVIEW', data.businessType)
+      if (result.slug && result.leadId) {
+        trackSignupStep('SUBMIT_QUESTIONNAIRE', data.businessType)
         await new Promise(resolve => setTimeout(resolve, 800))
-        router.push(`/claim/${result.slug}`)
+        router.push(`/checkout?slug=${result.slug}&leadId=${result.leadId}`)
       } else {
-        throw new Error('Failed to generate preview')
+        throw new Error('Failed to save your details')
       }
     } catch (error) {
       console.error('Error:', error)
@@ -356,8 +342,8 @@ export default function OnboardingPage() {
         {currentStep === 'start' && !welcomeBack && (
           <div className="animate-fade-in">
             <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">Let's build your website</h1>
-              <p className="text-neutral-400">First, how can we reach you?</p>
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Tell us about your business</h1>
+              <p className="text-neutral-400">Fill out this quick questionnaire and we'll build your website within 7 business days.</p>
             </div>
             <div className="space-y-4">
               <div>
@@ -911,7 +897,7 @@ export default function OnboardingPage() {
                   Back
                 </button>
                 <button onClick={nextStep} className="btn btn-primary flex-1 py-4 text-base">
-                  Generate my website
+                  Submit & Continue to Payment
                 </button>
               </div>
             </div>
@@ -922,7 +908,7 @@ export default function OnboardingPage() {
         {currentStep === 'generating' && (
           <div className="animate-fade-in text-center py-20">
             <div className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-8" />
-            <h1 className="text-2xl font-semibold tracking-tight mb-4">Creating your website</h1>
+            <h1 className="text-2xl font-semibold tracking-tight mb-4">Submitting your details</h1>
             <p className="text-neutral-400">{generationStatus}</p>
           </div>
         )}

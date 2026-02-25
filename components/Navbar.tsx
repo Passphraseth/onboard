@@ -28,6 +28,7 @@ const RESOURCES = [
 export default function Navbar() {
   const [servicesOpen, setServicesOpen] = useState(false)
   const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
@@ -35,7 +36,9 @@ export default function Navbar() {
         <Link href="/" className="text-lg font-semibold tracking-tight">
           onboard
         </Link>
-        <div className="flex items-center gap-8">
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-8">
           {/* Services Dropdown */}
           <div
             className="relative group"
@@ -113,11 +116,97 @@ export default function Navbar() {
           <Link href="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
             Pricing
           </Link>
+          <Link href="/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
+            Login
+          </Link>
           <Link href="/onboard" className="btn btn-primary text-sm">
             Get started
           </Link>
         </div>
+
+        {/* Mobile Nav Buttons */}
+        <div className="flex items-center gap-3 md:hidden">
+          <Link href="/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
+            Login
+          </Link>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-neutral-400 hover:text-white"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-black/95 backdrop-blur-md border-t border-white/5">
+          <div className="px-6 py-4 space-y-4">
+            <Link
+              href="/onboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block btn btn-primary text-center"
+            >
+              Get started
+            </Link>
+
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <Link
+                href="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-neutral-300 hover:text-white py-2"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-neutral-300 hover:text-white py-2"
+              >
+                Blog
+              </Link>
+            </div>
+
+            <div className="pt-4 border-t border-white/10">
+              <p className="text-xs text-neutral-500 mb-3">Services</p>
+              <div className="grid grid-cols-2 gap-2">
+                {SERVICES.slice(0, 6).map((service) => (
+                  <Link
+                    key={service.href}
+                    href={service.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm text-neutral-400 hover:text-white py-1"
+                  >
+                    {service.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-white/10">
+              <p className="text-xs text-neutral-500 mb-3">Resources</p>
+              {RESOURCES.map((resource) => (
+                <Link
+                  key={resource.href}
+                  href={resource.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-sm text-neutral-400 hover:text-white py-2"
+                >
+                  {resource.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }
