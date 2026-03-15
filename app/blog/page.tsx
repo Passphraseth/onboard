@@ -8,6 +8,13 @@ export const metadata: Metadata = {
 
 const posts = [
   {
+    slug: 'small-business-website-cost-australia',
+    title: 'How Much Does a Website Cost for a Small Business in Australia? (2026)',
+    excerpt: 'The honest answer to what a small business website costs in Australia — from DIY to agency to done-for-you, with hidden costs most people forget.',
+    date: 'March 2026',
+    readTime: '12 min read',
+  },
+  {
     slug: 'tradie-marketing',
     title: 'Tradie Marketing: 7 Ways to Get More Jobs Without Wasting Money (2026 Guide)',
     excerpt: 'Word of mouth dries up. Learn the 7 tradie marketing strategies that actually bring in jobs — from websites to Google Ads — and what each one costs.',
