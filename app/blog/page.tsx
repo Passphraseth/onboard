@@ -8,6 +8,13 @@ export const metadata: Metadata = {
 
 const posts = [
   {
+    slug: 'tradie-marketing',
+    title: 'Tradie Marketing: 7 Ways to Get More Jobs Without Wasting Money (2026 Guide)',
+    excerpt: 'Word of mouth dries up. Learn the 7 tradie marketing strategies that actually bring in jobs — from websites to Google Ads — and what each one costs.',
+    date: 'March 2026',
+    readTime: '12 min read',
+  },
+  {
     slug: 'do-tradies-need-a-website',
     title: 'Do Tradies Need a Website in 2026? (Yes — Here\'s Why)',
     excerpt: 'Word of mouth is still gold, but 87% of Australians search online before hiring a tradie. No website = invisible to most potential customers.',
