@@ -21,7 +21,7 @@ export default function BestWebsiteBuilderForTradies() {
   return (
     <>
       <BreadcrumbSchema
-        items={[
+        faqs={[
           { name: 'Home', url: 'https://onboard.com.au' },
           { name: 'Blog', url: 'https://onboard.com.au/blog' },
           {
@@ -31,7 +31,7 @@ export default function BestWebsiteBuilderForTradies() {
         ]}
       />
       <FAQSchema
-        items={[
+        faqs={[
           {
             question: 'What is the best website builder for tradies in Australia?',
             answer:

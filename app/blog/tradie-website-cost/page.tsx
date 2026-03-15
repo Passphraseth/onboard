@@ -21,14 +21,14 @@ export default function TradieWebsiteCost() {
   return (
     <>
       <BreadcrumbSchema
-        items={[
+        faqs={[
           { name: 'Home', url: 'https://onboard.com.au' },
           { name: 'Blog', url: 'https://onboard.com.au/blog' },
           { name: 'Tradie Website Cost', url: 'https://onboard.com.au/blog/tradie-website-cost' },
         ]}
       />
       <FAQSchema
-        items={[
+        faqs={[
           {
             question: 'How much does a basic tradie website cost in Australia?',
             answer:
