@@ -2,18 +2,77 @@
 // This file can be imported by both client and server components
 
 export const PRICES = {
-  setup: 'price_setup_495', // Will need to be updated with real Stripe price ID
-  monthly: 'price_1SuQ8uGgOB6KnWmRX83ShQyx', // Reuse the $79 pro price for now
+  starter_setup: 'price_setup_495',
+  starter_monthly: 'price_1SuQ8uGgOB6KnWmRX83ShQyx',
+  growth_setup: 'price_growth_setup_795',
+  growth_monthly: 'price_growth_monthly_149',
+  pro_setup: 'price_pro_setup_1295',
+  pro_monthly: 'price_pro_monthly_299',
   booking: 'price_addon_booking',
-  ecommerce: 'price_addon_ecommerce', 
+  ecommerce: 'price_addon_ecommerce',
   seo: 'price_addon_seo',
   social: 'price_addon_social',
   email: 'price_addon_email',
 }
 
+// Legacy exports for backward compat
 export const SETUP_FEE = 495
-
 export const MONTHLY_FEE = 79
+
+export const TIERS = {
+  starter: {
+    name: 'Starter',
+    setupFee: 495,
+    monthlyFee: 79,
+    description: 'Everything you need to get online.',
+    features: [
+      '5-page custom website',
+      'Professional copywriting',
+      'Image sourcing & optimization',
+      'Mobile responsive',
+      'Basic SEO',
+      'SSL & hosting',
+      'Contact forms & lead capture',
+      '1 revision/month',
+    ],
+    setupPriceId: PRICES.starter_setup,
+    monthlyPriceId: PRICES.starter_monthly,
+  },
+  growth: {
+    name: 'Growth',
+    setupFee: 795,
+    monthlyFee: 149,
+    description: 'Grow with bookings, reviews & SEO.',
+    badge: 'Most popular',
+    features: [
+      'Everything in Starter',
+      'Online bookings (Cal.com)',
+      'Google review automation',
+      'Basic CRM',
+      'Monthly SEO report',
+      '3 revisions/month',
+    ],
+    setupPriceId: PRICES.growth_setup,
+    monthlyPriceId: PRICES.growth_monthly,
+  },
+  pro: {
+    name: 'Pro',
+    setupFee: 1295,
+    monthlyFee: 299,
+    description: 'Full marketing engine for your business.',
+    features: [
+      'Everything in Growth',
+      'Google Ads management',
+      'Email/SMS marketing automation',
+      'Payment processing (Stripe)',
+      'Advanced analytics',
+      'Unlimited revisions',
+      'Priority support',
+    ],
+    setupPriceId: PRICES.pro_setup,
+    monthlyPriceId: PRICES.pro_monthly,
+  },
+}
 
 export const ADDONS = {
   booking: {
@@ -54,20 +113,10 @@ export const PLANS = {
     name: 'Done For You',
     setupFee: SETUP_FEE,
     monthlyFee: MONTHLY_FEE,
-    features: [
-      'Custom designed website',
-      'Professional copywriting',
-      'Image sourcing & optimization',
-      'Mobile optimised',
-      'SEO foundation',
-      'Contact forms & lead capture',
-      'Hosting & maintenance',
-      'Unlimited content updates',
-      'Security monitoring',
-      'Backup management',
-    ],
+    features: TIERS.starter.features,
   },
 }
 
+export type TierKey = keyof typeof TIERS
 export type AddonKey = keyof typeof ADDONS
 export type PlanKey = keyof typeof PLANS

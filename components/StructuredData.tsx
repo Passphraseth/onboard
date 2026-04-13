@@ -145,14 +145,16 @@ export function FAQSchema({ faqs }: FAQSchemaProps) {
 }
 
 interface BreadcrumbSchemaProps {
-  items: { name: string; url: string }[]
+  items?: { name: string; url: string }[]
+  faqs?: { name: string; url: string }[]
 }
 
-export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
+export function BreadcrumbSchema({ items, faqs }: BreadcrumbSchemaProps) {
+  const breadcrumbs = items || faqs || []
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
+    itemListElement: breadcrumbs.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
