@@ -5,17 +5,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { trackSignupStep, trackEvent } from '@/components/GoogleAnalytics'
 
-type Step = 'start' | 'name' | 'type' | 'location' | 'hours' | 'contact' | 'socials' | 'branding' | 'services' | 'usp' | 'generating'
+type Step = 'start' | 'basics' | 'details' | 'extras' | 'generating'
 
 const BRAND_TONES = [
   { id: 'professional', name: 'Professional', description: 'Clean, trustworthy' },
   { id: 'casual', name: 'Casual', description: 'Friendly, approachable' },
   { id: 'luxurious', name: 'Luxurious', description: 'Premium, elegant' },
-  { id: 'fun', name: 'Fun', description: 'Playful, energetic' },
   { id: 'minimal', name: 'Minimal', description: 'Simple, modern' },
   { id: 'warm', name: 'Warm', description: 'Welcoming, personal' },
   { id: 'bold', name: 'Bold', description: 'Strong, confident' },
-  { id: 'elegant', name: 'Elegant', description: 'Graceful, refined' },
 ]
 
 const COLOR_PALETTES = [
@@ -24,7 +22,6 @@ const COLOR_PALETTES = [
   { id: 'forest-cream', name: 'Forest & Cream', colors: ['#2d5a3d', '#d4a574', '#faf8f5'], description: 'Natural' },
   { id: 'slate-coral', name: 'Slate & Coral', colors: ['#3d4f5f', '#e8735f', '#ffffff'], description: 'Contemporary' },
   { id: 'black-white', name: 'Black & White', colors: ['#1a1a1a', '#ffffff', '#f5f5f5'], description: 'Classic' },
-  { id: 'plum-blush', name: 'Plum & Blush', colors: ['#4a2c4a', '#e8b4b8', '#fdf6f6'], description: 'Elegant' },
   { id: 'ocean-sand', name: 'Ocean & Sand', colors: ['#1e6091', '#e8dcc4', '#ffffff'], description: 'Coastal' },
   { id: 'custom', name: 'Custom', colors: ['#6366f1', '#8b5cf6', '#ffffff'], description: 'My own colors' },
 ]
@@ -37,15 +34,7 @@ interface OnboardingData {
   suburb: string
   state: string
   postcode: string
-  operatingHours: {
-    monday: { open: string; close: string; closed: boolean }
-    tuesday: { open: string; close: string; closed: boolean }
-    wednesday: { open: string; close: string; closed: boolean }
-    thursday: { open: string; close: string; closed: boolean }
-    friday: { open: string; close: string; closed: boolean }
-    saturday: { open: string; close: string; closed: boolean }
-    sunday: { open: string; close: string; closed: boolean }
-  }
+  operatingHours: Record<string, { open: string; close: string; closed: boolean }>
   phone: string
   email: string
   instagram: string
@@ -133,48 +122,16 @@ export default function OnboardingPage() {
     setData(prev => ({ ...prev, ...updates }))
   }
 
-  const updateHours = (day: string, field: string, value: string | boolean) => {
-    setData(prev => ({
-      ...prev,
-      operatingHours: {
-        ...prev.operatingHours,
-        [day]: {
-          ...prev.operatingHours[day as keyof typeof prev.operatingHours],
-          [field]: value,
-        },
-      },
-    }))
-  }
-
-  // Track page view on mount
   useEffect(() => {
     trackEvent('page_view', { page: 'onboarding' })
   }, [])
 
+  const steps: Step[] = ['start', 'basics', 'details', 'extras', 'generating']
+
   const nextStep = () => {
-    const steps: Step[] = ['start', 'name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp', 'generating']
     const currentIndex = steps.indexOf(currentStep)
     if (currentIndex < steps.length - 1) {
       const next = steps[currentIndex + 1]
-
-      // Track step completion
-      const stepTrackingMap: Partial<Record<Step, keyof typeof import('@/components/GoogleAnalytics').SignupFunnelEvents>> = {
-        'name': 'COMPLETE_BUSINESS_NAME',
-        'type': 'COMPLETE_BUSINESS_TYPE',
-        'location': 'COMPLETE_LOCATION',
-        'hours': 'COMPLETE_HOURS',
-        'contact': 'COMPLETE_CONTACT',
-        'socials': 'COMPLETE_SOCIALS',
-        'branding': 'COMPLETE_BRANDING',
-        'services': 'COMPLETE_SERVICES',
-        'usp': 'COMPLETE_USP',
-        'generating': 'COMPLETE_SIGNUP',
-      }
-
-      if (stepTrackingMap[currentStep]) {
-        trackSignupStep(stepTrackingMap[currentStep]!, data.businessType)
-      }
-
       setCurrentStep(next)
       if (next === 'generating') {
         handleSubmit()
@@ -183,10 +140,10 @@ export default function OnboardingPage() {
   }
 
   const prevStep = () => {
-    const steps: Step[] = ['start', 'name', 'type', 'location', 'hours', 'contact', 'socials', 'branding', 'services', 'usp']
-    const currentIndex = steps.indexOf(currentStep)
+    const navigable: Step[] = ['start', 'basics', 'details', 'extras']
+    const currentIndex = navigable.indexOf(currentStep)
     if (currentIndex > 0) {
-      setCurrentStep(steps[currentIndex - 1])
+      setCurrentStep(navigable[currentIndex - 1])
     }
   }
 
@@ -255,16 +212,18 @@ export default function OnboardingPage() {
 
   const progress: Record<Step, number> = {
     start: 0,
-    name: 11,
-    type: 22,
-    location: 33,
-    hours: 44,
-    contact: 55,
-    socials: 66,
-    branding: 77,
-    services: 88,
-    usp: 100,
+    basics: 33,
+    details: 66,
+    extras: 100,
     generating: 100,
+  }
+
+  const stepLabels: Record<Step, string> = {
+    start: '',
+    basics: 'Step 1 of 3',
+    details: 'Step 2 of 3',
+    extras: 'Step 3 of 3',
+    generating: '',
   }
 
   const handleCheckUser = async () => {
@@ -281,20 +240,16 @@ export default function OnboardingPage() {
       const result: CheckUserResponse = await res.json()
 
       if (result.status === 'customer') {
-        // Paying customer - redirect to dashboard
         setWelcomeBack(result)
       } else if (result.status === 'lead') {
-        // Existing lead - offer to continue or redirect
         setWelcomeBack(result)
       } else {
-        // New user - continue with onboarding
-        setCurrentStep('name')
+        setCurrentStep('basics')
         trackSignupStep('START_ONBOARDING')
       }
     } catch (error) {
       console.error('Error checking user:', error)
-      // On error, just continue with onboarding
-      setCurrentStep('name')
+      setCurrentStep('basics')
       trackSignupStep('START_ONBOARDING')
     } finally {
       setCheckingUser(false)
@@ -309,9 +264,12 @@ export default function OnboardingPage() {
 
   const handleStartFresh = () => {
     setWelcomeBack(null)
-    setCurrentStep('name')
+    setCurrentStep('basics')
     trackSignupStep('START_ONBOARDING')
   }
+
+  const canProceedBasics = data.businessName.trim() && data.businessType && (data.businessType !== 'other' || data.customType.trim())
+  const canProceedDetails = data.suburb.trim()
 
   return (
     <div className="min-h-screen">
@@ -321,7 +279,7 @@ export default function OnboardingPage() {
           onboard
         </Link>
         <div className="text-sm text-neutral-500">
-          {currentStep !== 'generating' && currentStep !== 'start' && `Step ${Object.keys(progress).indexOf(currentStep)} of 9`}
+          {stepLabels[currentStep]}
         </div>
       </header>
 
@@ -338,12 +296,12 @@ export default function OnboardingPage() {
       )}
 
       <main className="max-w-xl mx-auto px-6 pb-12">
-        {/* Step: Start - Email/Phone Collection */}
+        {/* Step: Start — Email/Phone Collection */}
         {currentStep === 'start' && !welcomeBack && (
           <div className="animate-fade-in">
             <div className="mb-8">
               <h1 className="text-3xl font-semibold tracking-tight mb-3">Tell us about your business</h1>
-              <p className="text-neutral-400">Fill out this quick questionnaire and we'll build your website within 7 business days.</p>
+              <p className="text-neutral-400">3 quick steps and we'll build your website within a week.</p>
             </div>
             <div className="space-y-4">
               <div>
@@ -388,11 +346,11 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Welcome Back Modal */}
+        {/* Welcome Back */}
         {currentStep === 'start' && welcomeBack && (
           <div className="animate-fade-in">
             <div className="mb-8 text-center">
-              <div className="text-5xl mb-4">👋</div>
+              <div className="text-5xl mb-4">&#x1F44B;</div>
               <h1 className="text-3xl font-semibold tracking-tight mb-3">Welcome back!</h1>
               <p className="text-neutral-400">
                 {welcomeBack.status === 'customer' ? (
@@ -403,41 +361,106 @@ export default function OnboardingPage() {
               </p>
             </div>
             <div className="space-y-4">
-              <button
-                onClick={handleContinueToExisting}
-                className="btn btn-primary w-full py-4"
-              >
-                {welcomeBack.status === 'customer' ? 'Go to My Dashboard →' : 'Continue Where I Left Off →'}
+              <button onClick={handleContinueToExisting} className="btn btn-primary w-full py-4">
+                {welcomeBack.status === 'customer' ? 'Go to My Dashboard' : 'Continue Where I Left Off'}
               </button>
-              <button
-                onClick={handleStartFresh}
-                className="btn btn-secondary w-full py-4"
-              >
+              <button onClick={handleStartFresh} className="btn btn-secondary w-full py-4">
                 Start a New Site Instead
               </button>
             </div>
           </div>
         )}
 
-        {/* Step: Business Name */}
-        {currentStep === 'name' && (
+        {/* Step 1: Basics — Name, Type, Location */}
+        {currentStep === 'basics' && (
           <div className="animate-fade-in">
             <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">What's your business called?</h1>
-              <p className="text-neutral-400">This will be the name on your website.</p>
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">The basics</h1>
+              <p className="text-neutral-400">Your business name, type, and location.</p>
             </div>
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={data.businessName}
-                onChange={(e) => updateData({ businessName: e.target.value })}
-                placeholder="e.g. Smith's Plumbing"
-                className="input text-lg py-4"
-                autoFocus
-              />
+            <div className="space-y-6">
+              {/* Business Name */}
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">Business name</label>
+                <input
+                  type="text"
+                  value={data.businessName}
+                  onChange={(e) => updateData({ businessName: e.target.value })}
+                  placeholder="e.g. Smith's Plumbing"
+                  className="input text-lg py-4"
+                  autoFocus
+                />
+              </div>
+
+              {/* Business Type */}
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">What type of business?</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {BUSINESS_TYPES.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => updateData({ businessType: type.id })}
+                      className={`p-3 rounded-lg text-sm font-medium transition-all ${
+                        data.businessType === type.id
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
+                      }`}
+                    >
+                      {type.name}
+                    </button>
+                  ))}
+                </div>
+                {data.businessType === 'other' && (
+                  <input
+                    type="text"
+                    value={data.customType}
+                    onChange={(e) => updateData({ customType: e.target.value })}
+                    placeholder="Tell us what you do..."
+                    className="input mt-3"
+                  />
+                )}
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">Where are you located?</label>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={data.suburb}
+                    onChange={(e) => updateData({ suburb: e.target.value })}
+                    placeholder="Suburb"
+                    className="input"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={data.state}
+                      onChange={(e) => updateData({ state: e.target.value })}
+                      className="input"
+                    >
+                      <option value="VIC">VIC</option>
+                      <option value="NSW">NSW</option>
+                      <option value="QLD">QLD</option>
+                      <option value="SA">SA</option>
+                      <option value="WA">WA</option>
+                      <option value="TAS">TAS</option>
+                      <option value="NT">NT</option>
+                      <option value="ACT">ACT</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={data.postcode}
+                      onChange={(e) => updateData({ postcode: e.target.value })}
+                      placeholder="Postcode"
+                      className="input"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={nextStep}
-                disabled={!data.businessName.trim()}
+                disabled={!canProceedBasics}
                 className="btn btn-primary w-full py-4 disabled:opacity-30"
               >
                 Continue
@@ -446,283 +469,89 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step: Business Type */}
-        {currentStep === 'type' && (
+        {/* Step 2: Details — Services & what makes you different */}
+        {currentStep === 'details' && (
           <div className="animate-fade-in">
             <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">What type of business?</h1>
-              <p className="text-neutral-400">We'll customise your site for your industry.</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {BUSINESS_TYPES.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => updateData({ businessType: type.id })}
-                  className={`p-4 rounded-lg text-left transition-all ${
-                    data.businessType === type.id
-                      ? 'bg-white text-black'
-                      : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
-                  }`}
-                >
-                  <div className="font-medium text-sm">{type.name}</div>
-                </button>
-              ))}
-            </div>
-            {data.businessType === 'other' && (
-              <input
-                type="text"
-                value={data.customType}
-                onChange={(e) => updateData({ customType: e.target.value })}
-                placeholder="Tell us what you do..."
-                className="input mb-4"
-              />
-            )}
-            <div className="flex gap-3">
-              <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                Back
-              </button>
-              <button
-                onClick={nextStep}
-                disabled={!data.businessType || (data.businessType === 'other' && !data.customType.trim())}
-                className="btn btn-primary flex-1 py-4 disabled:opacity-30"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Location */}
-        {currentStep === 'location' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">Where are you located?</h1>
-              <p className="text-neutral-400">Customers will find you by location.</p>
-            </div>
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={data.suburb}
-                onChange={(e) => updateData({ suburb: e.target.value })}
-                placeholder="Suburb"
-                className="input"
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <select
-                  value={data.state}
-                  onChange={(e) => updateData({ state: e.target.value })}
-                  className="input"
-                >
-                  <option value="VIC">VIC</option>
-                  <option value="NSW">NSW</option>
-                  <option value="QLD">QLD</option>
-                  <option value="SA">SA</option>
-                  <option value="WA">WA</option>
-                  <option value="TAS">TAS</option>
-                  <option value="NT">NT</option>
-                  <option value="ACT">ACT</option>
-                </select>
-                <input
-                  type="text"
-                  value={data.postcode}
-                  onChange={(e) => updateData({ postcode: e.target.value })}
-                  placeholder="Postcode"
-                  className="input"
-                />
-              </div>
-              <input
-                type="text"
-                value={data.address}
-                onChange={(e) => updateData({ address: e.target.value })}
-                placeholder="Street address (optional)"
-                className="input"
-              />
-              <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                  Back
-                </button>
-                <button
-                  onClick={nextStep}
-                  disabled={!data.suburb.trim()}
-                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
-                >
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Operating Hours */}
-        {currentStep === 'hours' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">When are you open?</h1>
-              <p className="text-neutral-400">Let customers know your availability.</p>
-            </div>
-            <div className="space-y-2">
-              {Object.entries(data.operatingHours).map(([day, hours]) => (
-                <div key={day} className="bg-neutral-900 rounded-lg p-3 flex items-center gap-3">
-                  <div className="w-20 font-medium text-sm capitalize">{day}</div>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={hours.closed}
-                      onChange={(e) => updateHours(day, 'closed', e.target.checked)}
-                      className="w-4 h-4 rounded bg-neutral-800 border-neutral-700"
-                    />
-                    <span className="text-xs text-neutral-400">Closed</span>
-                  </label>
-                  {!hours.closed && (
-                    <>
-                      <input
-                        type="time"
-                        value={hours.open}
-                        onChange={(e) => updateHours(day, 'open', e.target.value)}
-                        className="px-2 py-1 rounded bg-neutral-800 border border-neutral-700 text-white text-sm"
-                      />
-                      <span className="text-neutral-500 text-sm">to</span>
-                      <input
-                        type="time"
-                        value={hours.close}
-                        onChange={(e) => updateHours(day, 'close', e.target.value)}
-                        className="px-2 py-1 rounded bg-neutral-800 border border-neutral-700 text-white text-sm"
-                      />
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                Back
-              </button>
-              <button onClick={nextStep} className="btn btn-primary flex-1 py-4">
-                Continue
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Contact Details */}
-        {currentStep === 'contact' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">Contact details</h1>
-              <p className="text-neutral-400">How can customers reach you?</p>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Phone</label>
-                <input
-                  type="tel"
-                  value={data.phone}
-                  onChange={(e) => updateData({ phone: e.target.value })}
-                  placeholder="0412 345 678"
-                  className="input"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={data.email}
-                  onChange={(e) => updateData({ email: e.target.value })}
-                  placeholder="hello@yourbusiness.com"
-                  className="input"
-                />
-              </div>
-              <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                  Back
-                </button>
-                <button
-                  onClick={nextStep}
-                  disabled={!data.phone.trim() || !data.email.trim()}
-                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
-                >
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Social Media */}
-        {currentStep === 'socials' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">Social media</h1>
-              <p className="text-neutral-400">We'll use your photos to personalise your site.</p>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Instagram (recommended)</label>
-                <div className="flex">
-                  <span className="px-4 py-3 bg-neutral-800 rounded-l-lg border border-r-0 border-neutral-700 text-neutral-500">@</span>
-                  <input
-                    type="text"
-                    value={data.instagram}
-                    onChange={(e) => updateData({ instagram: e.target.value.replace('@', '') })}
-                    placeholder="yourbusiness"
-                    className="input rounded-l-none"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Facebook (optional)</label>
-                <input
-                  type="text"
-                  value={data.facebook}
-                  onChange={(e) => updateData({ facebook: e.target.value })}
-                  placeholder="facebook.com/yourbusiness"
-                  className="input"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Existing website (optional)</label>
-                <input
-                  type="text"
-                  value={data.website}
-                  onChange={(e) => updateData({ website: e.target.value })}
-                  placeholder="www.yourbusiness.com"
-                  className="input"
-                />
-              </div>
-              <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                  Back
-                </button>
-                <button onClick={nextStep} className="btn btn-primary flex-1 py-4">
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Branding */}
-        {currentStep === 'branding' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">Brand style</h1>
-              <p className="text-neutral-400">How should your website feel?</p>
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Your services</h1>
+              <p className="text-neutral-400">What do you offer? We'll feature these on your site.</p>
             </div>
             <div className="space-y-6">
+              {/* Service Selection */}
+              {data.businessType && data.businessType !== 'other' && (
+                <div>
+                  <label className="block text-sm text-neutral-400 mb-2">Select your services</label>
+                  <div className="flex flex-wrap gap-2">
+                    {getServicesForType(data.businessType).map((service) => (
+                      <button
+                        key={service}
+                        onClick={() => toggleService(service)}
+                        className={`px-3 py-2 rounded-full text-sm transition-all ${
+                          data.services.includes(service)
+                            ? 'bg-white text-black'
+                            : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
+                        }`}
+                      >
+                        {data.services.includes(service) && '· '}{service}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-sm text-neutral-400 mb-2">Logo URL (optional)</label>
-                <input
-                  type="text"
-                  value={data.logoUrl}
-                  onChange={(e) => updateData({ logoUrl: e.target.value })}
-                  placeholder="Paste your logo URL"
-                  className="input"
+                <label className="block text-sm text-neutral-400 mb-2">
+                  {data.businessType === 'other' ? 'List your services' : 'Any other services? (optional)'}
+                </label>
+                <textarea
+                  value={data.customServices}
+                  onChange={(e) => updateData({ customServices: e.target.value })}
+                  placeholder="One per line..."
+                  rows={3}
+                  className="input resize-none"
                 />
               </div>
 
+              {/* What makes you different */}
               <div>
-                <label className="block text-sm text-neutral-400 mb-3">Brand tone</label>
-                <div className="grid grid-cols-2 gap-2">
+                <label className="block text-sm text-neutral-400 mb-2">What makes you different? (optional)</label>
+                <textarea
+                  value={data.uniqueSellingPoints}
+                  onChange={(e) => updateData({ uniqueSellingPoints: e.target.value })}
+                  placeholder="e.g. 20 years experience, same-day service, family-owned..."
+                  rows={3}
+                  className="input resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
+                  Back
+                </button>
+                <button
+                  onClick={nextStep}
+                  disabled={data.services.length === 0 && !data.customServices.trim()}
+                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Extras — Style, socials, any extras */}
+        {currentStep === 'extras' && (
+          <div className="animate-fade-in">
+            <div className="mb-8">
+              <h1 className="text-3xl font-semibold tracking-tight mb-3">Final touches</h1>
+              <p className="text-neutral-400">Style preferences and social links. Everything here is optional.</p>
+            </div>
+            <div className="space-y-6">
+              {/* Brand Tone */}
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">How should your site feel?</label>
+                <div className="grid grid-cols-3 gap-2">
                   {BRAND_TONES.map((tone) => (
                     <button
                       key={tone.id}
@@ -742,8 +571,9 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
+              {/* Colour Palette */}
               <div>
-                <label className="block text-sm text-neutral-400 mb-3">Colour palette</label>
+                <label className="block text-sm text-neutral-400 mb-2">Colour preference (optional)</label>
                 <div className="grid grid-cols-2 gap-2">
                   {COLOR_PALETTES.map((palette) => (
                     <button
@@ -757,11 +587,7 @@ export default function OnboardingPage() {
                     >
                       <div className="flex gap-1 mb-2">
                         {palette.colors.map((color, i) => (
-                          <div
-                            key={i}
-                            className="w-6 h-6 rounded border border-neutral-700"
-                            style={{ backgroundColor: color }}
-                          />
+                          <div key={i} className="w-6 h-6 rounded border border-neutral-700" style={{ backgroundColor: color }} />
                         ))}
                       </div>
                       <div className="font-medium text-xs">{palette.name}</div>
@@ -770,141 +596,55 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {data.selectedPalette === 'custom' && (
-                <div>
-                  <label className="block text-sm text-neutral-400 mb-2">Custom colours (hex)</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {['Primary', 'Accent', 'Background'].map((label, i) => (
-                      <div key={label}>
-                        <label className="text-xs text-neutral-500">{label}</label>
-                        <input
-                          type="text"
-                          value={data.customColors[i] || ''}
-                          onChange={(e) => {
-                            const newColors = [...data.customColors]
-                            newColors[i] = e.target.value
-                            updateData({ customColors: newColors })
-                          }}
-                          placeholder={i === 0 ? '#1a1a1a' : i === 1 ? '#ffffff' : '#f5f5f5'}
-                          className="input text-sm mt-1"
-                        />
-                      </div>
-                    ))}
+              {/* Social Links */}
+              <div>
+                <label className="block text-sm text-neutral-400 mb-2">Social media (optional)</label>
+                <div className="space-y-3">
+                  <div className="flex">
+                    <span className="px-4 py-3 bg-neutral-800 rounded-l-lg border border-r-0 border-neutral-700 text-neutral-500 text-sm">@</span>
+                    <input
+                      type="text"
+                      value={data.instagram}
+                      onChange={(e) => updateData({ instagram: e.target.value.replace('@', '') })}
+                      placeholder="Instagram handle"
+                      className="input rounded-l-none"
+                    />
                   </div>
+                  <input
+                    type="text"
+                    value={data.facebook}
+                    onChange={(e) => updateData({ facebook: e.target.value })}
+                    placeholder="Facebook page URL (optional)"
+                    className="input"
+                  />
                 </div>
-              )}
+              </div>
 
-              <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                  Back
-                </button>
-                <button onClick={nextStep} className="btn btn-primary flex-1 py-4">
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Services */}
-        {currentStep === 'services' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">What services do you offer?</h1>
-              <p className="text-neutral-400">Select all that apply.</p>
-            </div>
-            <div className="space-y-4">
-              {data.businessType && data.businessType !== 'other' && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {getServicesForType(data.businessType).map((service) => (
-                    <button
-                      key={service}
-                      onClick={() => toggleService(service)}
-                      className={`px-3 py-2 rounded-full text-sm transition-all ${
-                        data.services.includes(service)
-                          ? 'bg-white text-black'
-                          : 'bg-neutral-900 hover:bg-neutral-800 border border-neutral-800'
-                      }`}
-                    >
-                      {data.services.includes(service) && '· '}{service}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <textarea
-                value={data.customServices}
-                onChange={(e) => updateData({ customServices: e.target.value })}
-                placeholder="Add any other services (one per line)..."
-                rows={4}
-                className="input resize-none"
-              />
-              <div className="flex gap-3">
-                <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
-                  Back
-                </button>
-                <button
-                  onClick={nextStep}
-                  disabled={data.services.length === 0 && !data.customServices.trim()}
-                  className="btn btn-primary flex-1 py-4 disabled:opacity-30"
-                >
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Unique Selling Points */}
-        {currentStep === 'usp' && (
-          <div className="animate-fade-in">
-            <div className="mb-8">
-              <h1 className="text-3xl font-semibold tracking-tight mb-3">What makes you different?</h1>
-              <p className="text-neutral-400">Help us highlight what sets you apart.</p>
-            </div>
-            <div className="space-y-4">
+              {/* Additional Notes */}
               <div>
-                <label className="block text-sm text-neutral-400 mb-2">Ideal customers</label>
-                <input
-                  type="text"
-                  value={data.targetCustomers}
-                  onChange={(e) => updateData({ targetCustomers: e.target.value })}
-                  placeholder="e.g. Homeowners, young professionals..."
-                  className="input"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">What makes you special? (optional)</label>
-                <textarea
-                  value={data.uniqueSellingPoints}
-                  onChange={(e) => updateData({ uniqueSellingPoints: e.target.value })}
-                  placeholder="e.g. 20 years experience, same-day service..."
-                  rows={3}
-                  className="input resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-neutral-400 mb-2">Anything else? (optional)</label>
+                <label className="block text-sm text-neutral-400 mb-2">Anything else we should know? (optional)</label>
                 <textarea
                   value={data.additionalNotes}
                   onChange={(e) => updateData({ additionalNotes: e.target.value })}
-                  placeholder="Any specific preferences..."
+                  placeholder="Any specific preferences, existing website URL, logo link..."
                   rows={3}
                   className="input resize-none"
                 />
               </div>
+
               <div className="flex gap-3">
                 <button onClick={prevStep} className="btn btn-secondary flex-1 py-4">
                   Back
                 </button>
                 <button onClick={nextStep} className="btn btn-primary flex-1 py-4 text-base">
-                  Submit & Continue to Payment
+                  Submit &amp; Continue to Payment
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Step: Generating */}
+        {/* Generating */}
         {currentStep === 'generating' && (
           <div className="animate-fade-in text-center py-20">
             <div className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-8" />
