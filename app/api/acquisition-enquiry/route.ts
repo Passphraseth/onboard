@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     if (!process.env.RESEND_API_KEY) {
       console.error('RESEND_API_KEY is not configured for acquisition enquiries')
-      return NextResponse.json({ error: 'Enquiries are temporarily unavailable. Please email hello@onboard.com.au.' }, { status: 503 })
+      return NextResponse.json({ error: 'Enquiries are temporarily unavailable. Please email dallas@onboard.com.au.' }, { status: 503 })
     }
 
     const response = await fetch('https://api.resend.com/emails', {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         from: 'Onboard Acquisition <notifications@onboard.com.au>',
-        to: process.env.ACQUISITION_ENQUIRY_EMAIL || 'hello@onboard.com.au',
+        to: 'dallas@onboard.com.au',
         reply_to: email,
         subject: `Confidential acquisition enquiry from ${name}${company ? ` — ${company}` : ''}`,
         html: `
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       console.error('Resend acquisition enquiry failed', response.status, await response.text())
-      return NextResponse.json({ error: 'Unable to send your enquiry. Please email hello@onboard.com.au.' }, { status: 502 })
+      return NextResponse.json({ error: 'Unable to send your enquiry. Please email dallas@onboard.com.au.' }, { status: 502 })
     }
 
     return NextResponse.json({ success: true })
