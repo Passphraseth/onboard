@@ -89,13 +89,58 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <a
-              href="#enquiry"
-              className="mt-8 inline-flex min-h-14 w-full items-center justify-between bg-[#171914] px-6 text-sm font-medium text-white transition-colors hover:bg-[#9a6b3f]"
-            >
-              Submit a confidential enquiry
-              <span aria-hidden="true">↘</span>
-            </a>
+            <div className="mt-8">
+              <div className="flex items-end justify-between gap-4 border-b border-black/15 pb-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-black/40">Acquire complete portfolio</p>
+                  <p className="mt-2 text-3xl font-medium tracking-[-0.045em]">A$29,500</p>
+                </div>
+                <p className="pb-1 text-xs text-black/40">+ GST if applicable</p>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <a href="#acquire-now" className="inline-flex min-h-14 items-center justify-between bg-[#171914] px-5 text-sm font-medium text-white transition-colors hover:bg-[#9a6b3f]">
+                  Acquire now <span aria-hidden="true">↘</span>
+                </a>
+                <a href="#make-offer" className="inline-flex min-h-14 items-center justify-between border border-black/20 px-5 text-sm font-medium transition-colors hover:border-black">
+                  Submit an offer <span aria-hidden="true">↘</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-black/10 bg-[#d8d1c3]">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 lg:grid-cols-[0.85fr_1.15fr] lg:px-10 lg:py-24">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7b522f]">Buy the complete portfolio</p>
+            <h2 className="mt-5 text-5xl font-medium leading-none tracking-[-0.055em] md:text-7xl">A$29,500</h2>
+            <p className="mt-4 text-sm text-black/45">Plus GST if applicable</p>
+          </div>
+          <div>
+            <h3 className="text-3xl font-medium tracking-[-0.04em]">Secure the complete Australian domain portfolio for the Onboard brand.</h3>
+            <div className="mt-8 grid gap-x-10 gap-y-4 border-y border-black/15 py-6 sm:grid-cols-2">
+              {[
+                'onboard.com.au',
+                'onboard.au',
+                'onboard.net.au',
+                'Transfer assistance',
+                'Existing website assets by agreement',
+              ].map((item) => (
+                <p key={item} className="flex items-center gap-3 text-sm">
+                  <span className="text-[#7b522f]">✓</span>{item}
+                </p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a href="#acquire-now" className="inline-flex min-h-14 flex-1 items-center justify-between bg-[#171914] px-6 text-sm font-medium text-white transition-colors hover:bg-[#7b522f]">
+                Acquire now — A$29,500 <span aria-hidden="true">↘</span>
+              </a>
+              <a href="#make-offer" className="inline-flex min-h-14 flex-1 items-center justify-between border border-black/25 px-6 text-sm font-medium transition-colors hover:border-black">
+                Make an offer <span aria-hidden="true">↘</span>
+              </a>
+            </div>
+            <p className="mt-4 text-xs leading-5 text-black/40">Acquire Now begins a secure transaction enquiry. No card payment is taken on this website.</p>
           </div>
         </div>
       </section>
@@ -160,12 +205,12 @@ export default function HomePage() {
       <section id="enquiry" className="bg-[#d8d1c3]">
         <div className="mx-auto grid max-w-7xl gap-16 px-6 py-24 lg:grid-cols-[0.8fr_1.2fr] lg:px-10 lg:py-32">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7b522f]">Private sale</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7b522f]">Two acquisition pathways</p>
             <h2 className="mt-6 text-5xl font-medium leading-[0.95] tracking-[-0.055em] md:text-7xl">
-              Start a<br />confidential<br />conversation.
+              Acquire now.<br />Or make<br />an offer.
             </h2>
             <p className="mt-8 max-w-md leading-7 text-black/55">
-              Qualified principals, strategic buyers and authorised representatives are invited to enquire. Details will be handled discreetly.
+              Qualified principals, strategic buyers and authorised representatives are invited to proceed at the asking price or submit a confidential offer.
             </p>
           </div>
           <AcquisitionForm />
