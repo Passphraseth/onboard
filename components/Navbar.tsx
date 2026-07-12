@@ -2,208 +2,88 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { MARKET_LINKS } from '@/lib/acquisition-content'
+import { trackEvent } from './GoogleAnalytics'
 
-const SERVICES = [
-  { name: 'Tradies', href: '/websites-for-tradies' },
-  { name: 'Plumbers', href: '/websites-for-plumbers' },
-  { name: 'Electricians', href: '/websites-for-electricians' },
-  { name: 'Builders', href: '/websites-for-builders' },
-  { name: 'Hairdressers', href: '/websites-for-hairdressers' },
-  { name: 'Beauticians', href: '/websites-for-beauticians' },
-  { name: 'Cafes', href: '/websites-for-cafes' },
-  { name: 'Photographers', href: '/websites-for-photographers' },
-  { name: 'Personal Trainers', href: '/websites-for-personal-trainers' },
-  { name: 'Landscapers', href: '/websites-for-landscapers' },
-  { name: 'Cleaners', href: '/websites-for-cleaners' },
-  { name: 'Mechanics', href: '/websites-for-mechanics' },
-  { name: 'HVAC', href: '/websites-for-hvac' },
-]
-
-const RESOURCES = [
-  { name: 'Free Tradie Checklist', href: '/tradie-checklist', description: '15-point website audit' },
-  { name: 'ROI Calculator', href: '/roi-calculator', description: 'See your revenue potential' },
-  { name: 'Free Website Audit', href: '/free-audit', description: 'Personal review in 24h' },
+const SECONDARY_MARKETS = [
+  { name: 'Melbourne market', href: '/melbourne-onboarding-software' },
+  { name: 'Sydney market', href: '/sydney-customer-onboarding' },
 ]
 
 export default function Navbar() {
-  const [servicesOpen, setServicesOpen] = useState(false)
-  const [resourcesOpen, setResourcesOpen] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [marketsOpen, setMarketsOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  function closeMobile() {
+    setMobileOpen(false)
+    setMarketsOpen(false)
+  }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          onboard
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#151714]/92 text-[#f2f0e9] backdrop-blur-md" aria-label="Primary navigation">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
+        <Link href="/" className="text-lg font-semibold tracking-[-0.04em]" aria-label="Onboard Australia home">
+          onboard<span className="text-[#c98c45]">.</span>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
-          {/* Services Dropdown */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setServicesOpen(true)}
-            onMouseLeave={() => setServicesOpen(false)}
-          >
-            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1 py-2">
-              Services
-              <svg
-                className={`w-4 h-4 transition-transform ${servicesOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {servicesOpen && (
-              <div className="absolute top-full left-0 pt-2">
-                <div className="w-56 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
-                  {SERVICES.map((service) => (
-                    <Link
-                      key={service.href}
-                      href={service.href}
-                      className="block px-4 py-2 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-                    >
-                      {service.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Resources Dropdown */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setResourcesOpen(true)}
-            onMouseLeave={() => setResourcesOpen(false)}
-          >
-            <button className="text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-1 py-2">
-              Resources
-              <svg
-                className={`w-4 h-4 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {resourcesOpen && (
-              <div className="absolute top-full left-0 pt-2">
-                <div className="w-64 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl py-2">
-                  {RESOURCES.map((resource) => (
-                    <Link
-                      key={resource.href}
-                      href={resource.href}
-                      className="block px-4 py-3 text-sm hover:bg-neutral-800 transition-colors"
-                    >
-                      <div className="text-neutral-200">{resource.name}</div>
-                      <div className="text-xs text-neutral-500">{resource.description}</div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Link href="/blog" className="text-sm text-neutral-400 hover:text-white transition-colors">
-            Blog
-          </Link>
-          <Link href="/pricing" className="text-sm text-neutral-400 hover:text-white transition-colors">
-            Pricing
-          </Link>
-          <Link href="/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
-            Login
-          </Link>
-          <Link href="/onboard" className="btn btn-primary text-sm">
-            Get started
-          </Link>
-        </div>
-
-        {/* Mobile Nav Buttons */}
-        <div className="flex items-center gap-3 md:hidden">
-          <Link href="/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
-            Login
-          </Link>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-neutral-400 hover:text-white"
-          >
-            {mobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-md border-t border-white/5">
-          <div className="px-6 py-4 space-y-4">
-            <Link
-              href="/onboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block btn btn-primary text-center"
+        <div className="hidden items-center gap-7 md:flex">
+          <Link href="/#portfolio" className="text-sm text-white/55 transition-colors hover:text-white">Portfolio</Link>
+          <div className="relative" onMouseEnter={() => setMarketsOpen(true)} onMouseLeave={() => setMarketsOpen(false)}>
+            <button
+              type="button"
+              onClick={() => setMarketsOpen((open) => !open)}
+              className="flex items-center gap-2 py-3 text-sm text-white/55 transition-colors hover:text-white"
+              aria-expanded={marketsOpen}
             >
-              Get started
-            </Link>
-
-            <div className="pt-4 border-t border-white/10 space-y-3">
-              <Link
-                href="/pricing"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-neutral-300 hover:text-white py-2"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/blog"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-neutral-300 hover:text-white py-2"
-              >
-                Blog
-              </Link>
-            </div>
-
-            <div className="pt-4 border-t border-white/10">
-              <p className="text-xs text-neutral-500 mb-3">Services</p>
-              <div className="grid grid-cols-2 gap-2">
-                {SERVICES.slice(0, 6).map((service) => (
-                  <Link
-                    key={service.href}
-                    href={service.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm text-neutral-400 hover:text-white py-1"
-                  >
-                    {service.name}
+              Markets <span aria-hidden="true" className={`text-xs transition-transform ${marketsOpen ? 'rotate-180' : ''}`}>⌄</span>
+            </button>
+            {marketsOpen && (
+              <div className="absolute left-0 top-full w-72 border border-white/10 bg-[#1c1e1a] p-2 shadow-2xl">
+                {[...MARKET_LINKS, ...SECONDARY_MARKETS].map((item) => (
+                  <Link key={item.href} href={item.href} className="block px-4 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+                    {item.name}
                   </Link>
                 ))}
               </div>
-            </div>
+            )}
+          </div>
+          <Link href="/australian-onboarding-software-market" className="text-sm text-white/55 transition-colors hover:text-white">Australian Market</Link>
+          <Link href="/acquisition-process" className="text-sm text-white/55 transition-colors hover:text-white">Process</Link>
+          <Link
+            href="/acquire"
+            onClick={() => trackEvent('acquire_now_click', { source: 'navigation' })}
+            className="inline-flex min-h-11 items-center bg-[#f2f0e9] px-5 text-sm font-medium text-[#151714] transition-colors hover:bg-[#c98c45]"
+          >
+            Acquire
+          </Link>
+        </div>
 
-            <div className="pt-4 border-t border-white/10">
-              <p className="text-xs text-neutral-500 mb-3">Resources</p>
-              {RESOURCES.map((resource) => (
-                <Link
-                  key={resource.href}
-                  href={resource.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm text-neutral-400 hover:text-white py-2"
-                >
-                  {resource.name}
-                </Link>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((open) => !open)}
+          className="flex h-11 w-11 items-center justify-center border border-white/15 text-white md:hidden"
+          aria-expanded={mobileOpen}
+          aria-label="Toggle navigation"
+        >
+          <span aria-hidden="true">{mobileOpen ? '×' : '☰'}</span>
+        </button>
+      </div>
+
+      {mobileOpen && (
+        <div className="max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-white/10 bg-[#151714] px-6 py-6 md:hidden">
+          <div className="mx-auto max-w-7xl space-y-1">
+            <Link href="/#portfolio" onClick={closeMobile} className="block border-b border-white/10 py-3 text-sm">Portfolio</Link>
+            <p className="pt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#c98c45]">Markets</p>
+            <div className="grid grid-cols-2 gap-x-5 py-3">
+              {[...MARKET_LINKS, ...SECONDARY_MARKETS].map((item) => (
+                <Link key={item.href} href={item.href} onClick={closeMobile} className="py-2 text-sm text-white/60">{item.name}</Link>
               ))}
             </div>
+            <Link href="/australian-onboarding-software-market" onClick={closeMobile} className="block border-t border-white/10 py-3 text-sm">Australian Market</Link>
+            <Link href="/acquisition-process" onClick={closeMobile} className="block border-t border-white/10 py-3 text-sm">Acquisition Process</Link>
+            <Link href="/acquire" onClick={() => { trackEvent('acquire_now_click', { source: 'mobile_navigation' }); closeMobile() }} className="mt-5 flex min-h-12 items-center justify-between bg-[#f2f0e9] px-5 text-sm font-medium text-[#151714]">
+              Acquire Now <span aria-hidden="true">↘</span>
+            </Link>
           </div>
         </div>
       )}

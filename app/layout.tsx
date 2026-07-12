@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'Onboard' }],
   creator: 'Onboard',
   publisher: 'Onboard',
+  icons: {
+    icon: '/favicon.svg',
+  },
   metadataBase: new URL('https://onboard.com.au'),
   openGraph: {
     title: 'Acquire Onboard Australia',

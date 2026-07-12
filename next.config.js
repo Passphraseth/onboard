@@ -30,6 +30,31 @@ const nextConfig = {
         destination: '/websites-for-plumbers',
         permanent: true,
       },
+      {
+        source: '/onboard',
+        destination: '/acquire',
+        permanent: true,
+      },
+      {
+        source: '/pricing',
+        destination: '/acquire',
+        permanent: true,
+      },
+      {
+        source: '/contact',
+        destination: '/acquire',
+        permanent: true,
+      },
+      {
+        source: '/privacy-policy',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/terms-of-service',
+        destination: '/terms',
+        permanent: true,
+      },
     ]
   },
 }

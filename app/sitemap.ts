@@ -11,6 +11,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 1,
     },
+    ...[
+      'employee-onboarding',
+      'contractor-onboarding',
+      'customer-onboarding',
+      'client-onboarding',
+      'saas-onboarding',
+      'kyc-onboarding',
+      'construction-inductions',
+      'australian-onboarding-software-market',
+      'melbourne-onboarding-software',
+      'sydney-customer-onboarding',
+      'acquisition-process',
+      'acquire',
+      'privacy',
+      'terms',
+      'disclaimer',
+    ].map((path) => ({
+      url: `${baseUrl}/${path}`,
+      lastModified: new Date(),
+      changeFrequency: path === 'acquire' ? 'weekly' as const : 'monthly' as const,
+      priority: path === 'acquire' ? 0.95 : path.includes('onboarding') || path === 'construction-inductions' ? 0.85 : 0.7,
+    })),
   ]
 
   // Industry landing pages - high priority for SEO

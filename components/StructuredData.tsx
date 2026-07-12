@@ -2,19 +2,9 @@ export function OrganizationSchema() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Onboard',
+    name: 'Onboard Australia',
     url: 'https://onboard.com.au',
-    logo: 'https://onboard.com.au/logo.png',
-    description: 'Professional websites for Australian service businesses. Ready in minutes, not weeks.',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Melbourne',
-      addressCountry: 'AU',
-    },
-    sameAs: [
-      'https://instagram.com/onboard',
-      'https://linkedin.com/company/onboard',
-    ],
+    description: 'An Australian domain portfolio available for acquisition.',
   }
 
   return (
@@ -26,31 +16,7 @@ export function OrganizationSchema() {
 }
 
 export function SoftwareApplicationSchema() {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'Onboard Website Builder',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'AUD',
-      description: 'Free to preview, $49/month to launch',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '127',
-    },
-  }
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  )
+  return null
 }
 
 interface ServiceSchemaProps {
@@ -63,51 +29,11 @@ interface ServiceSchemaProps {
 export function ServiceSchema({ serviceName, serviceType, description, areaServed = 'Australia' }: ServiceSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'Service',
+    '@type': 'WebPage',
     name: serviceName,
-    serviceType: serviceType,
-    description: description,
-    provider: {
-      '@type': 'Organization',
-      name: 'Onboard',
-      url: 'https://onboard.com.au',
-    },
-    areaServed: {
-      '@type': 'Country',
-      name: areaServed,
-    },
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'Website Packages',
-      itemListElement: [
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: 'Preview',
-            description: 'Free website preview',
-          },
-          price: '0',
-          priceCurrency: 'AUD',
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: 'Launch',
-            description: 'Full website with custom domain',
-          },
-          price: '49',
-          priceCurrency: 'AUD',
-          priceSpecification: {
-            '@type': 'UnitPriceSpecification',
-            price: '49',
-            priceCurrency: 'AUD',
-            billingDuration: 'P1M',
-          },
-        },
-      ],
-    },
+    description,
+    about: `${serviceType} information for ${areaServed}`,
+    isPartOf: { '@type': 'WebSite', name: 'Onboard Australia', url: 'https://onboard.com.au' },
   }
 
   return (
@@ -179,19 +105,11 @@ interface LocalBusinessSchemaProps {
 export function LocalBusinessSchema({ name, description, areaServed }: LocalBusinessSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'WebPage',
     name: name,
     description: description,
     url: 'https://onboard.com.au',
-    areaServed: {
-      '@type': 'City',
-      name: areaServed,
-    },
-    priceRange: '$$',
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'AU',
-    },
+    about: `Editorial information concerning ${areaServed}`,
   }
 
   return (
