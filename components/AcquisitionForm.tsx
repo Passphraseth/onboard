@@ -6,7 +6,7 @@ import { trackEvent } from '@/components/GoogleAnalytics'
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 type Intent = 'acquire' | 'offer'
 
-const ASKING_PRICE = 29_500
+const ASKING_PRICE = 49_500
 
 function formatAud(value: number) {
   return `A$${value.toLocaleString('en-AU')}`
@@ -135,7 +135,7 @@ export default function AcquisitionForm() {
         <p className="mt-3 text-4xl font-medium tracking-[-0.05em]">{intent === 'acquire' ? formatAud(ASKING_PRICE) : 'Propose your terms'}</p>
         <p className="mt-2 text-sm leading-6 text-black/60">
           {intent === 'acquire'
-            ? 'Plus GST if applicable. Settlement proceeds by agreement, tax invoice and cleared EFT—no card payment is taken.'
+            ? 'Plus GST. Settlement proceeds by agreement, tax invoice and cleared EFT—no card payment is taken.'
             : 'Qualified offers are reviewed privately. The seller’s minimum acceptable amount is not published.'}
         </p>
       </div>
@@ -238,8 +238,8 @@ export default function AcquisitionForm() {
           {[
             ['authorityConfirmed', 'I confirm that I am authorised to act for the proposed buyer.'],
             ['eligibilityConfirmed', 'I confirm the buyer is likely eligible to hold the .au domain licences, subject to verification.'],
-            ['priceAccepted', 'I accept the A$29,500 acquisition price.'],
-            ['gstAccepted', 'I understand that GST may apply.'],
+            ['priceAccepted', 'I accept the A$49,500 acquisition price.'],
+            ['gstAccepted', 'I understand that GST applies in addition to the acquisition price.'],
             ['contactConsent', 'I consent to being contacted about this acquisition request.'],
           ].map(([name, label]) => (
             <label key={name} className="flex items-start gap-3 text-sm leading-6 text-black/60">

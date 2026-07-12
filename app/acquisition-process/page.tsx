@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const DETAILS = [
   { title: 'What is included', text: 'The initial package comprises onboard.com.au, onboard.au and onboard.net.au. Existing website content and other digital assets are not automatically included and may be discussed separately.' },
-  { title: 'Purchase price and offers', text: 'The fixed acquisition price is A$29,500 plus GST if applicable. A buyer may instead submit a confidential offer for private consideration.' },
+  { title: 'Purchase price and offers', text: 'The fixed acquisition price is A$49,500 plus GST. A buyer may instead submit a confidential offer for private consideration.' },
   { title: 'Buyer verification and .au eligibility', text: 'Before agreement, the seller will verify the buyer entity, representative authority and likely eligibility under the current auDA Licensing Rules. Buyers remain responsible for obtaining their own advice.' },
   { title: 'Agreement and tax invoice', text: 'A domain sale agreement records the parties, assets, price, settlement method, transfer obligations, warranties and any separately agreed website assets. A tax invoice is issued before payment.' },
   { title: 'EFT, cleared funds and optional escrow', text: 'The preferred method is electronic funds transfer. Domains are transferred after cleared funds. An established escrow provider may be considered by agreement, including allocation of fees.' },

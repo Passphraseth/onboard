@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const SITE_URL = 'https://onboard.com.au'
-export const ASKING_PRICE = 29_500
+export const ASKING_PRICE = 49_500
 export const MINIMUM_OFFER = 18_000
 
 export const MARKET_LINKS = [
@@ -24,8 +24,8 @@ export const PROCESS_STEPS = [
 
 export const HOME_FAQS = [
   { question: 'Are the domains sold together?', answer: 'Yes. onboard.com.au, onboard.au and onboard.net.au are initially offered as one Australian domain portfolio.' },
-  { question: 'Is the price negotiable?', answer: 'The fixed acquisition price is A$29,500 plus GST if applicable. Qualified buyers may also submit a confidential offer.' },
-  { question: 'Is GST included?', answer: 'The public price is stated as A$29,500 plus GST if applicable. Final tax treatment will be confirmed in the sale documentation and tax invoice.' },
+  { question: 'Is the price negotiable?', answer: 'The fixed acquisition price is A$49,500 plus GST. Qualified buyers may also submit a confidential offer.' },
+  { question: 'Is GST included?', answer: 'No. The public price is A$49,500 plus GST. The final amount will be confirmed in the sale documentation and tax invoice.' },
   { question: 'How does settlement work?', answer: 'Settlement proceeds through buyer verification, a sale agreement, tax invoice, cleared electronic funds transfer and domain transfer. No card payment is taken on this website.' },
   { question: 'Can an overseas company acquire the domains?', answer: 'Potentially, but the registrant must satisfy the applicable auDA eligibility and allocation rules. Buyers should obtain their own advice and confirm eligibility before settlement.' },
   { question: 'What eligibility is required for .au domains?', answer: 'Australian presence and namespace-specific allocation requirements apply. Eligibility is verified against the current auDA Licensing Rules before transfer.' },

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const ASKING_PRICE = 29_500
+const ASKING_PRICE = 49_500
 
 function clean(value: unknown, maxLength: number) {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
       from: 'Onboard Acquisition <notifications@onboard.com.au>',
       to: 'dallas@onboard.com.au',
       reply_to: email,
-      subject: intent === 'acquire' ? `Acquire now request at A$29,500 — ${company}` : `Confidential offer of ${formattedAmount} — ${company}`,
+      subject: intent === 'acquire' ? `Acquire now request at A$49,500 — ${company}` : `Confidential offer of ${formattedAmount} — ${company}`,
       html: `
         <h2>${intent === 'acquire' ? 'Fixed-price acquisition request' : 'Confidential portfolio offer'}</h2>
-        <p><strong>Amount:</strong> ${formattedAmount}${intent === 'acquire' ? ' + GST if applicable' : ''}</p>
+        <p><strong>Amount:</strong> ${formattedAmount}${intent === 'acquire' ? ' + GST' : ''}</p>
         <p><strong>Full name:</strong> ${escapeHtml(name)}</p>
         ${position ? `<p><strong>Position:</strong> ${escapeHtml(position)}</p>` : ''}
         <p><strong>Legal entity / company:</strong> ${escapeHtml(company)}</p>
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         subject: intent === 'acquire' ? 'We received your Onboard acquisition request' : 'We received your confidential Onboard offer',
         html: `
           <h2>Thank you, ${escapeHtml(name)}.</h2>
-          <p>We have received your ${intent === 'acquire' ? 'request to acquire the Onboard Australian domain portfolio at A$29,500 plus GST if applicable' : `confidential offer of ${formattedAmount}`}.</p>
+          <p>We have received your ${intent === 'acquire' ? 'request to acquire the Onboard Australian domain portfolio at A$49,500 plus GST' : `confidential offer of ${formattedAmount}`}.</p>
           <p>The seller will review the buyer information supplied and contact you regarding verification, transaction documents and next steps.</p>
           <p>No payment has been taken. Settlement only proceeds under an agreed sale process.</p>
         `,

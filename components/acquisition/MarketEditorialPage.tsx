@@ -83,7 +83,7 @@ export default function MarketEditorialPage({ page }: { page: MarketPageConfig }
             </div>
             <div>
               <h2 className="text-4xl font-medium tracking-[-0.045em] md:text-5xl">Acquire the Onboard Australian domain portfolio.</h2>
-              <p className="mt-5 max-w-2xl leading-7 text-white/65">onboard.com.au, onboard.au and onboard.net.au are offered together for A$29,500 plus GST if applicable.</p>
+              <p className="mt-5 max-w-2xl leading-7 text-white/65">onboard.com.au, onboard.au and onboard.net.au are offered together for A$49,500 plus GST.</p>
               <AcquisitionCTA source={page.slug} />
             </div>
           </div>

@@ -47,7 +47,7 @@ export default function HomePage() {
               <div className="divide-y divide-white/10 border-y border-white/10">
                 {DOMAINS.map((asset, index) => <div key={asset.domain} className="py-5"><div className="flex items-baseline justify-between"><p className="text-2xl font-medium tracking-[-0.04em]">{asset.domain}</p><span className="font-mono text-xs text-white/20">0{index + 1}</span></div><p className="mt-2 text-sm text-white/55">{asset.role}</p></div>)}
               </div>
-              <div className="mt-7 flex items-end justify-between border-b border-white/15 pb-5"><div><p className="text-xs uppercase tracking-[0.15em] text-white/55">Acquisition price</p><p className="mt-2 text-4xl font-medium tracking-[-0.05em]">A$29,500</p></div><p className="pb-1 text-xs text-white/55">+ GST if applicable</p></div>
+              <div className="mt-7 flex items-end justify-between border-b border-white/15 pb-5"><div><p className="text-xs uppercase tracking-[0.15em] text-white/55">Acquisition price</p><p className="mt-2 text-4xl font-medium tracking-[-0.05em]">A$49,500</p></div><p className="pb-1 text-xs text-white/55">+ GST</p></div>
               <AcquisitionCTA source="homepage_hero" />
               <p className="mt-4 text-xs leading-5 text-white/55">Settlement by agreement, tax invoice and cleared electronic funds transfer.</p>
             </div>
@@ -111,7 +111,7 @@ export default function HomePage() {
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.65fr_1.35fr]"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c98c45]">Frequently asked questions</p><h2 className="mt-6 text-4xl font-medium tracking-[-0.045em]">Transaction essentials.</h2></div><AcquisitionFAQ items={HOME_FAQS} /></div>
         </section>
 
-        <section className="px-6 py-20 lg:px-10 lg:py-28"><div className="mx-auto max-w-5xl text-center"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c98c45]">Complete Australian portfolio</p><h2 className="mt-6 text-5xl font-medium tracking-[-0.055em] md:text-7xl">Acquire the complete portfolio — A$29,500.</h2><p className="mx-auto mt-6 max-w-2xl leading-7 text-white/65">onboard.com.au, onboard.au and onboard.net.au. Plus GST if applicable.</p><AcquisitionCTA source="homepage_final" /></div></section>
+        <section className="px-6 py-20 lg:px-10 lg:py-28"><div className="mx-auto max-w-5xl text-center"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c98c45]">Complete Australian portfolio</p><h2 className="mt-6 text-5xl font-medium tracking-[-0.055em] md:text-7xl">Acquire the complete portfolio — A$49,500 + GST.</h2><p className="mx-auto mt-6 max-w-2xl leading-7 text-white/65">onboard.com.au, onboard.au and onboard.net.au.</p><AcquisitionCTA source="homepage_final" /></div></section>
       </main>
       <Footer />
     </div>

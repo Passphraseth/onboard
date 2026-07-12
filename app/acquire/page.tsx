@@ -28,7 +28,7 @@ export default function AcquirePage() {
             <div className="lg:sticky lg:top-32 lg:self-start">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c98c45]">Confidential acquisition</p>
               <h1 className="mt-6 text-5xl font-medium leading-[0.95] tracking-[-0.055em] md:text-7xl">Acquire now.<br />Or submit<br />an offer.</h1>
-              <p className="mt-8 max-w-md leading-7 text-white/65">The complete portfolio is offered at A$29,500 plus GST if applicable. Qualified alternative offers are also considered privately.</p>
+              <p className="mt-8 max-w-md leading-7 text-white/65">The complete portfolio is offered at A$49,500 plus GST. Qualified alternative offers are also considered privately.</p>
               <div className="mt-9 border-y border-white/15 py-6 text-sm leading-7 text-white/55">
                 <p>onboard.com.au</p><p>onboard.au</p><p>onboard.net.au</p>
               </div>

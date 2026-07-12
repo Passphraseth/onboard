@@ -25,7 +25,7 @@ export default function AcquisitionCTA({ compact = false, source, cluster, ctaLo
         onClick={() => trackCta('acquire')}
         className="inline-flex min-h-14 flex-1 items-center justify-between bg-[#f2f0e9] px-6 text-sm font-medium text-[#151714] transition-colors hover:bg-[#c98c45]"
       >
-        Acquire Now — A$29,500 <span aria-hidden="true">↘</span>
+        Acquire Now — A$49,500 <span aria-hidden="true">↘</span>
       </Link>
       <Link
         href={`/acquire${query}#make-offer`}
