@@ -4,15 +4,27 @@ import { NextRequest, NextResponse } from 'next/server'
 const MAIN_DOMAINS = [
   'onboard.com.au',
   'www.onboard.com.au',
+  'onboard.au',
+  'www.onboard.au',
+  'onboard.net.au',
+  'www.onboard.net.au',
   'localhost:3000',
   'localhost',
 ]
+
+const PORTFOLIO_REDIRECT_DOMAINS = new Set([
+  'onboard.au',
+  'www.onboard.au',
+  'onboard.net.au',
+  'www.onboard.net.au',
+])
 
 // Site serving domain
 const SITE_DOMAIN = 'onboard.site'
 
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') || ''
+  const hostname = host.replace(/:\d+$/, '').toLowerCase()
   const pathname = request.nextUrl.pathname
 
   // Skip for API routes and static files
@@ -23,6 +35,11 @@ export function middleware(request: NextRequest) {
     pathname.includes('.')
   ) {
     return NextResponse.next()
+  }
+
+  if (PORTFOLIO_REDIRECT_DOMAINS.has(hostname)) {
+    const destination = new URL(`${pathname}${request.nextUrl.search}`, 'https://onboard.com.au')
+    return NextResponse.redirect(destination, 308)
   }
 
   // Check if this is a subdomain request on onboard.site

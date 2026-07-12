@@ -11,18 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 1,
     },
-    {
-      url: `${baseUrl}/onboard`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    },
   ]
 
   // Industry landing pages - high priority for SEO
@@ -61,8 +49,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Blog posts
   const blogPages = [
-    'do-tradies-need-a-website',
+    'best-website-builder-for-tradies',
     'best-website-builders-small-business-australia',
+    'do-tradies-need-a-website',
+    'hipages-vs-own-website',
+    'plumber-website-design',
+    'seo-for-tradies',
+    'small-business-website-cost-australia',
+    'tradie-marketing',
+    'tradie-website-cost',
   ].map((slug) => ({
     url: `${baseUrl}/blog/${slug}`,
     lastModified: new Date(),
@@ -70,17 +65,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  // Lead magnet pages
-  const leadMagnetPages = [
-    'tradie-checklist',
-    'roi-calculator', 
-    'free-audit',
-  ].map((page) => ({
-    url: `${baseUrl}/${page}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }))
-
-  return [...staticPages, ...industryPages, ...locationPages, ...blogPages, ...leadMagnetPages]
+  return [...staticPages, ...industryPages, ...locationPages, ...blogPages]
 }

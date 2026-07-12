@@ -1,18 +1,18 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import PortfolioBanner from '@/components/PortfolioBanner'
 
 export const metadata: Metadata = {
-  title: 'Onboard — Professional websites for service businesses',
-  description: 'Get a stunning, conversion-focused website for your business in minutes. Built for tradies, cafes, photographers, and service businesses across Australia.',
-  keywords: 'website builder, service business website, Australian website builder, tradie website, small business website, plumber website, electrician website, hairdresser website',
+  title: 'Onboard Australia',
+  description: 'The Onboard Australian domain portfolio.',
   authors: [{ name: 'Onboard' }],
   creator: 'Onboard',
   publisher: 'Onboard',
   metadataBase: new URL('https://onboard.com.au'),
   openGraph: {
-    title: 'Onboard — Professional websites for service businesses',
-    description: 'Get a stunning, conversion-focused website for your business in minutes.',
+    title: 'Acquire Onboard Australia',
+    description: 'A category-defining Australian domain portfolio for onboarding products and services.',
     url: 'https://onboard.com.au',
     siteName: 'Onboard',
     locale: 'en_AU',
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Onboard — Professional websites for service businesses',
-    description: 'Get a stunning, conversion-focused website for your business in minutes.',
+    title: 'Acquire Onboard Australia',
+    description: 'A category-defining Australian domain portfolio for onboarding products and services.',
   },
   robots: {
     index: true,
@@ -46,6 +46,7 @@ export default function RootLayout({
       <body>
         <GoogleAnalytics />
         {children}
+        <PortfolioBanner />
       </body>
     </html>
   )

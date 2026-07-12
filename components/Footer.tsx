@@ -25,7 +25,7 @@ const LOCATION_LINKS = [
 const COMPANY_LINKS = [
   { name: 'Pricing', href: '/pricing' },
   { name: 'Blog', href: '/blog' },
-  { name: 'About', href: '/about' },
+  { name: 'About the portfolio', href: '/#portfolio' },
   { name: 'Contact', href: 'mailto:hello@onboard.com.au' },
 ]
 
@@ -33,11 +33,6 @@ const RESOURCE_LINKS = [
   { name: 'Free Tradie Checklist', href: '/tradie-checklist' },
   { name: 'ROI Calculator', href: '/roi-calculator' },
   { name: 'Free Website Audit', href: '/free-audit' },
-]
-
-const LEGAL_LINKS = [
-  { name: 'Privacy Policy', href: '/privacy' },
-  { name: 'Terms of Service', href: '/terms' },
 ]
 
 export default function Footer() {
@@ -100,19 +95,6 @@ export default function Footer() {
             <h3 className="font-semibold text-sm mb-4">Company</h3>
             <ul className="space-y-2">
               {COMPANY_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-neutral-400 text-sm hover:text-white transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <h3 className="font-semibold text-sm mb-4 mt-8">Legal</h3>
-            <ul className="space-y-2">
-              {LEGAL_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
