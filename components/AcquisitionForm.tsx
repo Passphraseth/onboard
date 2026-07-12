@@ -7,6 +7,7 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error'
 type Intent = 'acquire' | 'offer'
 
 const ASKING_PRICE = 49_500
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xdaqnwer'
 
 function formatAud(value: number) {
   return `A$${value.toLocaleString('en-AU')}`
@@ -68,16 +69,22 @@ export default function AcquisitionForm() {
 
     const form = event.currentTarget
     const data = Object.fromEntries(new FormData(form).entries())
+    data._subject = intent === 'acquire'
+      ? `Acquire now request at A$49,500 — ${String(data.company || 'Qualified buyer')}`
+      : `Confidential Onboard portfolio offer — ${String(data.company || 'Qualified buyer')}`
 
     try {
-      const response = await fetch('/api/acquisition-enquiry', {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(data),
       })
 
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || 'Unable to send your enquiry.')
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        const formspreeError = Array.isArray(result.errors) ? result.errors[0]?.message : result.error
+        throw new Error(formspreeError || 'Unable to send your enquiry.')
+      }
 
       setState('success')
       trackEvent(intent === 'acquire' ? 'acquisition_form_submit' : 'offer_form_submit', attribution.sourceCluster === 'aml_ctf' ? { source_cluster: 'aml_ctf', source_page: attribution.sourcePage } : undefined)
@@ -147,6 +154,7 @@ export default function AcquisitionForm() {
       <input type="hidden" name="utm_source" value={attribution.utmSource} />
       <input type="hidden" name="utm_medium" value={attribution.utmMedium} />
       <input type="hidden" name="utm_campaign" value={attribution.utmCampaign} />
+      <input type="hidden" name="portfolio" value="onboard.com.au, onboard.au, onboard.net.au" />
       {intent === 'acquire' && <input type="hidden" name="offerAmount" value={ASKING_PRICE} />}
 
       <div className="grid gap-7 sm:grid-cols-2">
@@ -185,7 +193,7 @@ export default function AcquisitionForm() {
         )}
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.15em] text-black/60">ABN or ACN</span>
-          <input name="businessNumber" required inputMode="numeric" className={inputClass} placeholder="ABN or ACN" />
+          <input name="businessNumber" required inputMode="numeric" pattern="[0-9 ]{9,14}" title="Enter a 9-digit ACN or 11-digit ABN" className={inputClass} placeholder="ABN or ACN" />
         </label>
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.15em] text-black/60">Business email</span>
@@ -250,14 +258,14 @@ export default function AcquisitionForm() {
         </fieldset>
       )}
 
-      <label className="hidden" aria-hidden="true">Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
+      <label className="hidden" aria-hidden="true">Website<input name="_gotcha" tabIndex={-1} autoComplete="off" /></label>
 
       <button type="submit" disabled={state === 'submitting' || !startedAt} className="mt-8 inline-flex min-h-14 w-full items-center justify-between bg-[#171914] px-6 text-sm font-medium text-white transition-colors hover:bg-[#7b522f] disabled:cursor-wait disabled:opacity-60">
         {state === 'submitting' ? 'Sending securely…' : intent === 'acquire' ? 'Request Acquisition Documents' : 'Submit Confidential Offer'}
         <span aria-hidden="true">↘</span>
       </button>
 
-      <p className="mt-4 text-xs leading-5 text-black/60">Buyer details are sent privately to the seller. An acknowledgement is sent to the business email supplied. No payment is collected on this website.</p>
+      <p className="mt-4 text-xs leading-5 text-black/60">Buyer details are sent privately to the seller through Formspree. The seller will reply to the business email supplied. No payment is collected on this website.</p>
       {state === 'error' && <p className="mt-4 text-sm text-red-800" role="alert">{message}</p>}
     </form>
   )

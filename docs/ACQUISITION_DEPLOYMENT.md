@@ -51,22 +51,22 @@ The AML/CTF Phase 1 cluster adds ten substantive routes. See `docs/AML_CTF_CONTE
 
 ## Form integration
 
-Endpoint: `POST /api/acquisition-enquiry`
+Formspree endpoint: `POST https://formspree.io/f/xdaqnwer`
 
 The fixed-price form collects entity and representative verification details, ABN/ACN, registered address, intended use, settlement timeframe and required buyer confirmations. The offer form collects a qualified buyer identity, ABN/ACN, amount, intended use, timeframe and message.
 
 Controls include:
 
 - HTML validation
-- server-side validation
-- honeypot field
-- minimum completion-time check
-- HTML escaping in generated emails
+- browser-side offer and buyer-confirmation validation
+- ABN/ACN input pattern
+- Formspree `_gotcha` honeypot field
+- Formspree spam filtering
+- Formspree project restriction to `onboard.com.au` and its subdomains
 - no direct card payment
 - seller notification
-- buyer acknowledgement email
 
-Submissions are delivered through Resend to the configured seller recipient in the server route. They are not currently stored in a database.
+Submissions are posted directly to the Formspree form `Onboard Acquisition Enquiries` and delivered to the verified recipient `dallas@onboard.com.au`. They are visible in the Formspree dashboard and are not stored in the application database. The current free Formspree plan allows 50 submissions per month and does not provide a buyer autoresponder.
 
 ## Analytics events
 
@@ -95,11 +95,7 @@ AML/CTF acquisition referrals carry source-page, cluster and UTM attribution int
 
 ## Environment variables
 
-Required for the acquisition form:
-
-- `RESEND_API_KEY`
-
-The wider legacy application still expects its existing Supabase and Stripe variables during a full build. The acquisition flow does not use Stripe.
+The acquisition form has no deployment-specific environment variable. Its public Formspree form ID is embedded in the client integration, as Formspree intends. The wider legacy application still expects its existing Supabase and Stripe variables during a full build. The acquisition flow does not use Stripe or Resend.
 
 ## Lighthouse results
 
@@ -118,8 +114,8 @@ Network conditions can move timing metrics between runs. The category scores and
 2. Run the production build with the existing project environment variables.
 3. Confirm `/`, `/acquire`, all market routes, legal routes, sitemap and robots return 200.
 4. Confirm the fixed-price and offer modes render the correct fields.
-5. Submit a controlled test enquiry only after confirming the production `RESEND_API_KEY` and recipient.
-6. Verify both seller notification and buyer acknowledgement delivery.
+5. Submit a controlled production enquiry and confirm it appears in Formspree Submissions.
+6. Verify the seller notification arrives at `dallas@onboard.com.au`.
 7. Deploy the `main` branch to Vercel.
 8. Confirm the production deployment ID changes and public pages contain the new acquisition copy.
 9. Attach `onboard.au` and `onboard.net.au` to the Vercel project and update their DNS.
