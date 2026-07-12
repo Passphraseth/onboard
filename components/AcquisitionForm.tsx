@@ -20,6 +20,7 @@ export default function AcquisitionForm() {
   const [message, setMessage] = useState('')
   const [startedAt, setStartedAt] = useState('')
   const hasTrackedStart = useRef(false)
+  const [attribution, setAttribution] = useState({ sourcePage: '', sourceCluster: '', utmSource: '', utmMedium: '', utmCampaign: '' })
 
   useEffect(() => {
     setStartedAt(String(Date.now()))
@@ -29,6 +30,14 @@ export default function AcquisitionForm() {
     }
 
     syncIntentFromHash()
+    const params = new URLSearchParams(window.location.search)
+    setAttribution({
+      sourcePage: params.get('source_page') || document.referrer || '',
+      sourceCluster: params.get('source_cluster') || '',
+      utmSource: params.get('utm_source') || '',
+      utmMedium: params.get('utm_medium') || '',
+      utmCampaign: params.get('utm_campaign') || '',
+    })
     window.addEventListener('hashchange', syncIntentFromHash)
     return () => window.removeEventListener('hashchange', syncIntentFromHash)
   }, [])
@@ -45,7 +54,11 @@ export default function AcquisitionForm() {
   function trackFormStart() {
     if (hasTrackedStart.current) return
     hasTrackedStart.current = true
-    trackEvent(intent === 'acquire' ? 'acquisition_form_start' : 'offer_form_start')
+    const baseEvent = intent === 'acquire' ? 'acquisition_form_start' : 'offer_form_start'
+    trackEvent(baseEvent, attribution.sourceCluster === 'aml_ctf' ? { source_cluster: 'aml_ctf', source_page: attribution.sourcePage } : undefined)
+    if (attribution.sourceCluster === 'aml_ctf') {
+      trackEvent(intent === 'acquire' ? 'aml_acquisition_form_start' : 'aml_offer_form_start', { page_slug: attribution.sourcePage })
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -67,7 +80,10 @@ export default function AcquisitionForm() {
       if (!response.ok) throw new Error(result.error || 'Unable to send your enquiry.')
 
       setState('success')
-      trackEvent(intent === 'acquire' ? 'acquisition_form_submit' : 'offer_form_submit')
+      trackEvent(intent === 'acquire' ? 'acquisition_form_submit' : 'offer_form_submit', attribution.sourceCluster === 'aml_ctf' ? { source_cluster: 'aml_ctf', source_page: attribution.sourcePage } : undefined)
+      if (attribution.sourceCluster === 'aml_ctf') {
+        trackEvent(intent === 'acquire' ? 'aml_acquisition_form_submit' : 'aml_offer_form_submit', { page_slug: attribution.sourcePage })
+      }
       setMessage(
         intent === 'acquire'
           ? 'Your acquisition request has been received. The seller will contact you to begin buyer verification and secure settlement.'
@@ -126,12 +142,30 @@ export default function AcquisitionForm() {
 
       <input type="hidden" name="intent" value={intent} />
       <input type="hidden" name="startedAt" value={startedAt} />
+      <input type="hidden" name="source_page" value={attribution.sourcePage} />
+      <input type="hidden" name="source_cluster" value={attribution.sourceCluster} />
+      <input type="hidden" name="utm_source" value={attribution.utmSource} />
+      <input type="hidden" name="utm_medium" value={attribution.utmMedium} />
+      <input type="hidden" name="utm_campaign" value={attribution.utmCampaign} />
       {intent === 'acquire' && <input type="hidden" name="offerAmount" value={ASKING_PRICE} />}
 
       <div className="grid gap-7 sm:grid-cols-2">
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.15em] text-black/60">Full name</span>
           <input name="name" required autoComplete="name" className={inputClass} placeholder="Your full name" />
+        </label>
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-black/60">Buyer interest</span>
+          <select name="buyerInterest" defaultValue="" className={inputClass}>
+            <option value="">Select interest (optional)</option>
+            <option value="AML/CTF software">AML/CTF software</option>
+            <option value="KYC/KYB">KYC/KYB</option>
+            <option value="Digital identity">Digital identity</option>
+            <option value="Client onboarding">Client onboarding</option>
+            <option value="Professional-services technology">Professional-services technology</option>
+            <option value="Workforce compliance">Workforce compliance</option>
+            <option value="Other">Other</option>
+          </select>
         </label>
         {intent === 'acquire' && (
           <label className="block">

@@ -7,9 +7,11 @@ interface SchemaProps {
   breadcrumbs?: { name: string; path: string }[]
   faqs?: { question: string; answer: string }[]
   article?: boolean
+  dateModified?: string
+  authorName?: string
 }
 
-export default function AcquisitionSchemas({ title, description, path, breadcrumbs = [], faqs, article = false }: SchemaProps) {
+export default function AcquisitionSchemas({ title, description, path, breadcrumbs = [], faqs, article = false, dateModified, authorName }: SchemaProps) {
   const url = `${SITE_URL}${path}`
   const graph: Record<string, unknown>[] = [
     {
@@ -27,15 +29,29 @@ export default function AcquisitionSchemas({ title, description, path, breadcrum
       publisher: { '@id': `${SITE_URL}/#organization` },
     },
     {
-      '@type': article ? 'Article' : 'WebPage',
+      '@type': 'WebPage',
       '@id': `${url}#webpage`,
       url,
       name: title,
       description,
       isPartOf: { '@id': `${SITE_URL}/#website` },
       publisher: { '@id': `${SITE_URL}/#organization` },
+      ...(dateModified ? { dateModified } : {}),
     },
   ]
+
+  if (article) {
+    graph.push({
+      '@type': 'Article',
+      '@id': `${url}#article`,
+      headline: title,
+      description,
+      mainEntityOfPage: { '@id': `${url}#webpage` },
+      publisher: { '@id': `${SITE_URL}/#organization` },
+      author: { '@type': 'Organization', name: authorName || 'Onboard Australia' },
+      ...(dateModified ? { datePublished: dateModified, dateModified } : {}),
+    })
+  }
 
   if (breadcrumbs.length) {
     graph.push({

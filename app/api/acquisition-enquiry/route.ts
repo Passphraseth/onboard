@@ -46,6 +46,12 @@ export async function POST(request: NextRequest) {
     const intendedUse = clean(body.intendedUse, 2000)
     const timeframe = clean(body.timeframe, 120)
     const message = clean(body.message, 4000)
+    const buyerInterest = clean(body.buyerInterest, 120)
+    const sourcePage = clean(body.source_page, 500)
+    const sourceCluster = clean(body.source_cluster, 80)
+    const utmSource = clean(body.utm_source, 120)
+    const utmMedium = clean(body.utm_medium, 120)
+    const utmCampaign = clean(body.utm_campaign, 120)
     const offerAmount = intent === 'acquire' ? ASKING_PRICE : Number(clean(body.offerAmount, 30).replace(/[^0-9.]/g, ''))
 
     if (!name || !company || !businessNumber || !EMAIL_PATTERN.test(email) || !phone || !intendedUse || !timeframe) {
@@ -89,6 +95,10 @@ export async function POST(request: NextRequest) {
         ${businessAddress ? `<p><strong>Registered address:</strong><br>${escapeHtml(businessAddress).replace(/\n/g, '<br>')}</p>` : ''}
         <p><strong>Preferred settlement:</strong> ${escapeHtml(timeframe)}</p>
         <p><strong>Intended use:</strong><br>${escapeHtml(intendedUse).replace(/\n/g, '<br>')}</p>
+        ${buyerInterest ? `<p><strong>Buyer interest:</strong> ${escapeHtml(buyerInterest)}</p>` : ''}
+        ${sourcePage ? `<p><strong>Source page:</strong> ${escapeHtml(sourcePage)}</p>` : ''}
+        ${sourceCluster ? `<p><strong>Source cluster:</strong> ${escapeHtml(sourceCluster)}</p>` : ''}
+        ${(utmSource || utmMedium || utmCampaign) ? `<p><strong>UTM:</strong> ${escapeHtml([utmSource, utmMedium, utmCampaign].filter(Boolean).join(' / '))}</p>` : ''}
         ${message ? `<p><strong>Message:</strong><br>${escapeHtml(message).replace(/\n/g, '<br>')}</p>` : ''}
       `,
     })

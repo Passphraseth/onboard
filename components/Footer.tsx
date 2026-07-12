@@ -7,15 +7,29 @@ const LEGAL_LINKS = [
   { name: 'Disclaimer', href: '/disclaimer' },
 ]
 
+const AML_LINKS = [
+  { name: 'AML/CTF resource hub', href: '/aml-ctf' },
+  { name: 'Tranche 2 onboarding', href: '/tranche-2-client-onboarding' },
+  { name: 'KYC vs KYB', href: '/kyc-vs-kyb' },
+  { name: 'Customer due diligence', href: '/customer-due-diligence-cdd' },
+  { name: 'AML/CTF software market', href: '/australian-aml-ctf-software-market' },
+]
+
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#10120f] text-[#f2f0e9]">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div>
             <Link href="/" className="text-xl font-semibold tracking-[-0.04em]">onboard<span className="text-[#c98c45]">.</span></Link>
             <p className="mt-4 max-w-xs text-sm leading-6 text-white/65">A premium Australian domain portfolio available for acquisition.</p>
             <p className="mt-6 text-sm text-white/70">onboard.com.au<br />onboard.au<br />onboard.net.au</p>
+          </div>
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#c98c45]">AML/CTF resources</h2>
+            <ul className="mt-5 space-y-2.5">
+              {AML_LINKS.map((item) => <li key={item.href}><Link href={item.href} className="text-sm text-white/65 hover:text-white">{item.name}</Link></li>)}
+            </ul>
           </div>
           <div>
             <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#c98c45]">Markets</h2>

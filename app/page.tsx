@@ -83,6 +83,23 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className="border-b border-white/10 bg-[#10120f] px-6 py-20 lg:px-10 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.65fr_1.35fr]">
+            <div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c98c45]">Australian AML/CTF market</p><h2 className="mt-6 text-4xl font-medium tracking-[-0.045em] md:text-5xl">A sourced resource for a changing onboarding category.</h2></div>
+            <div>
+              <p className="max-w-3xl text-lg leading-8 text-white/60">Explore Tranche 2, KYC, KYB and customer-due-diligence workflows using current AUSTRAC sources. The guides are general information and do not represent that Onboard provides compliance software or advice.</p>
+              <div className="mt-9 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2">
+                {[
+                  ['AML/CTF resource hub', '/aml-ctf'],
+                  ['Tranche 2 client onboarding', '/tranche-2-client-onboarding'],
+                  ['KYC vs KYB', '/kyc-vs-kyb'],
+                  ['Australian software market', '/australian-aml-ctf-software-market'],
+                ].map(([label, href]) => <Link key={href} href={href} className="flex min-h-20 items-center justify-between bg-[#151714] p-5 text-sm text-white/70 hover:text-[#c98c45]">{label}<span aria-hidden="true">↗</span></Link>)}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-white/10 bg-[#f2f0e9] px-6 py-20 text-[#151714] lg:px-10 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.65fr_1.35fr]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7b522f]">Established search presence</p>

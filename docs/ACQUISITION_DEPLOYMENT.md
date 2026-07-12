@@ -22,6 +22,8 @@ Updated: 12 July 2026
 
 Existing blog and service-business URLs remain available. A restrained acquisition banner is limited to those retained routes.
 
+The AML/CTF Phase 1 cluster adds ten substantive routes. See `docs/AML_CTF_CONTENT_CLUSTER.md` for its route list, source assignments, metadata, analytics, legal-review flags and Phase 2 backlog.
+
 ## Redirect map
 
 | Source | Destination | Purpose |
@@ -77,8 +79,19 @@ Submissions are delivered through Resend to the configured seller recipient in t
 - `market_page_view`
 - `faq_expand`
 - `outbound_company_link`
+- `aml_page_view`
+- `aml_source_link_click`
+- `aml_acquisition_cta_click`
+- `aml_market_vendor_click`
+- `aml_related_article_click`
+- `aml_offer_form_start`
+- `aml_offer_form_submit`
+- `aml_acquisition_form_start`
+- `aml_acquisition_form_submit`
 
 No form field values are sent to analytics.
+
+AML/CTF acquisition referrals carry source-page, cluster and UTM attribution into the private seller email. The acquisition form also includes an optional buyer-interest field.
 
 ## Environment variables
 
@@ -112,6 +125,8 @@ Network conditions can move timing metrics between runs. The category scores and
 9. Attach `onboard.au` and `onboard.net.au` to the Vercel project and update their DNS.
 10. Submit the updated sitemap in Google Search Console.
 11. Export Analytics 404 page paths and add only URL-specific relevant redirects.
+12. Re-submit the XML sitemap after AML/CTF deployment and request indexing for the hub, pillar, Tranche 2 and market-guide routes.
+13. Review the AML/CTF cluster every six months, or sooner after material AUSTRAC changes.
 
 ## Outstanding owner decisions
 
